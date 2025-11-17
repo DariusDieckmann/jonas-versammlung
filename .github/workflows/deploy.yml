@@ -91,6 +91,13 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: versions upload --preview-alias ${{ steps.preview-alias.outputs.alias }} --env preview
+
+      - name: Set Preview Secrets
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: secret bulk --env preview
           secrets: |
             BETTER_AUTH_SECRET
             GOOGLE_CLIENT_ID
