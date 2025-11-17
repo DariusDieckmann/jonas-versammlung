@@ -83,8 +83,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          environment: preview
-          command: d1 migrations apply jonas-versammlung-preview --remote
+          command: d1 migrations apply jonas-versammlung-preview --remote --env preview
 
       - name: Deploy to Preview
         uses: cloudflare/wrangler-action@v3
