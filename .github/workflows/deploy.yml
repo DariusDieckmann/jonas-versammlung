@@ -76,7 +76,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           environment: preview
-          command: deploy
+          command: deploy --env preview
           secrets: |
             BETTER_AUTH_SECRET
             GOOGLE_CLIENT_ID
