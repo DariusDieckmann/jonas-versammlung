@@ -227,7 +227,7 @@ export function LoginForm({
                                     Sending...
                                 </>
                             ) : (
-                                "🧪 Send Test Email"
+                                "🧪 Send Test Emails"
                             )}
                         </Button>
                     </div>
