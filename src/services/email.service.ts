@@ -1,11 +1,13 @@
 /**
  * Email Service
- * Handles all email sending logic using Cloudflare MailChannels
+ * Handles all email sending logic using Resend
+ * Sign up at: https://resend.com (100 emails/day free)
  */
 
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
 /**
- * Send email using Cloudflare MailChannels
- * No API keys required - built into Cloudflare Workers!
+ * Send email using Resend API
  */
 export async function sendEmail({
     to,
@@ -25,30 +27,24 @@ export async function sendEmail({
         return;
     }
 
-    // Cloudflare MailChannels API (kostenlos für Cloudflare Workers!)
     try {
-        const response = await fetch("https://api.mailchannels.net/tx/v1/send", {
+        const { env } = await getCloudflareContext();
+        
+        if (!env.RESEND_API_KEY) {
+            throw new Error("RESEND_API_KEY is not configured");
+        }
+
+        const response = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${env.RESEND_API_KEY}`,
             },
             body: JSON.stringify({
-                personalizations: [
-                    {
-                        to: [{ email: to }],
-                    },
-                ],
-                from: {
-                    email: "noreply@triple-d.ninja",
-                    name: "Jonas Versammlung",
-                },
+                from: "Jonas Versammlung <noreply@triple-d.ninja>",
+                to: [to],
                 subject,
-                content: [
-                    {
-                        type: "text/html",
-                        value: html,
-                    },
-                ],
+                html,
             }),
         });
 
@@ -57,7 +53,9 @@ export async function sendEmail({
             throw new Error(`Failed to send email: ${response.status} ${errorText}`);
         }
 
-        console.log(`✅ Email sent to ${to}: ${subject}`);
+        const data = await response.json();
+        console.log(`✅ Email sent to ${to}: ${subject}`, data);
+        return data;
     } catch (error) {
         console.error("❌ Failed to send email:", error);
         throw error;
