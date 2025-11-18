@@ -27,24 +27,25 @@ async function getAuth() {
     const { env } = await getCloudflareContext();
     const db = await getDb();
 
-    // ✅ BaseURL automatisch basierend auf Environment
-    let baseURL = "https://triple-d.ninja"; // Production Default
+    let baseURL: string;
     
     if (process.env.NODE_ENV === "development") {
         baseURL = "http://localhost:3000";
     } else if (env.NEXTJS_ENV === "preview") {
-        baseURL = "https://preview-jonas-versammlung-app.dari-darox.workers.dev";
+        baseURL = "https://jonas-versammlung-app-preview.dari-darox.workers.dev";
+    } else {
+        baseURL = "https://triple-d.ninja";
     }
 
     cachedAuth = betterAuth({
-        baseURL, // ✅ Richtige Domain für E-Mail-Links
+        baseURL,
         secret: env.BETTER_AUTH_SECRET,
         database: drizzleAdapter(db, {
             provider: "sqlite",
         }),
         emailAndPassword: {
             enabled: true,
-            requireEmailVerification: true, // ✅ E-Mail-Verifikation erzwingen
+            requireEmailVerification: true,
             sendResetPassword: async ({ user, url }) => {
                 await sendPasswordResetEmail({
                     to: user.email,
@@ -53,11 +54,10 @@ async function getAuth() {
             },
         },
         emailVerification: {
-            sendOnSignUp: true, // ✅ Verifikation bei Registrierung senden
-            autoSignInAfterVerification: false, // ❌ Kein Auto-Login - User muss sich manuell einloggen
+            sendOnSignUp: true, // Send verification on sign-up
+            autoSignInAfterVerification: false, // No Auto-Login 
             sendVerificationEmail: async ({ user, url }) => {
-                // ✅ Ersetze den bestehenden callbackURL Parameter für Redirect nach Verifikation
-                const urlObj = new URL(url);
+               const urlObj = new URL(url);
                 urlObj.searchParams.set("callbackURL", "/login?verified=true");
                 
                 await sendVerificationEmail({
@@ -74,11 +74,11 @@ async function getAuth() {
             },
         },
         plugins: [nextCookies()],
-        // ✅ Rate Limiting konfigurieren
+        // Rate Limiting
         rateLimit: {
             enabled: true,
-            window: 60, // 60 Sekunden
-            max: 5, // Max 5 Anfragen
+            window: 60, // 60 seconds
+            max: 5, // Max 5 requests
         },
     });
 

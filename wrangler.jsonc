@@ -16,6 +16,9 @@
     "observability": {
         "enabled": true
     },
+    "vars": {
+        "NEXTJS_ENV": "production"
+    },
     "d1_databases": [
         {
             "binding": "DB",
@@ -37,6 +40,9 @@
     "env": {
         "preview": {
             "name": "jonas-versammlung-app-preview",
+            "vars": {
+                "NEXTJS_ENV": "preview"
+            },
             "d1_databases": [
                 {
                     "binding": "DB",
