@@ -41,7 +41,7 @@ export async function sendEmail({
                 Authorization: `Bearer ${env.RESEND_API_KEY}`,
             },
             body: JSON.stringify({
-                from: "Jonas Versammlung <noreply@triple-d.ninja>",
+                from: "Jonas Versammlung <noreply@send.triple-d.ninja>",
                 to: [to],
                 subject,
                 html,
