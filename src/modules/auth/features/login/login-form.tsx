@@ -33,7 +33,6 @@ import { authClient } from "@/modules/auth/shared/utils/auth-client";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import { signIn } from "@/modules/auth/shared/auth.action";
 import authRoutes from "../../shared/auth.route";
-import { sendTestEmail } from "@/modules/auth/shared/test-email.action";
 
 export function LoginForm({
     className,
@@ -43,7 +42,6 @@ export function LoginForm({
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [showVerifiedMessage, setShowVerifiedMessage] = useState(false);
-    const [isSendingTest, setIsSendingTest] = useState(false);
 
     const form = useForm<SignInSchema>({
         resolver: zodResolver(signInSchema),
@@ -83,18 +81,6 @@ export function LoginForm({
         }
         setIsLoading(false);
     }
-
-    const handleTestEmail = async () => {
-        setIsSendingTest(true);
-        const { success, message } = await sendTestEmail();
-
-        if (success) {
-            toast.success(message);
-        } else {
-            toast.error(message);
-        }
-        setIsSendingTest(false);
-    };
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -211,26 +197,6 @@ export function LoginForm({
                             </div>
                         </form>
                     </Form>
-                    
-                    {/* Debug: Test Email Button */}
-                    <div className="mt-4 pt-4 border-t">
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            className="w-full"
-                            onClick={handleTestEmail}
-                            disabled={isSendingTest}
-                        >
-                            {isSendingTest ? (
-                                <>
-                                    <Loader2 className="size-4 animate-spin mr-2" />
-                                    Sending...
-                                </>
-                            ) : (
-                                "🧪 Send Test Emails"
-                            )}
-                        </Button>
-                    </div>
                 </CardContent>
             </Card>
             <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
