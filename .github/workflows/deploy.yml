@@ -50,10 +50,6 @@ jobs:
 
       - name: Build application
         run: pnpm run build:cf
-        env:
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
       - name: Verify build output
         run: |
@@ -61,16 +57,6 @@ jobs:
           ls -la .open-next/ || echo "No .open-next directory found"
           ls -la .next/ || echo "No .next directory found"
           echo "Build verification complete"
-
-      - name: Generate preview alias
-        id: preview-alias
-        run: |
-          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-          BRANCH_ALIAS=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/^-*//' | sed 's/-*$//')
-          COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
-          ALIAS="${BRANCH_ALIAS}-${COMMIT_HASH}"
-          ALIAS=$(echo "$ALIAS" | cut -c1-50)
-          echo "alias=$ALIAS" >> $GITHUB_OUTPUT
 
       - name: Run database migrations (Preview)
         uses: cloudflare/wrangler-action@v3
@@ -84,23 +70,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          environment: preview               # GitHub-Env -> wrangler-action setzt dann --env preview
-          command: versions upload --preview-alias ${{ steps.preview-alias.outputs.alias }} --env preview
-          secrets: |
-            BETTER_AUTH_SECRET
-            GOOGLE_CLIENT_ID
-            GOOGLE_CLIENT_SECRET
-            CLOUDFLARE_R2_URL
-        env:
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          CLOUDFLARE_R2_URL: ${{ secrets.CLOUDFLARE_R2_URL_PREVIEW }}
+          command: deploy --env preview
 
       - name: Output preview URL
         run: |
           echo "🚀 Preview deployed successfully!"
-          echo "Preview URL: https://${{ steps.preview-alias.outputs.alias }}-jonas-versammlung-app.dari-darox.workers.dev"
+          echo "Preview URL: https://jonas-versammlung-app-preview.dari-darox.workers.dev"
 
   # Deploy to production (main branch)
   deploy-production:
@@ -137,10 +112,6 @@ jobs:
 
       - name: Build application
         run: pnpm run build:cf
-        env:
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
       - name: Generate backup filename
         id: backup
@@ -168,16 +139,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
-          secrets: |
-            BETTER_AUTH_SECRET
-            GOOGLE_CLIENT_ID
-            GOOGLE_CLIENT_SECRET
-            CLOUDFLARE_R2_URL
-        env:
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          CLOUDFLARE_R2_URL: ${{ secrets.CLOUDFLARE_R2_URL_PROD }}
 
       - name: Wait for deployment
         run: sleep 10

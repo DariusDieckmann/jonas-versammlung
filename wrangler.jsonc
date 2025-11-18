@@ -36,7 +36,7 @@
     },
     "env": {
         "preview": {
-            "name": "jonas-versammlung-app",
+            "name": "jonas-versammlung-app-preview",
             "d1_databases": [
                 {
                     "binding": "DB",
