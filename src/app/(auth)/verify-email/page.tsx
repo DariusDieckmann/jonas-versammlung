@@ -30,7 +30,7 @@ export default function VerifyEmailPage() {
 
                     <div className="pt-4 border-t">
                         <p className="text-xs text-center text-muted-foreground mb-3">
-                            After clicking the verification link, you'll be automatically signed in.
+                            After clicking the verification link your account will be activated and you can sign in.
                         </p>
                         <Button variant="outline" className="w-full" asChild>
                             <Link href={authRoutes.login}>
