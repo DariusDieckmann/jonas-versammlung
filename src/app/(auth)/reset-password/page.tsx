@@ -78,7 +78,9 @@ export default function ResetPasswordPage() {
             toast.success("Password reset successful! You can now sign in.");
             router.push(authRoutes.login);
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Failed to reset password");
+            // Log error for debugging but show generic message
+            console.error("Reset password error:", error);
+            toast.error("Failed to reset password. The link may be expired.");
         } finally {
             setIsLoading(false);
         }

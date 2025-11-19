@@ -27,10 +27,16 @@ export const signIn = async ({
             message: "Signed in succesfully",
         };
     } catch (error) {
+        // Log the actual error server-side for debugging
+        console.error("Sign in error:", error);
+        
+        // Return a generic error message to the client or specific if possible
         const err = error as Error;
+        const messageText = (err?.message ?? String(err)).toLowerCase();
+
         return {
             success: false,
-            message: err.message || "An unknown error occured.",
+            message: messageText.includes("invalid email or password") ? "Invalid email or password." : "Unbekannter Fehler.",
         };
     }
 };
@@ -55,10 +61,20 @@ export const signUp = async ({
             message: "Registration successful! Please check your email to verify your account.",
         };
     } catch (error) {
+        // Log the actual error server-side for debugging
+        console.error("Sign up error:", error);
+        
+        // Return a generic error message to the client
+        // Note: Better Auth might throw specific user-friendly errors like "Email already exists"
+        // We still log the full error but show a safe message
         const err = error as Error;
+        const message = err.message?.toLowerCase().includes("already") 
+            ? "This email is already registered."
+            : "Registration failed. Please try again.";
+        
         return {
             success: false,
-            message: err.message || "An unknown error occured.",
+            message,
         };
     }
 };
@@ -74,10 +90,13 @@ export const signOut = async (): Promise<AuthResponse> => {
             message: "Signed out successfully",
         };
     } catch (error) {
-        const err = error as Error;
+        // Log the actual error server-side for debugging
+        console.error("Sign out error:", error);
+        
+        // Return a generic error message to the client
         return {
             success: false,
-            message: err.message || "An unknown error occurred.",
+            message: "Failed to sign out. Please try again.",
         };
     }
 };
