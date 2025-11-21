@@ -45,6 +45,14 @@ async function getAuth() {
                 clientId: env.GOOGLE_CLIENT_ID!,
                 clientSecret: env.GOOGLE_CLIENT_SECRET!,
             },
+            microsoft: {
+                enabled: true,
+                clientId: env.MICROSOFT_CLIENT_ID!,
+                clientSecret: env.MICROSOFT_CLIENT_SECRET!,
+                tenantId: "common", // Allows any Microsoft account
+                authority: "https://login.microsoftonline.com",
+                prompt: "select_account", // Forces account selection
+            },
         },
         plugins: [nextCookies()],
         // Rate Limiting
