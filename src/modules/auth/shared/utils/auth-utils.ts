@@ -6,10 +6,6 @@ import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
 import { getDb } from "@/db";
 import type { AuthUser } from "@/modules/auth/shared/models/user.model";
-import {
-    sendPasswordResetEmail,
-    sendVerificationEmail,
-} from "@/modules/auth/shared/utils/auth-email.utils";
 
 /**
  * Cached auth instance singleton so we don't create a new instance every time
@@ -43,29 +39,6 @@ async function getAuth() {
         database: drizzleAdapter(db, {
             provider: "sqlite",
         }),
-        emailAndPassword: {
-            enabled: true,
-            requireEmailVerification: true,
-            sendResetPassword: async ({ user, url }) => {
-                await sendPasswordResetEmail({
-                    to: user.email,
-                    resetUrl: url,
-                });
-            },
-        },
-        emailVerification: {
-            sendOnSignUp: true, // Send verification on sign-up
-            autoSignInAfterVerification: false, // No Auto-Login 
-            sendVerificationEmail: async ({ user, url }) => {
-               const urlObj = new URL(url);
-                urlObj.searchParams.set("callbackURL", "/login?verified=true");
-                
-                await sendVerificationEmail({
-                    to: user.email,
-                    verificationUrl: urlObj.toString(),
-                });
-            },
-        },
         socialProviders: {
             google: {
                 enabled: true,
@@ -78,7 +51,7 @@ async function getAuth() {
         rateLimit: {
             enabled: true,
             window: 60, // 60 seconds
-            max: 5, // Max 5 requests
+            max: 10, // Max 10 requests
         },
     });
 
