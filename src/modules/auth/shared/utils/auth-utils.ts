@@ -6,10 +6,6 @@ import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
 import { getDb } from "@/db";
 import type { AuthUser } from "@/modules/auth/shared/models/user.model";
-import {
-    sendPasswordResetEmail,
-    sendVerificationEmail,
-} from "@/modules/auth/shared/utils/auth-email.utils";
 
 /**
  * Cached auth instance singleton so we don't create a new instance every time
@@ -27,58 +23,43 @@ async function getAuth() {
     const { env } = await getCloudflareContext();
     const db = await getDb();
 
-    // ✅ BaseURL automatisch basierend auf Environment
-    let baseURL = "https://triple-d.ninja"; // Production Default
+    let baseURL: string;
     
     if (process.env.NODE_ENV === "development") {
         baseURL = "http://localhost:3000";
     } else if (env.NEXTJS_ENV === "preview") {
-        baseURL = "https://preview-jonas-versammlung-app.dari-darox.workers.dev";
+        baseURL = "https://jonas-versammlung-app-preview.dari-darox.workers.dev";
+    } else {
+        baseURL = "https://triple-d.ninja";
     }
 
     cachedAuth = betterAuth({
-        baseURL, // ✅ Richtige Domain für E-Mail-Links
+        baseURL,
         secret: env.BETTER_AUTH_SECRET,
         database: drizzleAdapter(db, {
             provider: "sqlite",
         }),
-        emailAndPassword: {
-            enabled: true,
-            requireEmailVerification: true, // ✅ E-Mail-Verifikation erzwingen
-            sendResetPassword: async ({ user, url }) => {
-                await sendPasswordResetEmail({
-                    to: user.email,
-                    resetUrl: url,
-                });
-            },
-        },
-        emailVerification: {
-            sendOnSignUp: true, // ✅ Verifikation bei Registrierung senden
-            autoSignInAfterVerification: false, // ❌ Kein Auto-Login - User muss sich manuell einloggen
-            sendVerificationEmail: async ({ user, url }) => {
-                // ✅ Ersetze den bestehenden callbackURL Parameter für Redirect nach Verifikation
-                const urlObj = new URL(url);
-                urlObj.searchParams.set("callbackURL", "/login?verified=true");
-                
-                await sendVerificationEmail({
-                    to: user.email,
-                    verificationUrl: urlObj.toString(),
-                });
-            },
-        },
         socialProviders: {
             google: {
                 enabled: true,
                 clientId: env.GOOGLE_CLIENT_ID!,
                 clientSecret: env.GOOGLE_CLIENT_SECRET!,
             },
+            microsoft: {
+                enabled: true,
+                clientId: env.MICROSOFT_CLIENT_ID!,
+                clientSecret: env.MICROSOFT_CLIENT_SECRET!,
+                tenantId: "common", // Allows any Microsoft account
+                authority: "https://login.microsoftonline.com",
+                prompt: "select_account", // Forces account selection
+            },
         },
         plugins: [nextCookies()],
-        // ✅ Rate Limiting konfigurieren
+        // Rate Limiting
         rateLimit: {
             enabled: true,
-            window: 60, // 60 Sekunden
-            max: 5, // Max 5 Anfragen
+            window: 60, // 60 seconds
+            max: 10, // Max 10 requests
         },
     });
 

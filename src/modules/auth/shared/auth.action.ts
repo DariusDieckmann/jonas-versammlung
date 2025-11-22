@@ -1,67 +1,12 @@
 "use server";
 
-import type {
-    AuthResponse,
-    SignInSchema,
-    SignUpSchema,
-} from "@/modules/auth/shared/models/auth.model";
 import { getAuthInstance } from "@/modules/auth/shared/utils/auth-utils";
 
-// #region SERVER ACTIONS
-
-export const signIn = async ({
-    email,
-    password,
-}: SignInSchema): Promise<AuthResponse> => {
-    try {
-        const auth = await getAuthInstance();
-        await auth.api.signInEmail({
-            body: {
-                email,
-                password,
-            },
-        });
-
-        return {
-            success: true,
-            message: "Signed in succesfully",
-        };
-    } catch (error) {
-        const err = error as Error;
-        return {
-            success: false,
-            message: err.message || "An unknown error occured.",
-        };
-    }
+export type AuthResponse = {
+    success: boolean;
+    message: string;
 };
 
-export const signUp = async ({
-    email,
-    password,
-    username,
-}: SignUpSchema): Promise<AuthResponse> => {
-    try {
-        const auth = await getAuthInstance();
-        await auth.api.signUpEmail({
-            body: {
-                email,
-                password,
-                name: username,
-            },
-        });
-
-        return {
-            success: true,
-            message: "Registration successful! Please check your email to verify your account.",
-        };
-    } catch (error) {
-        const err = error as Error;
-        return {
-            success: false,
-            message: err.message || "An unknown error occured.",
-        };
-    }
-};
 export const signOut = async (): Promise<AuthResponse> => {
     try {
         const auth = await getAuthInstance();
@@ -74,11 +19,11 @@ export const signOut = async (): Promise<AuthResponse> => {
             message: "Signed out successfully",
         };
     } catch (error) {
-        const err = error as Error;
+        console.error("Sign out error:", error);
+        
         return {
             success: false,
-            message: err.message || "An unknown error occurred.",
+            message: "Failed to sign out. Please try again.",
         };
     }
 };
-// #endregion
