@@ -17,5 +17,5 @@ BETTER_AUTH_URL=http://localhost:3000 # Base URL of your app - should use the de
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 
-MICROSOFT_CLIENT_ID=here
-MICROSOFT_CLIENT_SECRET=HERE
+MICROSOFT_CLIENT_ID=your-microsoft-client-id
+MICROSOFT_CLIENT_SECRET=your-microsoft-client-secret
