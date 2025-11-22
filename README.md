@@ -45,7 +45,7 @@ GOOGLE_CLIENT_SECRET=dein-google-client-secret
 MICROSOFT_CLIENT_ID=deine-microsoft-client-id
 MICROSOFT_CLIENT_SECRET=dein-microsoft-client-secret
 
-# Email (optional - für Password Reset)
+# Email (optional)
 RESEND_API_KEY=dein-resend-api-key
 
 # Environment
