@@ -33,7 +33,11 @@ const createOrganizationSchema = z.object({
 
 type CreateOrganizationFormData = z.infer<typeof createOrganizationSchema>;
 
-export function CreateOrganizationForm() {
+interface CreateOrganizationFormProps {
+    onSuccess?: () => void;
+}
+
+export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -56,7 +60,10 @@ export function CreateOrganizationForm() {
                 }
 
                 toast.success("Organization created successfully!");
-                router.refresh();
+                form.reset();
+                if (onSuccess) {
+                    onSuccess();
+                }
             } catch (error) {
                 console.error("Error creating organization:", error);
                 toast.error("An unexpected error occurred");

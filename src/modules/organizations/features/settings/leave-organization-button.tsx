@@ -21,11 +21,13 @@ import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 interface LeaveOrganizationButtonProps {
     organizationId: number;
     organizationName: string;
+    onSuccess?: () => void;
 }
 
 export function LeaveOrganizationButton({
     organizationId,
     organizationName,
+    onSuccess,
 }: LeaveOrganizationButtonProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -49,8 +51,9 @@ export function LeaveOrganizationButton({
 
             toast.success("You have left the organization");
             setOpen(false);
-            router.refresh();
-            router.push("/dashboard/settings/organization");
+            if (onSuccess) {
+                onSuccess();
+            }
         } catch (error) {
             console.error("Error leaving organization:", error);
             toast.error("An unexpected error occurred");

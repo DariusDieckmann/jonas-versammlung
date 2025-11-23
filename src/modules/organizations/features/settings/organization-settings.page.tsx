@@ -20,11 +20,15 @@ export default function OrganizationSettingsPage() {
     const [organizations, setOrganizations] = useState<OrganizationWithMemberCount[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const loadOrganizations = async () => {
+        setIsLoading(true);
+        const orgs = await getUserOrganizations();
+        setOrganizations(orgs);
+        setIsLoading(false);
+    };
+
     useEffect(() => {
-        getUserOrganizations().then((orgs) => {
-            setOrganizations(orgs);
-            setIsLoading(false);
-        });
+        loadOrganizations();
     }, []);
 
     if (isLoading) {
@@ -63,7 +67,7 @@ export default function OrganizationSettingsPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <CreateOrganizationForm />
+                        <CreateOrganizationForm onSuccess={loadOrganizations} />
                     </CardContent>
                 </Card>
             </div>
@@ -140,6 +144,7 @@ export default function OrganizationSettingsPage() {
                         <LeaveOrganizationButton
                             organizationId={organization.id}
                             organizationName={organization.name}
+                            onSuccess={loadOrganizations}
                         />
                     </CardContent>
                 </Card>
