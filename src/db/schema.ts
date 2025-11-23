@@ -8,3 +8,4 @@ export {
     organizations,
 } from "@/modules/organizations/shared/schemas/organization.schema";
 export { properties } from "@/modules/properties/shared/schemas/property.schema";
+export { owners } from "@/modules/owners/shared/schemas/owner.schema";

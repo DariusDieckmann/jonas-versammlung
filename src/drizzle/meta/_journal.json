@@ -50,6 +50,13 @@
       "when": 1763930347603,
       "tag": "0006_add_properties",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1763932306333,
+      "tag": "0007_cheerful_bishop",
+      "breakpoints": true
     }
   ]
 }

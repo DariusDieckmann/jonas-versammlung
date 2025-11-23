@@ -1,4 +1,4 @@
-import { Building, Building2 } from "lucide-react";
+import { Building, Building2, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,7 @@ export default async function Dashboard() {
                 </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 <Card className="hover:shadow-lg transition-shadow">
                     <CardHeader>
                         <CardTitle className="flex items-center">
@@ -36,6 +36,25 @@ export default async function Dashboard() {
                         <Link href="/dashboard/properties">
                             <Button className="w-full">
                                 Zu den Liegenschaften
+                            </Button>
+                        </Link>
+                    </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                        <CardTitle className="flex items-center">
+                            <Users className="mr-2 h-5 w-5" />
+                            Eigentümer
+                        </CardTitle>
+                        <CardDescription>
+                            Verwalte alle Eigentümer deiner Liegenschaften
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Link href="/dashboard/owners">
+                            <Button className="w-full">
+                                Zu den Eigentümern
                             </Button>
                         </Link>
                     </CardContent>

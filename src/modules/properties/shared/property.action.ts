@@ -91,8 +91,6 @@ export async function createProperty(
             };
         }
 
-        await requireMember(organization.id);
-
         const validatedData = insertPropertySchema.parse(data);
 
         const now = new Date().toISOString();
