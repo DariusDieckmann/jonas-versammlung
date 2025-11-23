@@ -407,7 +407,7 @@ export async function removeOrganizationMember(
             if (!currentMembership.length) {
                 return {
                     success: false,
-                    error: "Only organization owners can remove members",
+                    error: "Nur Owner können Mitglieder entfernen",
                 };
             }
         }
@@ -427,7 +427,7 @@ export async function removeOrganizationMember(
         if (!memberToRemove.length) {
             return {
                 success: false,
-                error: "Member not found in this organization",
+                error: "Mitglied nicht in dieser Organisation gefunden",
             };
         }
 
@@ -459,7 +459,7 @@ export async function removeOrganizationMember(
             } else {
                 return {
                     success: false,
-                    error: "Cannot remove the last owner",
+                    error: "Der letzte Owner kann nicht entfernt werden",
                 };
             }
         }
@@ -475,6 +475,7 @@ export async function removeOrganizationMember(
             );
 
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/settings/organization");
         return { success: true };
     } catch (error) {
         console.error("Error removing organization member:", error);
@@ -483,7 +484,7 @@ export async function removeOrganizationMember(
             error:
                 error instanceof Error
                     ? error.message
-                    : "Failed to remove member",
+                    : "Fehler beim Entfernen des Mitglieds",
         };
     }
 }
