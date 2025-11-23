@@ -32,7 +32,6 @@ export async function getUserOrganizations(): Promise<
         .select({
             id: organizations.id,
             name: organizations.name,
-            description: organizations.description,
             createdBy: organizations.createdBy,
             createdAt: organizations.createdAt,
             updatedAt: organizations.updatedAt,
@@ -63,7 +62,6 @@ export async function getOrganization(
         .select({
             id: organizations.id,
             name: organizations.name,
-            description: organizations.description,
             createdBy: organizations.createdBy,
             createdAt: organizations.createdAt,
             updatedAt: organizations.updatedAt,
@@ -91,7 +89,6 @@ export async function getOrganization(
  */
 export async function createOrganization(data: {
     name: string;
-    description?: string;
 }): Promise<{ success: boolean; organizationId?: number; error?: string }> {
     try {
         const currentUser = await requireAuth();
@@ -137,7 +134,7 @@ export async function createOrganization(data: {
  */
 export async function updateOrganization(
     organizationId: number,
-    data: { name?: string; description?: string },
+    data: { name?: string },
 ): Promise<{ success: boolean; error?: string }> {
     try {
         const currentUser = await requireAuth();

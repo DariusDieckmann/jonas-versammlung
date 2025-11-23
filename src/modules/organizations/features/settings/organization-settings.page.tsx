@@ -34,7 +34,7 @@ export default function OrganizationSettingsPage() {
     if (isLoading) {
         return (
             <div className="container max-w-2xl mx-auto py-8">
-                <p>Loading...</p>
+                <p>Lädt...</p>
             </div>
         );
     }
@@ -47,23 +47,23 @@ export default function OrganizationSettingsPage() {
                     <Link href="/dashboard">
                         <Button variant="ghost" className="mb-4">
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Dashboard
+                            Zurück zum Dashboard
                         </Button>
                     </Link>
                     <h1 className="text-3xl font-bold">
-                        Organization Settings
+                        Organisationseinstellungen
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        Create your organization to get started
+                        Erstelle deine Organisation, um loszulegen
                     </p>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Create Organization</CardTitle>
+                        <CardTitle>Organisation erstellen</CardTitle>
                         <CardDescription>
-                            Create an organization to manage todos and
-                            collaborate with others.
+                            Erstelle eine Organisation, um Todos zu verwalten und
+                            mit anderen zusammenzuarbeiten.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -83,72 +83,39 @@ export default function OrganizationSettingsPage() {
                 <Link href="/dashboard">
                     <Button variant="ghost" className="mb-4">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Dashboard
+                        Zurück zum Dashboard
                     </Button>
                 </Link>
-                <h1 className="text-3xl font-bold">Organization Settings</h1>
-                <p className="text-gray-600 mt-1">
-                    Manage your organization
-                </p>
+                <h1 className="text-3xl font-bold">Organisationseinstellungen</h1>
             </div>
 
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Current Organization</CardTitle>
-                        <CardDescription>
-                            You are a member of the following organization
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <h3 className="text-lg font-semibold">
-                                {organization.name}
-                            </h3>
-                            {organization.description && (
-                                <p className="text-gray-600 mt-1">
-                                    {organization.description}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div>
-                                <span className="font-medium">
-                                    {organization.memberCount}
-                                </span>{" "}
-                                member
-                                {organization.memberCount !== 1 ? "s" : ""}
-                            </div>
-                            <div>
-                                Created{" "}
+            <Card>
+                <CardHeader>
+                    <CardTitle>{organization.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center gap-4">
+                            <span>
+                                {organization.memberCount} Mitglied
+                                {organization.memberCount !== 1 ? "er" : ""}
+                            </span>
+                            <span>•</span>
+                            <span>
+                                Erstellt am{" "}
                                 {new Date(
                                     organization.createdAt,
-                                ).toLocaleDateString()}
-                            </div>
+                                ).toLocaleDateString("de-DE")}
+                            </span>
                         </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-red-200">
-                    <CardHeader>
-                        <CardTitle className="text-red-600">
-                            Danger Zone
-                        </CardTitle>
-                        <CardDescription>
-                            Leave this organization. This action cannot be
-                            undone. You can create a new organization afterwards.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
                         <LeaveOrganizationButton
                             organizationId={organization.id}
                             organizationName={organization.name}
                             onSuccess={loadOrganizations}
                         />
-                    </CardContent>
-                </Card>
-            </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

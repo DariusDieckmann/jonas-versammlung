@@ -17,18 +17,13 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { createOrganization } from "../../shared/organization.action";
 
 const createOrganizationSchema = z.object({
     name: z
         .string()
-        .min(2, "Organization name must be at least 2 characters")
-        .max(100, "Organization name must be at most 100 characters"),
-    description: z
-        .string()
-        .max(500, "Description must be at most 500 characters")
-        .optional(),
+        .min(2, "Organisationsname muss mindestens 2 Zeichen lang sein")
+        .max(100, "Organisationsname darf maximal 100 Zeichen lang sein"),
 });
 
 type CreateOrganizationFormData = z.infer<typeof createOrganizationSchema>;
@@ -45,7 +40,6 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
         resolver: zodResolver(createOrganizationSchema),
         defaultValues: {
             name: "",
-            description: "",
         },
     });
 
@@ -55,18 +49,18 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                 const result = await createOrganization(data);
 
                 if (!result.success) {
-                    toast.error(result.error || "Failed to create organization");
+                    toast.error(result.error || "Organisation konnte nicht erstellt werden");
                     return;
                 }
 
-                toast.success("Organization created successfully!");
+                toast.success("Organisation erfolgreich erstellt!");
                 form.reset();
                 if (onSuccess) {
                     onSuccess();
                 }
             } catch (error) {
                 console.error("Error creating organization:", error);
-                toast.error("An unexpected error occurred");
+                toast.error("Ein unerwarteter Fehler ist aufgetreten");
             }
         });
     };
@@ -79,37 +73,15 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                     name="name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Organization Name *</FormLabel>
+                            <FormLabel>Organisationsname *</FormLabel>
                             <FormControl>
                                 <Input
-                                    placeholder="My Organization"
+                                    placeholder="Meine Organisation"
                                     {...field}
                                 />
                             </FormControl>
                             <FormDescription>
-                                Choose a name for your organization
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    placeholder="Optional description..."
-                                    className="resize-none"
-                                    rows={3}
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormDescription>
-                                Optional description for your organization
+                                Wähle einen Namen für deine Organisation
                             </FormDescription>
                             <FormMessage />
                         </FormItem>
@@ -117,7 +89,7 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                 />
 
                 <Button type="submit" disabled={isPending} className="w-full">
-                    {isPending ? "Creating..." : "Create Organization"}
+                    {isPending ? "Erstelle..." : "Organisation erstellen"}
                 </Button>
             </form>
         </Form>

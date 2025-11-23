@@ -44,19 +44,19 @@ export function LeaveOrganizationButton({
             );
 
             if (!result.success) {
-                toast.error(result.error || "Failed to leave organization");
+                toast.error(result.error || "Organisation konnte nicht verlassen werden");
                 setIsLoading(false);
                 return;
             }
 
-            toast.success("You have left the organization");
+            toast.success("Du hast die Organisation verlassen");
             setOpen(false);
             if (onSuccess) {
                 onSuccess();
             }
         } catch (error) {
             console.error("Error leaving organization:", error);
-            toast.error("An unexpected error occurred");
+            toast.error("Ein unerwarteter Fehler ist aufgetreten");
             setIsLoading(false);
         }
     };
@@ -64,26 +64,27 @@ export function LeaveOrganizationButton({
     return (
         <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-                <Button variant="destructive">Leave Organization</Button>
+                <Button variant="destructive">Organisation verlassen</Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Bist du dir absolut sicher?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        You are about to leave <strong>{organizationName}</strong>.
+                        Du bist dabei, <strong>{organizationName}</strong> zu verlassen.
                         <br />
                         <br />
-                        This action cannot be undone. You will lose access to all
-                        todos and categories in this organization. If you are the last
-                        member, the organization and all its data will be deleted.
+                        Diese Aktion kann nicht rückgängig gemacht werden. Du verlierst den
+                        Zugriff auf alle Todos und Kategorien in dieser Organisation. Wenn
+                        du das letzte Mitglied bist, wird die Organisation und alle ihre
+                        Daten gelöscht.
                         <br />
                         <br />
-                        You can create a new organization afterwards.
+                        Du kannst danach eine neue Organisation erstellen.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel disabled={isLoading}>
-                        Cancel
+                        Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
                         onClick={(e) => {
@@ -93,7 +94,7 @@ export function LeaveOrganizationButton({
                         disabled={isLoading}
                         className="bg-red-600 hover:bg-red-700"
                     >
-                        {isLoading ? "Leaving..." : "Leave Organization"}
+                        {isLoading ? "Verlasse..." : "Organisation verlassen"}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

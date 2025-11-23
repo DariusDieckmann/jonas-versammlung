@@ -6,7 +6,6 @@ import { user } from "@/modules/auth/shared/schemas/auth.schema";
 export const organizations = sqliteTable("organizations", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     name: text("name").notNull(),
-    description: text("description"),
     createdBy: text("created_by")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
@@ -38,10 +37,6 @@ export const insertOrganizationSchema = createInsertSchema(organizations, {
         .string()
         .min(2, "Organization name must be at least 2 characters")
         .max(100, "Organization name must be at most 100 characters"),
-    description: z
-        .string()
-        .max(500, "Description must be at most 500 characters")
-        .optional(),
     createdBy: z.string().min(1, "Creator ID is required"),
 });
 

@@ -34,7 +34,6 @@ export async function ensureUserHasOrganization(
         .insert(organizations)
         .values({
             name: `${user.name}'s Organization`,
-            description: `Personal organization for ${user.name}`,
             createdBy: user.id,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
