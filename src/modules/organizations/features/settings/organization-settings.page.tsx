@@ -11,19 +11,45 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { getUserOrganizations } from "../../shared/organization.action";
+import { getUserOrganizations, getOrganizationMembers } from "../../shared/organization.action";
 import type { OrganizationWithMemberCount } from "../../shared/models/organization.model";
+import type { OrganizationMemberWithUser } from "../../shared/models/organization.model";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
+import { MembersList } from "./members-list";
+import { authClient } from "@/modules/auth/shared/utils/auth-client";
 
 export default function OrganizationSettingsPage() {
     const [organizations, setOrganizations] = useState<OrganizationWithMemberCount[]>([]);
+    const [members, setMembers] = useState<OrganizationMemberWithUser[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     const loadOrganizations = async () => {
         setIsLoading(true);
         const orgs = await getUserOrganizations();
         setOrganizations(orgs);
+        
+        // Load current user
+        const session = await authClient.getSession();
+        const userId = session?.data?.user?.id;
+        if (userId) {
+            setCurrentUserId(userId);
+        }
+
+        // Load members if organization exists
+        if (orgs.length > 0) {
+            const orgMembers = await getOrganizationMembers(orgs[0].id);
+            setMembers(orgMembers);
+            
+            // Check if current user is owner
+            if (userId) {
+                const currentMember = orgMembers.find(m => m.userId === userId);
+                setIsCurrentUserOwner(currentMember?.role === "owner");
+            }
+        }
+        
         setIsLoading(false);
     };
 
@@ -114,6 +140,18 @@ export default function OrganizationSettingsPage() {
                             onSuccess={loadOrganizations}
                         />
                     </div>
+
+                    {isCurrentUserOwner && members.length > 0 && currentUserId && (
+                        <div className="pt-4 border-t">
+                            <h3 className="text-lg font-semibold mb-4">Mitglieder</h3>
+                            <MembersList
+                                members={members}
+                                currentUserId={currentUserId}
+                                isCurrentUserOwner={isCurrentUserOwner}
+                                onRoleChange={loadOrganizations}
+                            />
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

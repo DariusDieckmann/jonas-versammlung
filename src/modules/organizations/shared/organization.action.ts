@@ -509,3 +509,68 @@ export async function isOrganizationMember(
         return false;
     }
 }
+
+/**
+ * Update a member's role in an organization (only owners can do this)
+ */
+export async function updateMemberRole(
+    organizationId: number,
+    userId: string,
+    newRole: "owner" | "member",
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const currentUser = await requireAuth();
+        const db = await getDb();
+
+        // Check if current user is owner
+        const currentMembership = await db
+            .select()
+            .from(organizationMembers)
+            .where(
+                and(
+                    eq(organizationMembers.organizationId, organizationId),
+                    eq(organizationMembers.userId, currentUser.id),
+                    eq(organizationMembers.role, "owner"),
+                ),
+            )
+            .limit(1);
+
+        if (!currentMembership.length) {
+            return {
+                success: false,
+                error: "Nur Owner können Rollen ändern",
+            };
+        }
+
+        // Don't allow changing own role
+        if (userId === currentUser.id) {
+            return {
+                success: false,
+                error: "Du kannst deine eigene Rolle nicht ändern",
+            };
+        }
+
+        // Update the member's role
+        await db
+            .update(organizationMembers)
+            .set({ role: newRole })
+            .where(
+                and(
+                    eq(organizationMembers.organizationId, organizationId),
+                    eq(organizationMembers.userId, userId),
+                ),
+            );
+
+        revalidatePath("/dashboard/settings/organization");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating member role:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Ändern der Rolle",
+        };
+    }
+}
