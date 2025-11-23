@@ -10,12 +10,15 @@ import {
 } from "@/modules/todos/shared/schemas/category.schema";
 import todosRoutes from "../../todos.route";
 
-export async function createCategory(data: unknown): Promise<Category> {
+export async function createCategory(
+    data: unknown,
+    organizationId: number,
+): Promise<Category> {
     try {
         const user = await requireAuth();
         const validatedData = insertCategorySchema.parse({
             ...(data as object),
-            userId: user.id,
+            organizationId,
         });
 
         const db = await getDb();
@@ -23,7 +26,7 @@ export async function createCategory(data: unknown): Promise<Category> {
             .insert(categories)
             .values({
                 ...validatedData,
-                userId: user.id,
+                organizationId,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             })

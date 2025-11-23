@@ -2,7 +2,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getDb } from "@/db";
+import { getDb, organizationMembers } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { todos } from "@/modules/todos/shared/schemas/todo.schema";
 import todosRoutes from "../../todos.route";
@@ -12,22 +12,44 @@ export async function deleteTodoAction(todoId: number) {
         const user = await requireAuth();
         const db = await getDb();
 
+        // Get the todo first to find its organization
         const existingTodo = await db
-            .select({ id: todos.id })
+            .select()
             .from(todos)
-            .where(and(eq(todos.id, todoId), eq(todos.userId, user.id)))
+            .where(eq(todos.id, todoId))
             .limit(1);
 
         if (!existingTodo.length) {
             return {
                 success: false,
-                error: "Todo not found or unauthorized",
+                error: "Todo not found",
             };
         }
 
-        await db
-            .delete(todos)
-            .where(and(eq(todos.id, todoId), eq(todos.userId, user.id)));
+        // Verify user is a member of the organization
+        const membership = await db
+            .select()
+            .from(organizationMembers)
+            .where(
+                and(
+                    eq(
+                        organizationMembers.organizationId,
+                        existingTodo[0].organizationId,
+                    ),
+                    eq(organizationMembers.userId, user.id),
+                ),
+            )
+            .limit(1);
+
+        if (!membership.length) {
+            return {
+                success: false,
+                error: "You are not a member of this organization",
+            };
+        }
+
+        // Delete the todo
+        await db.delete(todos).where(eq(todos.id, todoId));
 
         revalidatePath(todosRoutes.list);
 

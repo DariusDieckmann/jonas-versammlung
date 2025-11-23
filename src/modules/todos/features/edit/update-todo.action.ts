@@ -3,7 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDb } from "@/db";
+import { getDb, organizationMembers } from "@/db";
 import { type UploadResult, uploadToR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
@@ -57,6 +57,36 @@ export async function updateTodoAction(todoId: number, formData: FormData) {
 
         const db = await getDb();
 
+        // First get the todo to find its organization
+        const existingTodo = await db
+            .select()
+            .from(todos)
+            .where(eq(todos.id, todoId))
+            .limit(1);
+
+        if (!existingTodo.length) {
+            throw new Error("Todo not found");
+        }
+
+        // Verify user is a member of the organization
+        const membership = await db
+            .select()
+            .from(organizationMembers)
+            .where(
+                and(
+                    eq(
+                        organizationMembers.organizationId,
+                        existingTodo[0].organizationId,
+                    ),
+                    eq(organizationMembers.userId, user.id),
+                ),
+            )
+            .limit(1);
+
+        if (!membership.length) {
+            throw new Error("You are not a member of this organization");
+        }
+
         const { status, priority, ...restValidatedData } = validatedData;
 
         const result = await db
@@ -76,7 +106,7 @@ export async function updateTodoAction(todoId: number, formData: FormData) {
                 ...(imageAlt && { imageAlt }),
                 updatedAt: new Date().toISOString(),
             })
-            .where(and(eq(todos.id, todoId), eq(todos.userId, user.id)))
+            .where(eq(todos.id, todoId))
             .returning();
 
         if (!result.length) {
@@ -109,6 +139,42 @@ export async function updateTodoFieldAction(
         const user = await requireAuth();
         const db = await getDb();
 
+        // First get the todo to find its organization
+        const existingTodo = await db
+            .select()
+            .from(todos)
+            .where(eq(todos.id, todoId))
+            .limit(1);
+
+        if (!existingTodo.length) {
+            return {
+                success: false,
+                error: "Todo not found",
+            };
+        }
+
+        // Verify user is a member of the organization
+        const membership = await db
+            .select()
+            .from(organizationMembers)
+            .where(
+                and(
+                    eq(
+                        organizationMembers.organizationId,
+                        existingTodo[0].organizationId,
+                    ),
+                    eq(organizationMembers.userId, user.id),
+                ),
+            )
+            .limit(1);
+
+        if (!membership.length) {
+            return {
+                success: false,
+                error: "You are not a member of this organization",
+            };
+        }
+
         const result = await db
             .update(todos)
             .set({
@@ -120,7 +186,7 @@ export async function updateTodoFieldAction(
                 }),
                 updatedAt: new Date().toISOString(),
             })
-            .where(and(eq(todos.id, todoId), eq(todos.userId, user.id)))
+            .where(eq(todos.id, todoId))
             .returning();
 
         if (!result.length) {

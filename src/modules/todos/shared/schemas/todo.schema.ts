@@ -9,6 +9,7 @@ import {
     TodoStatus,
     type TodoStatusType,
 } from "@/modules/todos/shared/models/todo.enum";
+import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
 import { categories } from "./category.schema";
 
 export const todos = sqliteTable("todos", {
@@ -16,7 +17,10 @@ export const todos = sqliteTable("todos", {
     title: text("title").notNull(),
     description: text("description"),
     categoryId: integer("category_id").references(() => categories.id),
-    userId: text("user_id")
+    organizationId: integer("organization_id")
+        .notNull()
+        .references(() => organizations.id, { onDelete: "cascade" }),
+    createdBy: text("created_by")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     status: text("status")
@@ -52,7 +56,8 @@ export const insertTodoSchema = createInsertSchema(todos, {
         .max(1000, TODO_VALIDATION_MESSAGES.DESCRIPTION_TOO_LONG)
         .optional(),
     categoryId: z.number().optional(),
-    userId: z.string().min(1, "User ID is required"),
+    organizationId: z.number().positive("Organization ID is required"),
+    createdBy: z.string().min(1, "Creator ID is required"),
     status: z
         .enum(Object.values(TodoStatus) as [string, ...string[]])
         .optional(),
@@ -73,7 +78,8 @@ export const selectTodoSchema = createSelectSchema(todos);
 
 export const updateTodoSchema = insertTodoSchema.partial().omit({
     id: true,
-    userId: true,
+    organizationId: true,
+    createdBy: true,
     createdAt: true,
 });
 
