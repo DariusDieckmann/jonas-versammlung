@@ -1,15 +1,45 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { categories, getDb } from "@/db";
+import { categories, getDb, organizationMembers } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { type Todo, todos } from "@/modules/todos/shared/schemas/todo.schema";
 
 export async function getTodoById(id: number): Promise<Todo | null> {
     try {
         const user = await requireAuth();
-
         const db = await getDb();
+
+        // First get the todo to find its organization
+        const todoResult = await db
+            .select()
+            .from(todos)
+            .where(eq(todos.id, id))
+            .limit(1);
+
+        if (!todoResult.length) {
+            return null;
+        }
+
+        const todo = todoResult[0];
+
+        // Verify user is a member of the organization
+        const membership = await db
+            .select()
+            .from(organizationMembers)
+            .where(
+                and(
+                    eq(organizationMembers.organizationId, todo.organizationId),
+                    eq(organizationMembers.userId, user.id),
+                ),
+            )
+            .limit(1);
+
+        if (!membership.length) {
+            return null;
+        }
+
+        // Get todo with category info
         const result = await db
             .select({
                 id: todos.id,
@@ -23,7 +53,8 @@ export async function getTodoById(id: number): Promise<Todo | null> {
                 imageAlt: todos.imageAlt,
                 status: todos.status,
                 priority: todos.priority,
-                userId: todos.userId,
+                organizationId: todos.organizationId,
+                createdBy: todos.createdBy,
                 createdAt: todos.createdAt,
                 updatedAt: todos.updatedAt,
             })
@@ -32,11 +63,10 @@ export async function getTodoById(id: number): Promise<Todo | null> {
                 categories,
                 and(
                     eq(todos.categoryId, categories.id),
-                    eq(categories.userId, user.id),
+                    eq(categories.organizationId, todo.organizationId),
                 ),
             )
-            .where(and(eq(todos.id, id), eq(todos.userId, user.id)))
-            .orderBy(todos.createdAt)
+            .where(eq(todos.id, id))
             .limit(1);
 
         return result[0] || null;

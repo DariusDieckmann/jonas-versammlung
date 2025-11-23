@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getAllCategories } from "@/modules/todos/features/categories/get-categories.action";
 import { TodoForm } from "@/modules/todos/shared/components/todo-form";
+import { ensureUserHasOrganization } from "@/modules/organizations/shared/ensure-organization.action";
 import todosRoutes from "../../todos.route";
 
 export default async function NewTodoPage() {
     const user = await requireAuth();
-    const categories = await getAllCategories(user.id);
+    
+    // Ensure user has an organization (creates one if needed)
+    const organizationId = await ensureUserHasOrganization(user);
+    const categories = await getAllCategories(organizationId);
 
     return (
         <>
@@ -25,7 +29,7 @@ export default async function NewTodoPage() {
                 </p>
             </div>
 
-            <TodoForm user={user} categories={categories} />
+            <TodoForm user={user} organizationId={organizationId} categories={categories} />
         </>
     );
 }

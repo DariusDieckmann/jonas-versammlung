@@ -29,22 +29,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { insertCategorySchema } from "@/modules/todos/shared/schemas/category.schema";
 import { createCategory } from "./create-category.action";
 
-// Create a client-side schema without userId (will be added server-side)
-const addCategorySchema = insertCategorySchema.omit({ userId: true });
+// Create a client-side schema without organizationId (will be added server-side)
+const addCategorySchema = insertCategorySchema.omit({ organizationId: true });
 type AddCategoryFormData = z.infer<typeof addCategorySchema>;
 
 interface AddCategoryProps {
+    organizationId: number;
     onCategoryAdded: (category: {
         id: number;
         name: string;
         color: string | null;
         description: string | null;
+        organizationId: number;
         createdAt: string;
         updatedAt: string;
     }) => void;
 }
 
-export function AddCategory({ onCategoryAdded }: AddCategoryProps) {
+export function AddCategory({ organizationId, onCategoryAdded }: AddCategoryProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 
@@ -60,7 +62,7 @@ export function AddCategory({ onCategoryAdded }: AddCategoryProps) {
     const onSubmit = (data: AddCategoryFormData) => {
         startTransition(async () => {
             try {
-                const newCategory = await createCategory(data);
+                const newCategory = await createCategory(data, organizationId);
                 onCategoryAdded(newCategory);
 
                 form.reset();

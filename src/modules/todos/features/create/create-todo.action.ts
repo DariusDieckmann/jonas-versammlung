@@ -13,13 +13,20 @@ export async function createTodoAction(formData: FormData) {
     try {
         const user = await requireAuth();
 
+        // Extract organizationId from form data
+        const organizationIdStr = formData.get("organizationId") as string;
+        if (!organizationIdStr) {
+            throw new Error("Organization ID is required");
+        }
+        const organizationId = parseInt(organizationIdStr, 10);
+
         const imageFile = formData.get("image") as File | null;
         const file = imageFile && imageFile.size > 0 ? imageFile : undefined;
 
         // Extract other form fields and build todo data
         const todoData: Record<string, string | number | boolean> = {};
         for (const [key, value] of formData.entries()) {
-            if (key !== "image") {
+            if (key !== "image" && key !== "organizationId") {
                 // Handle boolean fields
                 if (key === "completed") {
                     todoData[key] = value === "true";
@@ -41,7 +48,8 @@ export async function createTodoAction(formData: FormData) {
         // Validate the data
         const validatedData = insertTodoSchema.parse({
             ...todoData,
-            userId: user.id,
+            organizationId,
+            createdBy: user.id,
         });
 
         // Handle optional image upload
@@ -66,7 +74,8 @@ export async function createTodoAction(formData: FormData) {
         const db = await getDb();
         await db.insert(todos).values({
             ...validatedData,
-            userId: user.id,
+            organizationId,
+            createdBy: user.id,
             status:
                 (validatedData.status as (typeof TodoStatus)[keyof typeof TodoStatus]) ||
                 TodoStatus.PENDING,

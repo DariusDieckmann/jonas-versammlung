@@ -4,9 +4,16 @@ import { Button } from "@/components/ui/button";
 import getAllTodos from "./get-todos.action";
 import { TodoCard } from "./todo-card";
 import todosRoutes from "../../todos.route";
+import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { ensureUserHasOrganization } from "@/modules/organizations/shared/ensure-organization.action";
 
 export default async function TodoListPage() {
-    const todos = await getAllTodos();
+    const user = await requireAuth();
+    
+    // Ensure user has an organization (creates one if needed)
+    const organizationId = await ensureUserHasOrganization(user);
+    
+    const todos = await getAllTodos(organizationId);
 
     return (
         <>

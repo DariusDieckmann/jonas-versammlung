@@ -8,6 +8,34 @@
       "when": 1757850562913,
       "tag": "0000_initial_schemas_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1757850562914,
+      "tag": "0001_remove_password_auth_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1757850562915,
+      "tag": "0002_add_organizations",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1757850562916,
+      "tag": "0003_remove_organization_description",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1757850562917,
+      "tag": "0004_readd_verification_table",
+      "breakpoints": true
     }
   ]
 }
