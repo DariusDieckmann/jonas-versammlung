@@ -37,14 +37,10 @@ import propertiesRoutes from "../../properties.route";
 type FormData = z.infer<typeof insertPropertySchema>;
 
 interface PropertyFormProps {
-    organizationId: number;
     initialData?: Property;
 }
 
-export function PropertyForm({
-    organizationId,
-    initialData,
-}: PropertyFormProps) {
+export function PropertyForm({ initialData }: PropertyFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const isEditing = !!initialData;
@@ -61,7 +57,6 @@ export function PropertyForm({
             numberOfUnits: initialData?.numberOfUnits || undefined,
             totalArea: initialData?.totalArea || undefined,
             notes: initialData?.notes || "",
-            organizationId,
         },
     });
 
@@ -78,7 +73,7 @@ export function PropertyForm({
                     alert(result.error || "Fehler beim Aktualisieren");
                 }
             } else {
-                const result = await createProperty(organizationId, data);
+                const result = await createProperty(data);
                 if (result.success && result.propertyId) {
                     router.push(propertiesRoutes.detail(result.propertyId));
                     router.refresh();

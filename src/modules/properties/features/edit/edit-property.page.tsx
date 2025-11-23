@@ -34,10 +34,7 @@ export default async function EditPropertyPage({
                 <p className="text-gray-600 mt-1">{property.name}</p>
             </div>
 
-            <PropertyForm
-                organizationId={property.organizationId}
-                initialData={property}
-            />
+            <PropertyForm initialData={property} />
         </div>
     );
 }

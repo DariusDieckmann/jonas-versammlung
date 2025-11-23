@@ -69,15 +69,14 @@ export const insertPropertySchema = createInsertSchema(properties, {
         .nullable(),
 }).omit({
     id: true,
+    organizationId: true,
     createdAt: true,
     updatedAt: true,
 });
 
 export const selectPropertySchema = createSelectSchema(properties);
 
-export const updatePropertySchema = insertPropertySchema.partial().omit({
-    organizationId: true,
-});
+export const updatePropertySchema = insertPropertySchema.partial();
 
 // Types
 export type Property = typeof properties.$inferSelect;

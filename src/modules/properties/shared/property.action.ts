@@ -17,22 +17,29 @@ import {
     type Property,
     type UpdateProperty,
 } from "./schemas/property.schema";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 
 /**
- * Get all properties for an organization
+ * Get all properties for the user's organization
  */
-export async function getProperties(
-    organizationId: number,
-): Promise<Property[]> {
+export async function getProperties(): Promise<Property[]> {
     const user = await requireAuth();
-    await requireMember(organizationId);
-
     const db = await getDb();
+
+    // Get user's organization
+    const organizations = await getUserOrganizations();
+    const organization = organizations[0];
+
+    if (!organization) {
+        return [];
+    }
+
+    await requireMember(organization.id);
 
     const result = await db
         .select()
         .from(properties)
-        .where(eq(properties.organizationId, organizationId))
+        .where(eq(properties.organizationId, organization.id))
         .orderBy(properties.name);
 
     return result;
@@ -64,25 +71,36 @@ export async function getProperty(
 }
 
 /**
- * Create a new property
+ * Create a new property in the user's organization
  */
 export async function createProperty(
-    organizationId: number,
     data: InsertProperty,
 ): Promise<{ success: boolean; error?: string; propertyId?: number }> {
     try {
         const user = await requireAuth();
-        await requireMember(organizationId);
+        const db = await getDb();
+
+        // Get user's organization
+        const organizations = await getUserOrganizations();
+        const organization = organizations[0];
+
+        if (!organization) {
+            return {
+                success: false,
+                error: "Du musst zuerst einer Organisation beitreten",
+            };
+        }
+
+        await requireMember(organization.id);
 
         const validatedData = insertPropertySchema.parse(data);
-        const db = await getDb();
 
         const now = new Date().toISOString();
         const result = await db
             .insert(properties)
             .values({
                 ...validatedData,
-                organizationId,
+                organizationId: organization.id,
                 createdAt: now,
                 updatedAt: now,
             })
