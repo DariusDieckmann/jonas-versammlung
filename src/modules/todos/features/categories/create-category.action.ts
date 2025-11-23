@@ -1,7 +1,8 @@
 "use server";
 
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getDb } from "@/db";
+import { getDb, organizationMembers } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
     type Category,
@@ -16,12 +17,29 @@ export async function createCategory(
 ): Promise<Category> {
     try {
         const user = await requireAuth();
+        const db = await getDb();
+
+        // Verify user is a member of the organization
+        const membership = await db
+            .select()
+            .from(organizationMembers)
+            .where(
+                and(
+                    eq(organizationMembers.organizationId, organizationId),
+                    eq(organizationMembers.userId, user.id),
+                ),
+            )
+            .limit(1);
+
+        if (!membership.length) {
+            throw new Error("You are not a member of this organization");
+        }
+
         const validatedData = insertCategorySchema.parse({
             ...(data as object),
             organizationId,
         });
 
-        const db = await getDb();
         const result = await db
             .insert(categories)
             .values({

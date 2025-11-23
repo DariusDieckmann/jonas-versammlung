@@ -44,11 +44,13 @@ type Category = {
     name: string;
     color: string | null;
     description: string | null;
+    organizationId: number;
     createdAt: string;
     updatedAt: string;
 };
 
 interface TodoFormProps {
+    organizationId: number;
     categories: Category[];
     initialData?: {
         id: number;
@@ -69,6 +71,7 @@ type FormData = z.infer<typeof insertTodoSchema>;
 
 export function TodoForm({
     user,
+    organizationId,
     categories: initialCategories,
     initialData,
 }: TodoFormProps) {
@@ -95,7 +98,8 @@ export function TodoForm({
             dueDate: initialData?.dueDate
                 ? new Date(initialData.dueDate).toISOString().split("T")[0]
                 : "",
-            userId: user.id,
+            organizationId,
+            createdBy: user.id,
         },
     });
 
@@ -276,6 +280,7 @@ export function TodoForm({
                                                 ))}
                                                 <div className="border-t pt-1 mt-1">
                                                     <AddCategory
+                                                        organizationId={organizationId}
                                                         onCategoryAdded={
                                                             handleCategoryAdded
                                                         }

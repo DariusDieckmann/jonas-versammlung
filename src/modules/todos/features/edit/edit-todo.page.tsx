@@ -20,14 +20,14 @@ export default async function EditTodoPage({ id }: EditTodoPageProps) {
         notFound();
     }
 
-    const [todo, categories] = await Promise.all([
-        getTodoById(todoId),
-        getAllCategories(user.id),
-    ]);
+    const todo = await getTodoById(todoId);
 
     if (!todo) {
         notFound();
     }
+
+    // Get categories for the same organization as the todo
+    const categories = await getAllCategories(todo.organizationId);
 
     return (
         <>
@@ -42,7 +42,7 @@ export default async function EditTodoPage({ id }: EditTodoPageProps) {
                 <p className="text-gray-600 mt-1">Update your task details</p>
             </div>
 
-            <TodoForm user={user} categories={categories} initialData={todo} />
+            <TodoForm user={user} organizationId={todo.organizationId} categories={categories} initialData={todo} />
         </>
     );
 }

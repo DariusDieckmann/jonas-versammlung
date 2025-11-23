@@ -1,4 +1,4 @@
-import { CheckSquare, Home } from "lucide-react";
+import { Building2, CheckSquare, Home } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "../modules/auth/features/logout/logout-button";
@@ -22,10 +22,16 @@ export function Navigation() {
                                     Home
                                 </Button>
                             </Link>
-                            <Link href="/todos">
+                            <Link href="/dashboard/todos">
                                 <Button variant="ghost" size="sm">
                                     <CheckSquare className="mr-2 h-4 w-4" />
                                     Todos
+                                </Button>
+                            </Link>
+                            <Link href="/dashboard/settings/organization">
+                                <Button variant="ghost" size="sm">
+                                    <Building2 className="mr-2 h-4 w-4" />
+                                    Organization
                                 </Button>
                             </Link>
                         </div>

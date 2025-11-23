@@ -372,6 +372,7 @@ export async function addOrganizationMember(
 
 /**
  * Remove a member from an organization
+ * Pass "current-user" as userId to remove the current user (for leaving)
  */
 export async function removeOrganizationMember(
     organizationId: number,
@@ -381,27 +382,54 @@ export async function removeOrganizationMember(
         const currentUser = await requireAuth();
         const db = await getDb();
 
-        // Check if current user is owner
-        const currentMembership = await db
+        // If userId is "current-user", use the current user's ID
+        const targetUserId = userId === "current-user" ? currentUser.id : userId;
+
+        // If user is leaving themselves, skip owner check
+        const isSelfLeaving = targetUserId === currentUser.id;
+
+        if (!isSelfLeaving) {
+            // Check if current user is owner (only owners can remove others)
+            const currentMembership = await db
+                .select()
+                .from(organizationMembers)
+                .where(
+                    and(
+                        eq(organizationMembers.organizationId, organizationId),
+                        eq(organizationMembers.userId, currentUser.id),
+                        eq(organizationMembers.role, "owner"),
+                    ),
+                )
+                .limit(1);
+
+            if (!currentMembership.length) {
+                return {
+                    success: false,
+                    error: "Only organization owners can remove members",
+                };
+            }
+        }
+
+        // Get member details before removing
+        const memberToRemove = await db
             .select()
             .from(organizationMembers)
             .where(
                 and(
                     eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, currentUser.id),
-                    eq(organizationMembers.role, "owner"),
+                    eq(organizationMembers.userId, targetUserId),
                 ),
             )
             .limit(1);
 
-        if (!currentMembership.length) {
+        if (!memberToRemove.length) {
             return {
                 success: false,
-                error: "Only organization owners can remove members",
+                error: "Member not found in this organization",
             };
         }
 
-        // Don't allow removing the last owner
+        // Check if this is the last owner
         const ownerCount = await db
             .select({ count: sql<number>`count(*)` })
             .from(organizationMembers)
@@ -412,25 +440,26 @@ export async function removeOrganizationMember(
                 ),
             );
 
-        const memberToRemove = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, userId),
-                ),
-            )
-            .limit(1);
-
         if (
             memberToRemove[0]?.role === "owner" &&
             ownerCount[0].count <= 1
         ) {
-            return {
-                success: false,
-                error: "Cannot remove the last owner",
-            };
+            // If last owner is leaving, delete the entire organization
+            if (isSelfLeaving) {
+                await db
+                    .delete(organizations)
+                    .where(eq(organizations.id, organizationId));
+
+                revalidatePath("/dashboard");
+                return {
+                    success: true,
+                };
+            } else {
+                return {
+                    success: false,
+                    error: "Cannot remove the last owner",
+                };
+            }
         }
 
         // Remove member
@@ -439,7 +468,7 @@ export async function removeOrganizationMember(
             .where(
                 and(
                     eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, userId),
+                    eq(organizationMembers.userId, targetUserId),
                 ),
             );
 
