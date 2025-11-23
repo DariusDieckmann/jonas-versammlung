@@ -36,6 +36,13 @@
       "when": 1757850562917,
       "tag": "0004_readd_verification_table",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1757850562918,
+      "tag": "0005_remove_todo_tables",
+      "breakpoints": true
     }
   ]
 }

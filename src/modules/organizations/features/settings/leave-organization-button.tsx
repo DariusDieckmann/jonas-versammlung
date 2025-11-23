@@ -74,7 +74,7 @@ export function LeaveOrganizationButton({
                         <br />
                         <br />
                         Diese Aktion kann nicht rückgängig gemacht werden. Du verlierst den
-                        Zugriff auf alle Todos und Kategorien in dieser Organisation. Wenn
+                        Zugriff auf alle Daten in dieser Organisation. Wenn
                         du das letzte Mitglied bist, wird die Organisation und alle ihre
                         Daten gelöscht.
                         <br />

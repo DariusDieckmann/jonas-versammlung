@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-Das Organizations-Feature ermöglicht es, Todos innerhalb einer Organisation zu teilen. Alle Mitglieder einer Organisation können alle Todos und Kategorien der Organisation erstellen, bearbeiten, löschen und abschließen - unabhängig davon, wer sie erstellt hat.
+Das Organizations-Feature ermöglicht es, Daten innerhalb einer Organisation zu teilen. Alle Mitglieder einer Organisation können auf die Ressourcen der Organisation zugreifen und diese verwalten - unabhängig davon, wer sie erstellt hat.
 
 ## Datenbank-Änderungen
 
@@ -28,8 +28,7 @@ Die Migration (`0002_add_organizations.sql`) führt folgende Schritte durch:
 
 1. Erstellt neue Tabellen `organizations` und `organization_members`
 2. Erstellt automatisch eine persönliche Organisation für jeden bestehenden User
-3. Migriert alle existierenden Todos und Kategorien zu den persönlichen Organisationen
-4. Entfernt die alten Tabellen und benennt die neuen um
+3. Entfernt die alten Tabellen und benennt die neuen um
 
 
 ## API / Actions
@@ -53,14 +52,13 @@ Die Migration (`0002_add_organizations.sql`) führt folgende Schritte durch:
 ### Rollen
 
 - **Owner** - Kann Organisation bearbeiten/löschen und Mitglieder verwalten
-- **Member** - Kann alle Todos und Kategorien innerhalb der Organisation verwalten
+- **Member** - Kann auf alle Ressourcen innerhalb der Organisation zugreifen
 
 ### Berechtigungen
 
 **Alle Mitglieder (Owner + Member) können:**
-- ✅ Todos erstellen, bearbeiten, löschen, abschließen
-- ✅ Kategorien erstellen, bearbeiten, löschen
-- ✅ Alle Todos und Kategorien der Organisation sehen
+- ✅ Auf alle Ressourcen der Organisation zugreifen
+- ✅ Alle Daten der Organisation sehen
 
 **Nur Owners können:**
 - 🔒 Organisation-Details bearbeiten
@@ -84,13 +82,12 @@ src/
 
 ## Nächste Schritte
 
-Um das Feature komplett zu integrieren, müssen noch folgende UI-Komponenten erstellt/angepasst werden:
+Um das Feature komplett zu integrieren, können noch folgende UI-Komponenten erstellt/angepasst werden:
 
 1. **Organization Selector** - Dropdown zur Auswahl der aktiven Organisation
-2. **Organization Settings** - Seite zur Verwaltung von Organisationen
-3. **Member Management** - UI zum Hinzufügen/Entfernen von Mitgliedern
-4. **Todo/Category Forms** - Anpassung der Formulare für organizationId
-5. **Todo List** - Anpassung der Liste für organizationId-Parameter
+2. **Organization Settings** - Seite zur Verwaltung von Organisationen ✅ (bereits implementiert)
+3. **Member Management** - UI zum Hinzufügen/Entfernen von Mitgliedern ✅ (bereits implementiert)
+4. **Weitere Features** - Je nach Anforderung
 
 ### Beispiel: Organization Context/State
 
@@ -98,10 +95,10 @@ Um das Feature komplett zu integrieren, müssen noch folgende UI-Komponenten ers
 // Könnte als React Context oder Zustand gespeichert werden
 const [currentOrganizationId, setCurrentOrganizationId] = useState<number>();
 
-// Beim Laden der Todos
-const todos = await getAllTodos(currentOrganizationId);
+// Beim Laden von Daten
+const data = await getData(currentOrganizationId);
 
-// Beim Erstellen eines Todos
+// Beim Erstellen von Ressourcen
 formData.append("organizationId", currentOrganizationId.toString());
 ```
 
@@ -116,6 +113,6 @@ formData.append("organizationId", currentOrganizationId.toString());
 ## Hinweise
 
 - Bei der Migration werden automatisch persönliche Organisationen für alle existierenden User erstellt
-- Todos zeigen weiterhin, wer sie erstellt hat (via `created_by`)
-- Alle Mitglieder haben gleichberechtigten Zugriff auf Todos innerhalb der Organisation
-- Das Löschen einer Organisation löscht automatisch alle zugehörigen Todos und Kategorien (CASCADE)
+- Alle Mitglieder haben gleichberechtigten Zugriff auf Ressourcen innerhalb der Organisation
+- Das Löschen einer Organisation löscht automatisch alle zugehörigen Daten (CASCADE)
+- Member Management (Hinzufügen, Entfernen, Rollen ändern) ist für Owners verfügbar
