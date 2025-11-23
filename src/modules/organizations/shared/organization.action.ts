@@ -310,11 +310,11 @@ export async function addOrganizationMember(
         if (!currentMembership.length) {
             return {
                 success: false,
-                error: "Only organization owners can add members",
+                error: "Nur Owner können Mitglieder hinzufügen",
             };
         }
 
-        // Find user by email
+        // Find user by email (silently fail if not found for security)
         const userToAdd = await db
             .select()
             .from(user)
@@ -322,7 +322,11 @@ export async function addOrganizationMember(
             .limit(1);
 
         if (!userToAdd.length) {
-            return { success: false, error: "User not found" };
+            // Don't reveal if user exists or not - return success
+            return { 
+                success: true,
+                error: undefined 
+            };
         }
 
         // Check if user is already a member
@@ -338,7 +342,7 @@ export async function addOrganizationMember(
             .limit(1);
 
         if (existingMembership.length) {
-            return { success: false, error: "User is already a member" };
+            return { success: false, error: "Benutzer ist bereits Mitglied" };
         }
 
         // Validate input
@@ -354,6 +358,7 @@ export async function addOrganizationMember(
             .values(validatedData as NewOrganizationMember);
 
         revalidatePath("/dashboard");
+        revalidatePath("/dashboard/settings/organization");
         return { success: true };
     } catch (error) {
         console.error("Error adding organization member:", error);
@@ -362,7 +367,7 @@ export async function addOrganizationMember(
             error:
                 error instanceof Error
                     ? error.message
-                    : "Failed to add member",
+                    : "Fehler beim Hinzufügen des Mitglieds",
         };
     }
 }

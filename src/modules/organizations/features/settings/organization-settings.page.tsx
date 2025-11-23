@@ -17,6 +17,7 @@ import type { OrganizationMemberWithUser } from "../../shared/models/organizatio
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
+import { AddMemberDialog } from "./add-member-dialog";
 import { authClient } from "@/modules/auth/shared/utils/auth-client";
 
 export default function OrganizationSettingsPage() {
@@ -143,7 +144,13 @@ export default function OrganizationSettingsPage() {
 
                     {isCurrentUserOwner && members.length > 0 && currentUserId && (
                         <div className="pt-4 border-t">
-                            <h3 className="text-lg font-semibold mb-4">Mitglieder</h3>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold">Mitglieder</h3>
+                                <AddMemberDialog
+                                    organizationId={organization.id}
+                                    onSuccess={loadOrganizations}
+                                />
+                            </div>
                             <MembersList
                                 members={members}
                                 currentUserId={currentUserId}

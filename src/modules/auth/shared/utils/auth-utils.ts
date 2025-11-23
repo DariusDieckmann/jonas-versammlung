@@ -6,6 +6,7 @@ import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
 import { getDb } from "@/db";
 import type { AuthUser } from "@/modules/auth/shared/models/user.model";
+import { user, session, account, verification } from "@/modules/auth/shared/schemas/auth.schema";
 
 /**
  * Cached auth instance singleton so we don't create a new instance every time
@@ -16,7 +17,8 @@ let cachedAuth: ReturnType<typeof betterAuth> | null = null;
  * Create auth instance dynamically to avoid top-level async issues
  */
 async function getAuth() {
-    if (cachedAuth) {
+    // Don't use cache in development to avoid stale configuration
+    if (cachedAuth && process.env.NODE_ENV === "production") {
         return cachedAuth;
     }
 
@@ -38,7 +40,16 @@ async function getAuth() {
         secret: env.BETTER_AUTH_SECRET,
         database: drizzleAdapter(db, {
             provider: "sqlite",
+            schema: {
+                user,
+                session,
+                account,
+                verification,
+            },
         }),
+        emailVerification: {
+            sendOnSignUp: false,
+        },
         socialProviders: {
             google: {
                 enabled: true,
