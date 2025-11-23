@@ -13,6 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { deleteProperty, getProperty } from "../../shared/property.action";
 import propertiesRoutes from "../../properties.route";
+import { getOwnersByProperty } from "@/modules/owners/shared/owner.action";
+import { PropertyOwnersList } from "@/modules/owners/shared/components/property-owners-list";
 
 interface PropertyDetailPageProps {
     propertyId: number;
@@ -27,6 +29,9 @@ export default async function PropertyDetailPage({
     if (!property) {
         notFound();
     }
+
+    // Get owners for this property
+    const owners = await getOwnersByProperty(propertyId);
 
     async function handleDelete() {
         "use server";
@@ -143,6 +148,22 @@ export default async function PropertyDetailPage({
                                 </div>
                             </>
                         )}
+                    </CardContent>
+                </Card>
+
+                {/* Eigentümer */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Eigentümer</CardTitle>
+                        <CardDescription>
+                            Verwalte die Eigentümer dieser Liegenschaft
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <PropertyOwnersList
+                            propertyId={property.id}
+                            initialOwners={owners}
+                        />
                     </CardContent>
                 </Card>
 

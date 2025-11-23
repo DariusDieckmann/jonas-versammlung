@@ -95,7 +95,13 @@ export function OwnerForm({ initialData, preselectedPropertyId }: OwnerFormProps
                         ? "Eigentümer erfolgreich aktualisiert"
                         : "Eigentümer erfolgreich erstellt"
                 );
-                router.push("/dashboard/owners");
+                
+                // If we came from a property page, go back to that property
+                if (!initialData && preselectedPropertyId) {
+                    router.push(`/dashboard/properties/${preselectedPropertyId}`);
+                } else {
+                    router.push("/dashboard/owners");
+                }
                 router.refresh();
             } else {
                 toast.error(result.error || "Ein Fehler ist aufgetreten");
@@ -137,7 +143,7 @@ export function OwnerForm({ initialData, preselectedPropertyId }: OwnerFormProps
                             <Select
                                 onValueChange={(value) => field.onChange(parseInt(value))}
                                 defaultValue={field.value?.toString()}
-                                disabled={!!initialData}
+                                disabled={!!initialData || !!preselectedPropertyId}
                             >
                                 <FormControl>
                                     <SelectTrigger>
@@ -155,6 +161,11 @@ export function OwnerForm({ initialData, preselectedPropertyId }: OwnerFormProps
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {preselectedPropertyId && (
+                                <p className="text-sm text-muted-foreground">
+                                    Liegenschaft ist vorausgewählt
+                                </p>
+                            )}
                             <FormMessage />
                         </FormItem>
                     )}

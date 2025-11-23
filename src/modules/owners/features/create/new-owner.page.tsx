@@ -1,8 +1,18 @@
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { OwnerForm } from "../../shared/components/owner-form";
 
-export default async function NewOwnerPage() {
+interface NewOwnerPageProps {
+    searchParams: {
+        propertyId?: string;
+    };
+}
+
+export default async function NewOwnerPage({ searchParams }: NewOwnerPageProps) {
     await requireAuth();
+
+    const preselectedPropertyId = searchParams.propertyId
+        ? parseInt(searchParams.propertyId)
+        : undefined;
 
     return (
         <div className="container max-w-2xl mx-auto py-8">
@@ -13,7 +23,7 @@ export default async function NewOwnerPage() {
                 </p>
             </div>
 
-            <OwnerForm />
+            <OwnerForm preselectedPropertyId={preselectedPropertyId} />
         </div>
     );
 }
