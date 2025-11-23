@@ -7,6 +7,7 @@ import {
     organizationMembers,
     organizations,
 } from "./schemas/organization.schema";
+import { OrganizationRole } from "./models/organization.model";
 
 /**
  * Ensures that a user has an organization.
@@ -48,7 +49,7 @@ export async function ensureUserHasOrganization(
     await db.insert(organizationMembers).values({
         organizationId: newOrg[0].id,
         userId: user.id,
-        role: "owner",
+        role: OrganizationRole.OWNER,
         joinedAt: new Date().toISOString(),
     });
 

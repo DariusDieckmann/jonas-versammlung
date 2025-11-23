@@ -18,6 +18,8 @@ import type {
     OrganizationMemberWithUser,
     OrganizationWithMemberCount,
 } from "./models/organization.model";
+import { isOwner, requireOwner, requireMember } from "./organization-permissions.action";
+import { OrganizationRole, type OrganizationRoleType } from "./models/organization.model";
 
 /**
  * Get all organizations for the current user
@@ -112,7 +114,7 @@ export async function createOrganization(data: {
         await db.insert(organizationMembers).values({
             organizationId: newOrg.id,
             userId: currentUser.id,
-            role: "owner",
+            role: OrganizationRole.OWNER,
         });
 
         revalidatePath("/dashboard");
@@ -137,28 +139,8 @@ export async function updateOrganization(
     data: { name?: string },
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const currentUser = await requireAuth();
+        await requireOwner(organizationId);
         const db = await getDb();
-
-        // Check if user is owner
-        const membership = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, currentUser.id),
-                    eq(organizationMembers.role, "owner"),
-                ),
-            )
-            .limit(1);
-
-        if (!membership.length) {
-            return {
-                success: false,
-                error: "Only organization owners can update the organization",
-            };
-        }
 
         // Validate input
         const validatedData = updateOrganizationSchema.parse(data);
@@ -181,7 +163,7 @@ export async function updateOrganization(
             error:
                 error instanceof Error
                     ? error.message
-                    : "Failed to update organization",
+                    : "Fehler beim Aktualisieren der Organisation",
         };
     }
 }
@@ -193,28 +175,8 @@ export async function deleteOrganization(
     organizationId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const currentUser = await requireAuth();
+        await requireOwner(organizationId);
         const db = await getDb();
-
-        // Check if user is owner
-        const membership = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, currentUser.id),
-                    eq(organizationMembers.role, "owner"),
-                ),
-            )
-            .limit(1);
-
-        if (!membership.length) {
-            return {
-                success: false,
-                error: "Only organization owners can delete the organization",
-            };
-        }
 
         // Delete organization (cascade will delete members, todos, categories)
         await db
@@ -230,7 +192,7 @@ export async function deleteOrganization(
             error:
                 error instanceof Error
                     ? error.message
-                    : "Failed to delete organization",
+                    : "Fehler beim Löschen der Organisation",
         };
     }
 }
@@ -241,24 +203,8 @@ export async function deleteOrganization(
 export async function getOrganizationMembers(
     organizationId: number,
 ): Promise<OrganizationMemberWithUser[]> {
-    const currentUser = await requireAuth();
+    await requireMember(organizationId);
     const db = await getDb();
-
-    // Check if user is a member
-    const membership = await db
-        .select()
-        .from(organizationMembers)
-        .where(
-            and(
-                eq(organizationMembers.organizationId, organizationId),
-                eq(organizationMembers.userId, currentUser.id),
-            ),
-        )
-        .limit(1);
-
-    if (!membership.length) {
-        throw new Error("You are not a member of this organization");
-    }
 
     // Get all members with user info
     const members = await db
@@ -288,31 +234,11 @@ export async function getOrganizationMembers(
 export async function addOrganizationMember(
     organizationId: number,
     email: string,
-    role: "owner" | "member" = "member",
+    role: OrganizationRoleType = OrganizationRole.MEMBER,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const currentUser = await requireAuth();
+        await requireOwner(organizationId);
         const db = await getDb();
-
-        // Check if current user is owner
-        const currentMembership = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, currentUser.id),
-                    eq(organizationMembers.role, "owner"),
-                ),
-            )
-            .limit(1);
-
-        if (!currentMembership.length) {
-            return {
-                success: false,
-                error: "Nur Owner können Mitglieder hinzufügen",
-            };
-        }
 
         // Find user by email (silently fail if not found for security)
         const userToAdd = await db
@@ -391,25 +317,8 @@ export async function removeOrganizationMember(
         const isSelfLeaving = targetUserId === currentUser.id;
 
         if (!isSelfLeaving) {
-            // Check if current user is owner (only owners can remove others)
-            const currentMembership = await db
-                .select()
-                .from(organizationMembers)
-                .where(
-                    and(
-                        eq(organizationMembers.organizationId, organizationId),
-                        eq(organizationMembers.userId, currentUser.id),
-                        eq(organizationMembers.role, "owner"),
-                    ),
-                )
-                .limit(1);
-
-            if (!currentMembership.length) {
-                return {
-                    success: false,
-                    error: "Nur Owner können Mitglieder entfernen",
-                };
-            }
+            // Only owners can remove others
+            await requireOwner(organizationId);
         }
 
         // Get member details before removing
@@ -438,12 +347,12 @@ export async function removeOrganizationMember(
             .where(
                 and(
                     eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.role, "owner"),
+                    eq(organizationMembers.role, OrganizationRole.OWNER),
                 ),
             );
 
         if (
-            memberToRemove[0]?.role === "owner" &&
+            memberToRemove[0]?.role === OrganizationRole.OWNER &&
             ownerCount[0].count <= 1
         ) {
             // If last owner is leaving, delete the entire organization
@@ -495,25 +404,21 @@ export async function removeOrganizationMember(
 export async function isOrganizationMember(
     organizationId: number,
 ): Promise<boolean> {
-    try {
-        const currentUser = await requireAuth();
-        const db = await getDb();
+    const currentUser = await requireAuth();
+    const db = await getDb();
 
-        const membership = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, currentUser.id),
-                ),
-            )
-            .limit(1);
+    const membership = await db
+        .select()
+        .from(organizationMembers)
+        .where(
+            and(
+                eq(organizationMembers.organizationId, organizationId),
+                eq(organizationMembers.userId, currentUser.id),
+            ),
+        )
+        .limit(1);
 
-        return membership.length > 0;
-    } catch {
-        return false;
-    }
+    return membership.length > 0;
 }
 
 /**
@@ -522,31 +427,12 @@ export async function isOrganizationMember(
 export async function updateMemberRole(
     organizationId: number,
     userId: string,
-    newRole: "owner" | "member",
+    newRole: OrganizationRoleType,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         const currentUser = await requireAuth();
+        await requireOwner(organizationId);
         const db = await getDb();
-
-        // Check if current user is owner
-        const currentMembership = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, currentUser.id),
-                    eq(organizationMembers.role, "owner"),
-                ),
-            )
-            .limit(1);
-
-        if (!currentMembership.length) {
-            return {
-                success: false,
-                error: "Nur Owner können Rollen ändern",
-            };
-        }
 
         // Don't allow changing own role
         if (userId === currentUser.id) {
