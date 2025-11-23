@@ -24,7 +24,7 @@
         "db:inspect:local": "wrangler d1 execute jonas-versammlung-prod --local --command=\"SELECT name FROM sqlite_master WHERE type='table';\"",
         "db:inspect:preview": "wrangler d1 execute jonas-versammlung-prod --env preview --command=\"SELECT name FROM sqlite_master WHERE type='table';\"",
         "db:inspect:prod": "wrangler d1 execute jonas-versammlung-prod --remote --command=\"SELECT name FROM sqlite_master WHERE type='table';\"",
-        "db:reset:local": "wrangler d1 execute jonas-versammlung-prod --local --command=\"DROP TABLE IF EXISTS todos;\" && pnpm run db:migrate:local",
+        "db:reset:local": "wrangler d1 execute jonas-versammlung-prod --local --command=\"DROP TABLE IF EXISTS organizations;\" && pnpm run db:migrate:local",
         "cf:secret": "npx wrangler secret put",
         "cf-typegen": "pnpm exec wrangler types && pnpm exec wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
         "lint": "npx biome format --write"

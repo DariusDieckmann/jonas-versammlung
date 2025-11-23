@@ -170,7 +170,7 @@ src/
 ├── modules/                # Feature-Module
 │   ├── auth/              # Authentication
 │   ├── dashboard/         # Dashboard
-│   └── todos/             # Todo-Feature
+│   └── organizations/     # Organizations
 └── services/              # Business-Logik Services
 ```
 

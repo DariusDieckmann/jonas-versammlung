@@ -178,7 +178,7 @@ export async function deleteOrganization(
         await requireOwner(organizationId);
         const db = await getDb();
 
-        // Delete organization (cascade will delete members, todos, categories)
+        // Delete organization (cascade will delete members)
         await db
             .delete(organizations)
             .where(eq(organizations.id, organizationId));

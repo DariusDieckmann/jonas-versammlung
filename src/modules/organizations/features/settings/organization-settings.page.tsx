@@ -89,8 +89,7 @@ export default function OrganizationSettingsPage() {
                     <CardHeader>
                         <CardTitle>Organisation erstellen</CardTitle>
                         <CardDescription>
-                            Erstelle eine Organisation, um Todos zu verwalten und
-                            mit anderen zusammenzuarbeiten.
+                            Erstelle eine Organisation, um mit anderen zusammenzuarbeiten.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

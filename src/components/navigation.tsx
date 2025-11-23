@@ -1,4 +1,4 @@
-import { Building2, CheckSquare, Home } from "lucide-react";
+import { Building2, Home } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "../modules/auth/features/logout/logout-button";
@@ -13,19 +13,13 @@ export function Navigation() {
                             href="/"
                             className="text-xl font-bold text-gray-900"
                         >
-                            TodoApp
+                            App
                         </Link>
                         <div className="items-center space-x-4 hidden md:flex">
                             <Link href="/">
                                 <Button variant="ghost" size="sm">
                                     <Home className="mr-2 h-4 w-4" />
                                     Home
-                                </Button>
-                            </Link>
-                            <Link href="/dashboard/todos">
-                                <Button variant="ghost" size="sm">
-                                    <CheckSquare className="mr-2 h-4 w-4" />
-                                    Todos
                                 </Button>
                             </Link>
                             <Link href="/dashboard/settings/organization">
