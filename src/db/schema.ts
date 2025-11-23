@@ -7,3 +7,4 @@ export {
     organizationMembers,
     organizations,
 } from "@/modules/organizations/shared/schemas/organization.schema";
+export { properties } from "@/modules/properties/shared/schemas/property.schema";
