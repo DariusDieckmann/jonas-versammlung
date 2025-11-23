@@ -50,7 +50,7 @@ export function LeaveOrganizationButton({
             toast.success("You have left the organization");
             setOpen(false);
             router.refresh();
-            router.push("/dashboard");
+            router.push("/dashboard/settings/organization");
         } catch (error) {
             console.error("Error leaving organization:", error);
             toast.error("An unexpected error occurred");
@@ -73,6 +73,9 @@ export function LeaveOrganizationButton({
                         This action cannot be undone. You will lose access to all
                         todos and categories in this organization. If you are the last
                         member, the organization and all its data will be deleted.
+                        <br />
+                        <br />
+                        You can create a new organization afterwards.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

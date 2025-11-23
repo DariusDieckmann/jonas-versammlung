@@ -1,24 +1,17 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getAllCategories } from "@/modules/todos/features/categories/get-categories.action";
 import { TodoForm } from "@/modules/todos/shared/components/todo-form";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
+import { ensureUserHasOrganization } from "@/modules/organizations/shared/ensure-organization.action";
 import todosRoutes from "../../todos.route";
 
 export default async function NewTodoPage() {
     const user = await requireAuth();
     
-    // Check if user has an organization
-    const organizations = await getUserOrganizations();
-    if (!organizations.length) {
-        redirect("/dashboard/settings/organization");
-    }
-    
-    const organizationId = organizations[0].id;
+    // Ensure user has an organization (creates one if needed)
+    const organizationId = await ensureUserHasOrganization(user);
     const categories = await getAllCategories(organizationId);
 
     return (

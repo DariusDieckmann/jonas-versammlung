@@ -1,37 +1,18 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import getAllTodos from "./get-todos.action";
 import { TodoCard } from "./todo-card";
 import todosRoutes from "../../todos.route";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
+import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { ensureUserHasOrganization } from "@/modules/organizations/shared/ensure-organization.action";
 
 export default async function TodoListPage() {
-    // Check if user has an organization
-    const organizations = await getUserOrganizations();
-    if (!organizations.length) {
-        return (
-            <div className="container max-w-4xl mx-auto py-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>No Organization Found</CardTitle>
-                        <CardDescription>
-                            You need to create or join an organization before you can manage todos.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Link href="/dashboard/settings/organization">
-                            <Button>Create Organization</Button>
-                        </Link>
-                    </CardContent>
-                </Card>
-            </div>
-        );
-    }
+    const user = await requireAuth();
     
-    const organizationId = organizations[0].id;
+    // Ensure user has an organization (creates one if needed)
+    const organizationId = await ensureUserHasOrganization(user);
+    
     const todos = await getAllTodos(organizationId);
 
     return (

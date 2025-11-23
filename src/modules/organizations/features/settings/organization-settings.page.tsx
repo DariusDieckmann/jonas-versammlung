@@ -1,18 +1,41 @@
+"use client";
+
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 import { getUserOrganizations } from "../../shared/organization.action";
+import type { OrganizationWithMemberCount } from "../../shared/models/organization.model";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
 
-export default async function OrganizationSettingsPage() {
-    const user = await requireAuth();
-    const organizations = await getUserOrganizations();
+export default function OrganizationSettingsPage() {
+    const [organizations, setOrganizations] = useState<OrganizationWithMemberCount[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // User has no organization yet
+    useEffect(() => {
+        getUserOrganizations().then((orgs) => {
+            setOrganizations(orgs);
+            setIsLoading(false);
+        });
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="container max-w-2xl mx-auto py-8">
+                <p>Loading...</p>
+            </div>
+        );
+    }
+
+    // User has no organization - show creation form
     if (organizations.length === 0) {
         return (
             <div className="container max-w-2xl mx-auto py-8">
@@ -23,7 +46,9 @@ export default async function OrganizationSettingsPage() {
                             Back to Dashboard
                         </Button>
                     </Link>
-                    <h1 className="text-3xl font-bold">Organization Settings</h1>
+                    <h1 className="text-3xl font-bold">
+                        Organization Settings
+                    </h1>
                     <p className="text-gray-600 mt-1">
                         Create your organization to get started
                     </p>
@@ -33,7 +58,8 @@ export default async function OrganizationSettingsPage() {
                     <CardHeader>
                         <CardTitle>Create Organization</CardTitle>
                         <CardDescription>
-                            You need an organization to manage todos and collaborate with others.
+                            Create an organization to manage todos and
+                            collaborate with others.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -44,7 +70,7 @@ export default async function OrganizationSettingsPage() {
         );
     }
 
-    // User already has an organization (only one allowed)
+    // User has an organization
     const organization = organizations[0];
 
     return (
@@ -72,18 +98,29 @@ export default async function OrganizationSettingsPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div>
-                            <h3 className="text-lg font-semibold">{organization.name}</h3>
+                            <h3 className="text-lg font-semibold">
+                                {organization.name}
+                            </h3>
                             {organization.description && (
-                                <p className="text-gray-600 mt-1">{organization.description}</p>
+                                <p className="text-gray-600 mt-1">
+                                    {organization.description}
+                                </p>
                             )}
                         </div>
-                        
+
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                             <div>
-                                <span className="font-medium">{organization.memberCount}</span> member{organization.memberCount !== 1 ? 's' : ''}
+                                <span className="font-medium">
+                                    {organization.memberCount}
+                                </span>{" "}
+                                member
+                                {organization.memberCount !== 1 ? "s" : ""}
                             </div>
                             <div>
-                                Created {new Date(organization.createdAt).toLocaleDateString()}
+                                Created{" "}
+                                {new Date(
+                                    organization.createdAt,
+                                ).toLocaleDateString()}
                             </div>
                         </div>
                     </CardContent>
@@ -91,13 +128,16 @@ export default async function OrganizationSettingsPage() {
 
                 <Card className="border-red-200">
                     <CardHeader>
-                        <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                        <CardTitle className="text-red-600">
+                            Danger Zone
+                        </CardTitle>
                         <CardDescription>
-                            Leave this organization. This action cannot be undone.
+                            Leave this organization. This action cannot be
+                            undone. You can create a new organization afterwards.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <LeaveOrganizationButton 
+                        <LeaveOrganizationButton
                             organizationId={organization.id}
                             organizationName={organization.name}
                         />
