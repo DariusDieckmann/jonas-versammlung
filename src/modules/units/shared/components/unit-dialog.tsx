@@ -44,6 +44,23 @@ const unitWithOwnersSchema = insertUnitSchema.extend({
             _deleted: z.boolean().optional(), // To track deletions
         })
     ).optional(),
+}).superRefine((data, ctx) => {
+    // Validate that total share percentage does not exceed 100%
+    if (data.owners && data.owners.length > 0) {
+        const activeOwners = data.owners.filter(o => !o._deleted);
+        const totalPercentage = activeOwners.reduce(
+            (sum, owner) => sum + (owner.sharePercentage || 0),
+            0
+        );
+        
+        if (totalPercentage > 100) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Die Summe der Anteile (${totalPercentage}%) darf 100% nicht überschreiten`,
+                path: ["owners"],
+            });
+        }
+    }
 });
 
 type UnitWithOwners = z.infer<typeof unitWithOwnersSchema>;
@@ -410,6 +427,49 @@ export function UnitDialog({
                                     Eigentümer hinzufügen
                                 </Button>
                             </div>
+
+                            {fields.length > 0 && (() => {
+                                const totalPercentage = fields.reduce(
+                                    (sum, _, index) => {
+                                        const value = form.watch(`owners.${index}.sharePercentage`);
+                                        return sum + (value || 0);
+                                    },
+                                    0
+                                );
+                                const isOverLimit = totalPercentage > 100;
+
+                                return (
+                                    <div className={`mb-4 p-3 text-sm rounded-md ${
+                                        isOverLimit 
+                                            ? 'bg-destructive/10 text-destructive' 
+                                            : totalPercentage === 100
+                                                ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+                                                : 'bg-muted'
+                                    }`}>
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium">
+                                                Summe der Anteile: {totalPercentage}%
+                                            </span>
+                                            {isOverLimit && (
+                                                <span className="text-xs">
+                                                    ⚠️ Überschreitung um {totalPercentage - 100}%
+                                                </span>
+                                            )}
+                                            {totalPercentage === 100 && (
+                                                <span className="text-xs">
+                                                    ✓ Vollständig vergeben
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {form.formState.errors.owners && (
+                                <div className="mb-4 p-3 text-sm bg-destructive/10 text-destructive rounded-md">
+                                    {form.formState.errors.owners.message}
+                                </div>
+                            )}
 
                             {loadingOwners ? (
                                 <div className="text-center py-8 text-muted-foreground">
