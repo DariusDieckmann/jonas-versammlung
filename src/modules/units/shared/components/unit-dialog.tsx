@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -22,8 +23,30 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { createUnit, updateUnit } from "../unit.action";
+import { createOwner, updateOwner, deleteOwner, getOwnersByUnit } from "@/modules/owners/shared/owner.action";
 import { insertUnitSchema, type InsertUnit, type Unit } from "../schemas/unit.schema";
+import { insertOwnerSchema, type InsertOwner, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
+import { z } from "zod";
+
+// Extended schema that includes owners for unit management
+const unitWithOwnersSchema = insertUnitSchema.extend({
+    owners: z.array(
+        z.object({
+            id: z.number().optional(), // For existing owners
+            firstName: z.string().min(1, "Vorname ist erforderlich"),
+            lastName: z.string().min(1, "Nachname ist erforderlich"),
+            email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),
+            phone: z.string().optional(),
+            sharePercentage: z.number().min(1).max(100).optional(),
+            notes: z.string().optional(),
+            _deleted: z.boolean().optional(), // To track deletions
+        })
+    ).optional(),
+});
+
+type UnitWithOwners = z.infer<typeof unitWithOwnersSchema>;
 
 interface UnitDialogProps {
     open: boolean;
@@ -41,9 +64,10 @@ export function UnitDialog({
     onSuccess,
 }: UnitDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loadingOwners, setLoadingOwners] = useState(false);
 
-    const form = useForm<InsertUnit>({
-        resolver: zodResolver(insertUnitSchema),
+    const form = useForm<UnitWithOwners>({
+        resolver: zodResolver(unitWithOwnersSchema),
         defaultValues: {
             propertyId: propertyId,
             name: "",
@@ -51,22 +75,46 @@ export function UnitDialog({
             area: undefined,
             ownershipShares: undefined,
             notes: undefined,
+            owners: [],
         },
     });
 
-    // Update form values when unit changes or dialog opens
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "owners",
+    });
+
+    // Load owners when editing a unit
     useEffect(() => {
-        if (open) {
-            if (unit) {
-                form.reset({
-                    propertyId: unit.propertyId,
-                    name: unit.name,
-                    floor: unit.floor ?? undefined,
-                    area: unit.area ?? undefined,
-                    ownershipShares: unit.ownershipShares,
-                    notes: unit.notes ?? undefined,
-                });
-            } else {
+        async function loadOwners() {
+            if (open && unit) {
+                setLoadingOwners(true);
+                try {
+                    const owners = await getOwnersByUnit(unit.id);
+                    form.reset({
+                        propertyId: unit.propertyId,
+                        name: unit.name,
+                        floor: unit.floor ?? undefined,
+                        area: unit.area ?? undefined,
+                        ownershipShares: unit.ownershipShares,
+                        notes: unit.notes ?? undefined,
+                        owners: owners.map(o => ({
+                            id: o.id,
+                            firstName: o.firstName,
+                            lastName: o.lastName,
+                            email: o.email || "",
+                            phone: o.phone || "",
+                            sharePercentage: o.sharePercentage ?? undefined,
+                            notes: o.notes || "",
+                        })),
+                    });
+                } catch (error) {
+                    console.error("Error loading owners:", error);
+                    toast.error("Fehler beim Laden der Eigentümer");
+                } finally {
+                    setLoadingOwners(false);
+                }
+            } else if (open && !unit) {
                 form.reset({
                     propertyId: propertyId,
                     name: "",
@@ -74,19 +122,109 @@ export function UnitDialog({
                     area: undefined,
                     ownershipShares: undefined,
                     notes: undefined,
+                    owners: [],
                 });
             }
         }
+        loadOwners();
     }, [open, unit, propertyId, form]);
 
-    async function onSubmit(data: InsertUnit) {
+    async function onSubmit(data: UnitWithOwners) {
         setIsSubmitting(true);
         try {
-            let result;
+            let result: { success: boolean; error?: string; unitId?: number };
+            
             if (unit) {
-                result = await updateUnit(unit.id, data);
+                // Update the unit
+                result = await updateUnit(unit.id, {
+                    propertyId: data.propertyId,
+                    name: data.name,
+                    floor: data.floor,
+                    area: data.area,
+                    ownershipShares: data.ownershipShares,
+                    notes: data.notes,
+                });
+
+                // Handle owners - create new ones, update existing, delete removed
+                if (result.success && data.owners) {
+                    const ownerPromises = [];
+                    
+                    for (const owner of data.owners) {
+                        if (owner._deleted && owner.id) {
+                            // Delete existing owner
+                            ownerPromises.push(deleteOwner(owner.id));
+                        } else if (owner.id) {
+                            // Update existing owner
+                            ownerPromises.push(
+                                updateOwner(owner.id, {
+                                    unitId: unit.id,
+                                    firstName: owner.firstName,
+                                    lastName: owner.lastName,
+                                    email: owner.email || null,
+                                    phone: owner.phone || null,
+                                    sharePercentage: owner.sharePercentage || null,
+                                    notes: owner.notes || null,
+                                })
+                            );
+                        } else {
+                            // Create new owner
+                            ownerPromises.push(
+                                createOwner({
+                                    unitId: unit.id,
+                                    firstName: owner.firstName,
+                                    lastName: owner.lastName,
+                                    email: owner.email || null,
+                                    phone: owner.phone || null,
+                                    sharePercentage: owner.sharePercentage || null,
+                                    notes: owner.notes || null,
+                                })
+                            );
+                        }
+                    }
+
+                    const ownerResults = await Promise.all(ownerPromises);
+                    const failedOwners = ownerResults.filter((r) => !r.success);
+                    
+                    if (failedOwners.length > 0) {
+                        toast.error(
+                            `Einheit aktualisiert, aber ${failedOwners.length} Eigentümer konnte(n) nicht gespeichert werden`
+                        );
+                    }
+                }
             } else {
-                result = await createUnit(data);
+                // Create unit
+                result = await createUnit({
+                    propertyId: data.propertyId,
+                    name: data.name,
+                    floor: data.floor,
+                    area: data.area,
+                    ownershipShares: data.ownershipShares,
+                    notes: data.notes,
+                });
+
+                // If successful and owners were provided, create them
+                if (result.success && result.unitId && data.owners && data.owners.length > 0) {
+                    const ownerPromises = data.owners.map((owner) =>
+                        createOwner({
+                            unitId: result.unitId!,
+                            firstName: owner.firstName,
+                            lastName: owner.lastName,
+                            email: owner.email || null,
+                            phone: owner.phone || null,
+                            sharePercentage: owner.sharePercentage || null,
+                            notes: owner.notes || null,
+                        })
+                    );
+
+                    const ownerResults = await Promise.all(ownerPromises);
+                    const failedOwners = ownerResults.filter((r) => !r.success);
+                    
+                    if (failedOwners.length > 0) {
+                        toast.error(
+                            `Einheit erstellt, aber ${failedOwners.length} Eigentümer konnte(n) nicht hinzugefügt werden`
+                        );
+                    }
+                }
             }
 
             if (result.success) {
@@ -234,7 +372,173 @@ export function UnitDialog({
                             )}
                         />
 
-                        <div className="flex gap-3 justify-end pt-4">
+                        <Separator className="my-6" />
+                        
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 className="text-lg font-medium">
+                                        {unit ? "Eigentümer" : "Eigentümer (optional)"}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {unit 
+                                            ? "Verwalte die Eigentümer für diese Einheit"
+                                            : "Füge direkt Eigentümer für diese Einheit hinzu"
+                                        }
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        append({
+                                            firstName: "",
+                                            lastName: "",
+                                            email: "",
+                                            phone: "",
+                                            sharePercentage: undefined,
+                                            notes: "",
+                                        })
+                                    }
+                                    disabled={loadingOwners}
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Eigentümer hinzufügen
+                                </Button>
+                            </div>
+
+                            {loadingOwners ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    Lade Eigentümer...
+                                </div>
+                            ) : fields.length > 0 ? (
+                                <div className="space-y-4">
+                                    {fields.map((field, index) => (
+                                        <div
+                                                    key={field.id}
+                                                    className="border rounded-lg p-4 space-y-4"
+                                                >
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <h4 className="font-medium text-sm">
+                                                            Eigentümer {index + 1}
+                                                        </h4>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => remove(index)}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`owners.${index}.firstName`}
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel>Vorname *</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input {...field} />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`owners.${index}.lastName`}
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel>Nachname *</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input {...field} />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`owners.${index}.email`}
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel>E-Mail</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            type="email"
+                                                                            placeholder="max@example.com"
+                                                                            {...field}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`owners.${index}.phone`}
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel>Telefon</FormLabel>
+                                                                    <FormControl>
+                                                                        <Input
+                                                                            type="tel"
+                                                                            placeholder="+49 123 456789"
+                                                                            {...field}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormMessage />
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    </div>
+
+                                                    <FormField
+                                                        control={form.control}
+                                                        name={`owners.${index}.sharePercentage`}
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Anteil (%)</FormLabel>
+                                                                <FormControl>
+                                                                    <Input
+                                                                        type="number"
+                                                                        min="1"
+                                                                        max="100"
+                                                                        placeholder="z.B. 50"
+                                                                        {...field}
+                                                                        value={field.value ?? ""}
+                                                                        onChange={(e) =>
+                                                                            field.onChange(
+                                                                                e.target.value
+                                                                                    ? parseInt(e.target.value)
+                                                                                    : undefined
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg border-dashed">
+                                            Keine Eigentümer hinzugefügt
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex gap-3 justify-end pt-4">
                             <Button
                                 type="button"
                                 variant="outline"
