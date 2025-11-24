@@ -110,7 +110,20 @@ export function PropertyUnitsList({
                                 <TableHead>Name</TableHead>
                                 <TableHead>Etage</TableHead>
                                 <TableHead>Fläche</TableHead>
-                                <TableHead>MEA</TableHead>
+                                <TableHead>
+                                    <div className="flex flex-col">
+                                        <span>MEA</span>
+                                        <span className="text-xs font-normal text-muted-foreground">
+                                            ({units.reduce((sum, unit) => {
+                                                const totalPercentage = unit.owners.reduce(
+                                                    (ownerSum, owner) => ownerSum + (owner.sharePercentage || 0),
+                                                    0
+                                                );
+                                                return sum + Math.round((totalPercentage / 100) * unit.ownershipShares);
+                                            }, 0)}/10000)
+                                        </span>
+                                    </div>
+                                </TableHead>
                                 <TableHead>Eigentümer</TableHead>
                                 <TableHead className="text-right">Aktionen</TableHead>
                             </TableRow>
@@ -132,7 +145,7 @@ export function PropertyUnitsList({
                                             {unit.ownershipShares}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>
+                                        <TableCell>
                                         {unit.owners.length === 0 ? (
                                             <span className="text-sm text-muted-foreground">
                                                 Keine Eigentümer
