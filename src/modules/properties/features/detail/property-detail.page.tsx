@@ -13,8 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { deleteProperty, getProperty } from "../../shared/property.action";
 import propertiesRoutes from "../../properties.route";
-import { getOwnersByProperty } from "@/modules/owners/shared/owner.action";
-import { PropertyOwnersList } from "@/modules/owners/shared/components/property-owners-list";
+import { getUnitsWithOwners } from "@/modules/units/shared/unit.action";
+import { PropertyUnitsList } from "@/modules/units/shared/components/property-units-list";
 
 interface PropertyDetailPageProps {
     propertyId: number;
@@ -30,8 +30,8 @@ export default async function PropertyDetailPage({
         notFound();
     }
 
-    // Get owners for this property
-    const owners = await getOwnersByProperty(propertyId);
+    // Get units with owners for this property
+    const unitsWithOwners = await getUnitsWithOwners(propertyId);
 
     async function handleDelete() {
         "use server";
@@ -151,18 +151,18 @@ export default async function PropertyDetailPage({
                     </CardContent>
                 </Card>
 
-                {/* Eigentümer */}
+                {/* Einheiten & Eigentümer */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Eigentümer</CardTitle>
+                        <CardTitle>Einheiten & Eigentümer</CardTitle>
                         <CardDescription>
-                            Verwalte die Eigentümer dieser Liegenschaft
+                            Verwalte die Einheiten und Eigentümer dieser Liegenschaft
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <PropertyOwnersList
+                        <PropertyUnitsList
                             propertyId={property.id}
-                            initialOwners={owners}
+                            initialUnitsWithOwners={unitsWithOwners}
                         />
                     </CardContent>
                 </Card>

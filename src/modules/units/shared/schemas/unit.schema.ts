@@ -1,0 +1,68 @@
+import { integer, sqliteTable, text, real } from "drizzle-orm/sqlite-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
+import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
+
+export const units = sqliteTable("units", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    organizationId: integer("organization_id")
+        .notNull()
+        .references(() => organizations.id, { onDelete: "cascade" }),
+    propertyId: integer("property_id")
+        .notNull()
+        .references(() => properties.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    floor: integer("floor"),
+    area: real("area"),
+    ownershipShares: integer("ownership_shares").notNull(),
+    notes: text("notes"),
+    createdAt: text("created_at")
+        .notNull()
+        .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
+        .notNull()
+        .$defaultFn(() => new Date().toISOString()),
+});
+
+// Validation schemas
+export const insertUnitSchema = createInsertSchema(units, {
+    name: z
+        .string()
+        .min(1, "Einheit muss mindestens 1 Zeichen lang sein")
+        .max(100, "Einheit darf maximal 100 Zeichen lang sein"),
+    floor: z
+        .number()
+        .int("Etage muss eine Ganzzahl sein")
+        .optional()
+        .nullable(),
+    area: z
+        .number()
+        .min(0, "Fläche muss größer oder gleich 0 sein")
+        .optional()
+        .nullable(),
+    ownershipShares: z
+        .number()
+        .int("Miteigentumsanteile müssen eine Ganzzahl sein")
+        .min(1, "Mindestens 1 Anteil erforderlich"),
+    notes: z
+        .string()
+        .max(2000, "Notizen dürfen maximal 2000 Zeichen lang sein")
+        .optional()
+        .nullable(),
+}).omit({
+    id: true,
+    organizationId: true,
+    createdAt: true,
+    updatedAt: true,
+});
+
+export const updateUnitSchema = insertUnitSchema.partial();
+
+export const selectUnitSchema = createSelectSchema(units);
+
+// Types
+export type Unit = typeof units.$inferSelect;
+export type NewUnit = typeof units.$inferInsert;
+export type InsertUnit = z.infer<typeof insertUnitSchema>;
+export type UpdateUnit = z.infer<typeof updateUnitSchema>;

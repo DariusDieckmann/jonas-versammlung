@@ -2,22 +2,21 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
-import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import { units } from "@/modules/units/shared/schemas/unit.schema";
 
 export const owners = sqliteTable("owners", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     organizationId: integer("organization_id")
         .notNull()
         .references(() => organizations.id, { onDelete: "cascade" }),
-    propertyId: integer("property_id")
+    unitId: integer("unit_id")
         .notNull()
-        .references(() => properties.id, { onDelete: "cascade" }),
+        .references(() => units.id, { onDelete: "cascade" }),
     firstName: text("first_name").notNull(),
     lastName: text("last_name").notNull(),
     email: text("email"),
     phone: text("phone"),
-    ownershipShares: integer("ownership_shares").notNull(),
-    unit: text("unit"),
+    sharePercentage: integer("share_percentage"),
     notes: text("notes"),
     createdAt: text("created_at")
         .notNull()
@@ -48,13 +47,11 @@ export const insertOwnerSchema = createInsertSchema(owners, {
         .max(50, "Telefonnummer darf maximal 50 Zeichen lang sein")
         .optional()
         .nullable(),
-    ownershipShares: z
+    sharePercentage: z
         .number()
-        .int("Miteigentumsanteile müssen eine Ganzzahl sein")
-        .min(1, "Mindestens 1 Anteil erforderlich"),
-    unit: z
-        .string()
-        .max(100, "Einheit darf maximal 100 Zeichen lang sein")
+        .int("Anteil muss eine Ganzzahl sein")
+        .min(1, "Mindestens 1% erforderlich")
+        .max(100, "Maximal 100% möglich")
         .optional()
         .nullable(),
     notes: z

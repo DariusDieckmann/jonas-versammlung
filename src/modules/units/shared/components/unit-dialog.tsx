@@ -22,81 +22,78 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createOwner, updateOwner } from "../owner.action";
-import { insertOwnerSchema, type InsertOwner, type Owner } from "../schemas/owner.schema";
+import { createUnit, updateUnit } from "../unit.action";
+import { insertUnitSchema, type InsertUnit, type Unit } from "../schemas/unit.schema";
 
-interface OwnerDialogProps {
+interface UnitDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    unitId: number;
-    owner?: Owner;
+    propertyId: number;
+    unit?: Unit;
     onSuccess: () => void;
 }
 
-export function OwnerDialog({
+export function UnitDialog({
     open,
     onOpenChange,
-    unitId,
-    owner,
+    propertyId,
+    unit,
     onSuccess,
-}: OwnerDialogProps) {
+}: UnitDialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const form = useForm<InsertOwner>({
-        resolver: zodResolver(insertOwnerSchema),
+    const form = useForm<InsertUnit>({
+        resolver: zodResolver(insertUnitSchema),
         defaultValues: {
-            unitId: unitId,
-            firstName: "",
-            lastName: "",
-            email: undefined,
-            phone: undefined,
-            sharePercentage: undefined,
+            propertyId: propertyId,
+            name: "",
+            floor: undefined,
+            area: undefined,
+            ownershipShares: undefined,
             notes: undefined,
         },
     });
 
-    // Update form values when owner changes or dialog opens
+    // Update form values when unit changes or dialog opens
     useEffect(() => {
         if (open) {
-            if (owner) {
+            if (unit) {
                 form.reset({
-                    unitId: owner.unitId,
-                    firstName: owner.firstName,
-                    lastName: owner.lastName,
-                    email: owner.email ?? undefined,
-                    phone: owner.phone ?? undefined,
-                    sharePercentage: owner.sharePercentage ?? undefined,
-                    notes: owner.notes ?? undefined,
+                    propertyId: unit.propertyId,
+                    name: unit.name,
+                    floor: unit.floor ?? undefined,
+                    area: unit.area ?? undefined,
+                    ownershipShares: unit.ownershipShares,
+                    notes: unit.notes ?? undefined,
                 });
             } else {
                 form.reset({
-                    unitId: unitId,
-                    firstName: "",
-                    lastName: "",
-                    email: undefined,
-                    phone: undefined,
-                    sharePercentage: undefined,
+                    propertyId: propertyId,
+                    name: "",
+                    floor: undefined,
+                    area: undefined,
+                    ownershipShares: undefined,
                     notes: undefined,
                 });
             }
         }
-    }, [open, owner, unitId, form]);
+    }, [open, unit, propertyId, form]);
 
-    async function onSubmit(data: InsertOwner) {
+    async function onSubmit(data: InsertUnit) {
         setIsSubmitting(true);
         try {
             let result;
-            if (owner) {
-                result = await updateOwner(owner.id, data);
+            if (unit) {
+                result = await updateUnit(unit.id, data);
             } else {
-                result = await createOwner(data);
+                result = await createUnit(data);
             }
 
             if (result.success) {
                 toast.success(
-                    owner
-                        ? "Eigentümer erfolgreich aktualisiert"
-                        : "Eigentümer erfolgreich erstellt"
+                    unit
+                        ? "Einheit erfolgreich aktualisiert"
+                        : "Einheit erfolgreich erstellt"
                 );
                 form.reset();
                 onOpenChange(false);
@@ -117,60 +114,49 @@ export function OwnerDialog({
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
-                        {owner ? "Eigentümer bearbeiten" : "Neuen Eigentümer hinzufügen"}
+                        {unit ? "Einheit bearbeiten" : "Neue Einheit hinzufügen"}
                     </DialogTitle>
                     <DialogDescription>
-                        {owner
-                            ? "Bearbeite die Daten des Eigentümers"
-                            : "Erfasse die Daten eines neuen Eigentümers"}
+                        {unit
+                            ? "Bearbeite die Daten der Einheit"
+                            : "Erfasse die Daten einer neuen Einheit"}
                     </DialogDescription>
                 </DialogHeader>
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="firstName"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Vorname *</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Max" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Einheit *</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="z.B. Wohnung 3a, Gewerbe EG" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormField
                                 control={form.control}
-                                name="lastName"
+                                name="floor"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Nachname *</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Mustermann" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>E-Mail</FormLabel>
+                                        <FormLabel>Etage</FormLabel>
                                         <FormControl>
                                             <Input
-                                                type="email"
-                                                placeholder="max@example.com"
+                                                type="number"
+                                                placeholder="z.B. 2"
                                                 {...field}
-                                                value={field.value || ""}
+                                                value={field.value ?? ""}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value ? parseInt(e.target.value) : undefined
+                                                    )
+                                                }
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -180,36 +166,40 @@ export function OwnerDialog({
 
                             <FormField
                                 control={form.control}
-                                name="phone"
+                                name="area"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Telefon</FormLabel>
+                                        <FormLabel>Fläche (m²)</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="+49 123 456789"
+                                                type="number"
+                                                step="0.01"
+                                                placeholder="z.B. 85.5"
                                                 {...field}
-                                                value={field.value || ""}
+                                                value={field.value ?? ""}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value ? parseFloat(e.target.value) : undefined
+                                                    )
+                                                }
                                             />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
-                                name="sharePercentage"
+                                name="ownershipShares"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Anteil (%)</FormLabel>
+                                        <FormLabel>MEA *</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="number"
                                                 min="1"
-                                                max="100"
-                                                placeholder="z.B. 50 (bei Miteigentum)"
+                                                placeholder="z.B. 125"
                                                 {...field}
                                                 value={field.value ?? ""}
                                                 onChange={(e) =>
@@ -233,7 +223,7 @@ export function OwnerDialog({
                                     <FormLabel>Notizen</FormLabel>
                                     <FormControl>
                                         <Textarea
-                                            placeholder="Optionale Notizen zum Eigentümer"
+                                            placeholder="Optionale Notizen zur Einheit"
                                             rows={3}
                                             {...field}
                                             value={field.value || ""}
@@ -256,7 +246,7 @@ export function OwnerDialog({
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting
                                     ? "Wird gespeichert..."
-                                    : owner
+                                    : unit
                                       ? "Aktualisieren"
                                       : "Erstellen"}
                             </Button>

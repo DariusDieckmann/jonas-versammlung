@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -9,20 +9,21 @@ import {
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
 import {
-    insertOwnerSchema,
-    owners,
-    updateOwnerSchema,
-    type InsertOwner,
-    type Owner,
-    type UpdateOwner,
-} from "./schemas/owner.schema";
+    insertUnitSchema,
+    units,
+    updateUnitSchema,
+    type InsertUnit,
+    type Unit,
+    type UpdateUnit,
+} from "./schemas/unit.schema";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import { units } from "@/modules/units/shared/schemas/unit.schema";
+
+import { owners, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
 
 /**
- * Get all owners for the user's organization
+ * Get all units for a specific property
  */
-export async function getOwners(): Promise<Owner[]> {
+export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
     const user = await requireAuth();
     const db = await getDb();
 
@@ -38,17 +39,22 @@ export async function getOwners(): Promise<Owner[]> {
 
     const result = await db
         .select()
-        .from(owners)
-        .where(eq(owners.organizationId, organization.id))
-        .orderBy(owners.lastName, owners.firstName);
+        .from(units)
+        .where(
+            and(
+                eq(units.organizationId, organization.id),
+                eq(units.propertyId, propertyId)
+            )
+        )
+        .orderBy(units.name);
 
     return result;
 }
 
 /**
- * Get owners for a specific unit
+ * Get all units with their owners for a specific property
  */
-export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
+export async function getUnitsWithOwners(propertyId: number): Promise<Array<Unit & { owners: Owner[] }>> {
     const user = await requireAuth();
     const db = await getDb();
 
@@ -62,49 +68,81 @@ export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
 
     await requireMember(organization.id);
 
-    const result = await db
+    // Get all units for the property
+    const unitsResult = await db
+        .select()
+        .from(units)
+        .where(
+            and(
+                eq(units.organizationId, organization.id),
+                eq(units.propertyId, propertyId)
+            )
+        )
+        .orderBy(units.name);
+
+    // Get all owners for these units
+    const unitIds = unitsResult.map(u => u.id);
+    
+    if (unitIds.length === 0) {
+        return [];
+    }
+
+    const ownersResult = await db
         .select()
         .from(owners)
         .where(
             and(
                 eq(owners.organizationId, organization.id),
-                eq(owners.unitId, unitId)
+                inArray(owners.unitId, unitIds)
             )
         )
         .orderBy(owners.lastName, owners.firstName);
 
-    return result;
+    // Group owners by unitId
+    const ownersByUnit = ownersResult.reduce((acc, owner) => {
+        if (!acc[owner.unitId]) {
+            acc[owner.unitId] = [];
+        }
+        acc[owner.unitId].push(owner);
+        return acc;
+    }, {} as Record<number, Owner[]>);
+
+    // Combine units with their owners
+    return unitsResult.map(unit => ({
+        ...unit,
+        owners: ownersByUnit[unit.id] || []
+    }));
 }
 
 /**
- * Get a single owner by ID
+ * Get a single unit by ID
  */
-export async function getOwner(ownerId: number): Promise<Owner | null> {
+export async function getUnit(unitId: number): Promise<Unit | null> {
     const user = await requireAuth();
     const db = await getDb();
 
     const result = await db
         .select()
-        .from(owners)
-        .where(eq(owners.id, ownerId))
+        .from(units)
+        .where(eq(units.id, unitId))
         .limit(1);
 
     if (!result.length) {
         return null;
     }
 
-    const owner = result[0];
-    await requireMember(owner.organizationId);
+    const unit = result[0];
+    await requireMember(unit.organizationId);
 
-    return owner;
+    return unit;
 }
 
 /**
- * Create a new owner in the user's organization
+ * Create a new unit
  */
-export async function createOwner(
-    data: InsertOwner,
-): Promise<{ success: boolean; error?: string; ownerId?: number }> {
+export async function createUnit(
+    data: InsertUnit,
+): Promise<{ success: boolean; error?: string; unitId?: number }> {
     try {
         const user = await requireAuth();
         const db = await getDb();
@@ -122,26 +160,11 @@ export async function createOwner(
 
         await requireMember(organization.id);
 
-        const validatedData = insertOwnerSchema.parse(data);
-
-        // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: and(
-                eq(units.id, data.unitId),
-                eq(units.organizationId, organization.id)
-            ),
-        });
-
-        if (!unit) {
-            return {
-                success: false,
-                error: "Einheit nicht gefunden",
-            };
-        }
+        const validatedData = insertUnitSchema.parse(data);
 
         const now = new Date().toISOString();
         const result = await db
-            .insert(owners)
+            .insert(units)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
@@ -150,120 +173,105 @@ export async function createOwner(
             })
             .returning();
 
-        revalidatePath(`/dashboard/properties/${unit.propertyId}`);
-        return { success: true, ownerId: result[0].id };
+        revalidatePath(`/dashboard/properties/${data.propertyId}`);
+        return { success: true, unitId: result[0].id };
     } catch (error) {
-        console.error("Error creating owner:", error);
+        console.error("Error creating unit:", error);
         return {
             success: false,
             error:
                 error instanceof Error
                     ? error.message
-                    : "Fehler beim Erstellen des Eigentümers",
+                    : "Fehler beim Erstellen der Einheit",
         };
     }
 }
 
 /**
- * Update an owner
+ * Update a unit
  */
-export async function updateOwner(
-    ownerId: number,
-    data: UpdateOwner,
+export async function updateUnit(
+    unitId: number,
+    data: UpdateUnit,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         const user = await requireAuth();
         const db = await getDb();
 
-        // Get owner to check organization
+        // Get unit to check organization
         const existing = await db
             .select()
-            .from(owners)
-            .where(eq(owners.id, ownerId))
+            .from(units)
+            .where(eq(units.id, unitId))
             .limit(1);
 
         if (!existing.length) {
-            return { success: false, error: "Eigentümer nicht gefunden" };
+            return { success: false, error: "Einheit nicht gefunden" };
         }
 
         await requireMember(existing[0].organizationId);
 
-        const validatedData = updateOwnerSchema.parse(data);
+        const validatedData = updateUnitSchema.parse(data);
         const now = new Date().toISOString();
 
         await db
-            .update(owners)
+            .update(units)
             .set({
                 ...validatedData,
                 updatedAt: now,
             })
-            .where(eq(owners.id, ownerId));
+            .where(eq(units.id, unitId));
 
-        // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: eq(units.id, existing[0].unitId),
-        });
-
-        if (unit) {
-            revalidatePath(`/dashboard/properties/${unit.propertyId}`);
-        }
+        revalidatePath(`/dashboard/properties/${existing[0].propertyId}`);
 
         return { success: true };
     } catch (error) {
-        console.error("Error updating owner:", error);
+        console.error("Error updating unit:", error);
         return {
             success: false,
             error:
                 error instanceof Error
                     ? error.message
-                    : "Fehler beim Aktualisieren des Eigentümers",
+                    : "Fehler beim Aktualisieren der Einheit",
         };
     }
 }
 
 /**
- * Delete an owner
+ * Delete a unit
  */
-export async function deleteOwner(
-    ownerId: number,
+export async function deleteUnit(
+    unitId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         const user = await requireAuth();
         const db = await getDb();
 
-        // Get owner to check organization
+        // Get unit to check organization
         const existing = await db
             .select()
-            .from(owners)
-            .where(eq(owners.id, ownerId))
+            .from(units)
+            .where(eq(units.id, unitId))
             .limit(1);
 
         if (!existing.length) {
-            return { success: false, error: "Eigentümer nicht gefunden" };
+            return { success: false, error: "Einheit nicht gefunden" };
         }
 
         await requireOwner(existing[0].organizationId);
 
-        // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: eq(units.id, existing[0].unitId),
-        });
+        await db.delete(units).where(eq(units.id, unitId));
 
-        await db.delete(owners).where(eq(owners.id, ownerId));
-
-        if (unit) {
-            revalidatePath(`/dashboard/properties/${unit.propertyId}`);
-        }
-
+        revalidatePath(`/dashboard/properties/${existing[0].propertyId}`);
         return { success: true };
     } catch (error) {
-        console.error("Error deleting owner:", error);
+        console.error("Error deleting unit:", error);
         return {
             success: false,
             error:
                 error instanceof Error
                     ? error.message
-                    : "Fehler beim Löschen des Eigentümers",
+                    : "Fehler beim Löschen der Einheit",
         };
     }
 }
