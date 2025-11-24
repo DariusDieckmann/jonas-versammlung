@@ -2,16 +2,17 @@ import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { OwnerForm } from "../../shared/components/owner-form";
 
 interface NewOwnerPageProps {
-    searchParams: {
+    searchParams: Promise<{
         propertyId?: string;
-    };
+    }>;
 }
 
 export default async function NewOwnerPage({ searchParams }: NewOwnerPageProps) {
     await requireAuth();
 
-    const preselectedPropertyId = searchParams.propertyId
-        ? parseInt(searchParams.propertyId)
+    const { propertyId } = await searchParams;
+    const preselectedPropertyId = propertyId
+        ? parseInt(propertyId)
         : undefined;
 
     return (

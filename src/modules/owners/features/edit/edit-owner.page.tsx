@@ -7,14 +7,15 @@ import { getOwner } from "../../shared/owner.action";
 import { OwnerForm } from "../../shared/components/owner-form";
 
 interface EditOwnerPageProps {
-    params: {
+    params: Promise<{
         ownerId: string;
-    };
+    }>;
 }
 
 export default async function EditOwnerPage({ params }: EditOwnerPageProps) {
     await requireAuth();
-    const ownerId = parseInt(params.ownerId);
+    const { ownerId: ownerIdStr } = await params;
+    const ownerId = parseInt(ownerIdStr);
 
     if (isNaN(ownerId)) {
         notFound();

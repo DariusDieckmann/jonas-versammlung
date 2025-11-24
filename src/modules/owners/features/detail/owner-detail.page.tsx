@@ -9,16 +9,17 @@ import { getOwner, deleteOwner } from "../../shared/owner.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
 
 interface OwnerDetailPageProps {
-    params: {
+    params: Promise<{
         ownerId: string;
-    };
+    }>;
 }
 
 export default async function OwnerDetailPage({
     params,
 }: OwnerDetailPageProps) {
     await requireAuth();
-    const ownerId = parseInt(params.ownerId);
+    const { ownerId: ownerIdStr } = await params;
+    const ownerId = parseInt(ownerIdStr);
 
     if (isNaN(ownerId)) {
         notFound();
