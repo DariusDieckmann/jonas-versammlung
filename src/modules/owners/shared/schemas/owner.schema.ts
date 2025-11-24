@@ -50,8 +50,8 @@ export const insertOwnerSchema = createInsertSchema(owners, {
     sharePercentage: z
         .number()
         .int("Anteil muss eine Ganzzahl sein")
-        .min(1, "Mindestens 1% erforderlich")
-        .max(100, "Maximal 100% möglich")
+        .min(1, "Anteil muss mindestens 1% betragen")
+        .max(100, "Anteil darf maximal 100% betragen")
         .optional()
         .nullable(),
     notes: z

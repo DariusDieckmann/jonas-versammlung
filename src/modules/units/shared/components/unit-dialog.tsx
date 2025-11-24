@@ -39,7 +39,7 @@ const unitWithOwnersSchema = insertUnitSchema.extend({
             lastName: z.string().min(1, "Nachname ist erforderlich"),
             email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),
             phone: z.string().optional(),
-            sharePercentage: z.number().min(1).max(100).optional(),
+            sharePercentage: z.number().int().min(1, "Anteil muss mindestens 1% betragen").max(100, "Anteil darf maximal 100% betragen").optional().nullable(),
             notes: z.string().optional(),
             _deleted: z.boolean().optional(), // To track deletions
         })
@@ -68,6 +68,7 @@ export function UnitDialog({
 
     const form = useForm<UnitWithOwners>({
         resolver: zodResolver(unitWithOwnersSchema),
+        mode: "onSubmit", // Only validate on submit, not during typing
         defaultValues: {
             propertyId: propertyId,
             name: "",
@@ -272,7 +273,6 @@ export function UnitDialog({
                                     <FormControl>
                                         <Input placeholder="z.B. Wohnung 3a, Gewerbe EG" {...field} />
                                     </FormControl>
-                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -290,14 +290,16 @@ export function UnitDialog({
                                                 placeholder="z.B. 2"
                                                 {...field}
                                                 value={field.value ?? ""}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value ? parseInt(e.target.value) : undefined
-                                                    )
-                                                }
+                                                onChange={(e) => {
+                                                    const raw = e.target.value;
+                                                    if (raw === "") {
+                                                        field.onChange(null);
+                                                        return;
+                                                    }
+                                                    field.onChange(parseInt(raw, 10));
+                                                }}
                                             />
                                         </FormControl>
-                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -315,14 +317,16 @@ export function UnitDialog({
                                                 placeholder="z.B. 85.5"
                                                 {...field}
                                                 value={field.value ?? ""}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value ? parseFloat(e.target.value) : undefined
-                                                    )
-                                                }
+                                                onChange={(e) => {
+                                                    const raw = e.target.value;
+                                                    if (raw === "") {
+                                                        field.onChange(null);
+                                                        return;
+                                                    }
+                                                    field.onChange(parseFloat(raw));
+                                                }}
                                             />
                                         </FormControl>
-                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -340,14 +344,16 @@ export function UnitDialog({
                                                 placeholder="z.B. 125"
                                                 {...field}
                                                 value={field.value ?? ""}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value ? parseInt(e.target.value) : undefined
-                                                    )
-                                                }
+                                                onChange={(e) => {
+                                                    const raw = e.target.value;
+                                                    if (raw === "") {
+                                                        field.onChange(null);
+                                                        return;
+                                                    }
+                                                    field.onChange(parseInt(raw, 10));
+                                                }}
                                             />
                                         </FormControl>
-                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -367,7 +373,6 @@ export function UnitDialog({
                                             value={field.value || ""}
                                         />
                                     </FormControl>
-                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -443,7 +448,6 @@ export function UnitDialog({
                                                                     <FormControl>
                                                                         <Input {...field} />
                                                                     </FormControl>
-                                                                    <FormMessage />
                                                                 </FormItem>
                                                             )}
                                                         />
@@ -457,7 +461,6 @@ export function UnitDialog({
                                                                     <FormControl>
                                                                         <Input {...field} />
                                                                     </FormControl>
-                                                                    <FormMessage />
                                                                 </FormItem>
                                                             )}
                                                         />
@@ -477,7 +480,6 @@ export function UnitDialog({
                                                                             {...field}
                                                                         />
                                                                     </FormControl>
-                                                                    <FormMessage />
                                                                 </FormItem>
                                                             )}
                                                         />
@@ -495,7 +497,6 @@ export function UnitDialog({
                                                                             {...field}
                                                                         />
                                                                     </FormControl>
-                                                                    <FormMessage />
                                                                 </FormItem>
                                                             )}
                                                         />
@@ -515,16 +516,16 @@ export function UnitDialog({
                                                                         placeholder="z.B. 50"
                                                                         {...field}
                                                                         value={field.value ?? ""}
-                                                                        onChange={(e) =>
-                                                                            field.onChange(
-                                                                                e.target.value
-                                                                                    ? parseInt(e.target.value)
-                                                                                    : undefined
-                                                                            )
-                                                                        }
+                                                                        onChange={(e) => {
+                                                                            const raw = e.target.value;
+                                                                            if (raw === "") {
+                                                                                field.onChange(null);
+                                                                                return;
+                                                                            }
+                                                                            field.onChange(parseInt(raw, 10));
+                                                                        }}
                                                                     />
                                                                 </FormControl>
-                                                                <FormMessage />
                                                             </FormItem>
                                                         )}
                                                     />
