@@ -17,7 +17,7 @@ import {
     type UpdateUnit,
 } from "./schemas/unit.schema";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { owners, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
 
 /**
@@ -161,6 +161,21 @@ export async function createUnit(
         await requireMember(organization.id);
 
         const validatedData = insertUnitSchema.parse(data);
+
+        // SECURITY: Verify that the property belongs to the user's organization
+        const property = await db.query.properties.findFirst({
+            where: and(
+                eq(properties.id, data.propertyId),
+                eq(properties.organizationId, organization.id)
+            ),
+        });
+
+        if (!property) {
+            return {
+                success: false,
+                error: "Liegenschaft nicht gefunden",
+            };
+        }
 
         const now = new Date().toISOString();
         const result = await db

@@ -66,7 +66,7 @@ export const insertOwnerSchema = createInsertSchema(owners, {
     updatedAt: true,
 });
 
-export const updateOwnerSchema = insertOwnerSchema.partial();
+export const updateOwnerSchema = insertOwnerSchema.partial().omit({ unitId: true });
 
 export const selectOwnerSchema = createSelectSchema(owners);
 

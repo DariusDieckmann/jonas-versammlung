@@ -191,6 +191,7 @@ export async function updateOwner(
         const validatedData = updateOwnerSchema.parse(data);
         const now = new Date().toISOString();
 
+        // Note: unitId cannot be changed via update (security)
         await db
             .update(owners)
             .set({

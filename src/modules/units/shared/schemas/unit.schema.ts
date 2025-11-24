@@ -57,7 +57,7 @@ export const insertUnitSchema = createInsertSchema(units, {
     updatedAt: true,
 });
 
-export const updateUnitSchema = insertUnitSchema.partial();
+export const updateUnitSchema = insertUnitSchema.partial().omit({ propertyId: true });
 
 export const selectUnitSchema = createSelectSchema(units);
 

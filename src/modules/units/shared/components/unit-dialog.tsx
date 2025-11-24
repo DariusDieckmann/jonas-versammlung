@@ -136,9 +136,8 @@ export function UnitDialog({
             let result: { success: boolean; error?: string; unitId?: number };
             
             if (unit) {
-                // Update the unit
+                // Update the unit (propertyId cannot be changed for security)
                 result = await updateUnit(unit.id, {
-                    propertyId: data.propertyId,
                     name: data.name,
                     floor: data.floor,
                     area: data.area,
@@ -155,10 +154,9 @@ export function UnitDialog({
                             // Delete existing owner
                             ownerPromises.push(deleteOwner(owner.id));
                         } else if (owner.id) {
-                            // Update existing owner
+                            // Update existing owner (unitId is not changeable for security)
                             ownerPromises.push(
                                 updateOwner(owner.id, {
-                                    unitId: unit.id,
                                     firstName: owner.firstName,
                                     lastName: owner.lastName,
                                     email: owner.email || null,
