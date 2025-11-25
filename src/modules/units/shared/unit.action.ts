@@ -19,6 +19,7 @@ import {
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { owners, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
+import propertiesRoutes from "@/modules/properties/properties.route";
 
 /**
  * Get all units for a specific property
@@ -188,7 +189,7 @@ export async function createUnit(
             })
             .returning();
 
-        revalidatePath(`/properties/${data.propertyId}`);
+        revalidatePath(propertiesRoutes.detail(data.propertyId));
         return { success: true, unitId: result[0].id };
     } catch (error) {
         console.error("Error creating unit:", error);
@@ -237,7 +238,7 @@ export async function updateUnit(
             })
             .where(eq(units.id, unitId));
 
-        revalidatePath(`/properties/${existing[0].propertyId}`);
+        revalidatePath(propertiesRoutes.detail(existing[0].propertyId));
 
         return { success: true };
     } catch (error) {
@@ -277,7 +278,7 @@ export async function deleteUnit(
 
         await db.delete(units).where(eq(units.id, unitId));
 
-        revalidatePath(`/properties/${existing[0].propertyId}`);
+        revalidatePath(propertiesRoutes.detail(existing[0].propertyId));
         return { success: true };
     } catch (error) {
         console.error("Error deleting unit:", error);

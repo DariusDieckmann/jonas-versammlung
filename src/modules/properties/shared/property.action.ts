@@ -18,6 +18,7 @@ import {
     type UpdateProperty,
 } from "./schemas/property.schema";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
+import propertiesRoutes from "../properties.route";
 
 /**
  * Get all properties for the user's organization
@@ -104,7 +105,7 @@ export async function createProperty(
             })
             .returning();
 
-        revalidatePath("/properties");
+        revalidatePath(propertiesRoutes.list);
         return { success: true, propertyId: result[0].id };
     } catch (error) {
         console.error("Error creating property:", error);
@@ -153,8 +154,8 @@ export async function updateProperty(
             })
             .where(eq(properties.id, propertyId));
 
-        revalidatePath("/properties");
-        revalidatePath(`/properties/${propertyId}`);
+        revalidatePath(propertiesRoutes.list);
+        revalidatePath(propertiesRoutes.detail(propertyId));
 
         return { success: true };
     } catch (error) {
@@ -194,7 +195,7 @@ export async function deleteProperty(
 
         await db.delete(properties).where(eq(properties.id, propertyId));
 
-        revalidatePath("/properties");
+        revalidatePath(propertiesRoutes.list);
         return { success: true };
     } catch (error) {
         console.error("Error deleting property:", error);

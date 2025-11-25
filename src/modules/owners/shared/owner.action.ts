@@ -18,6 +18,7 @@ import {
 } from "./schemas/owner.schema";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
+import propertiesRoutes from "@/modules/properties/properties.route";
 
 /**
  * Get all owners for the user's organization
@@ -150,7 +151,7 @@ export async function createOwner(
             })
             .returning();
 
-        revalidatePath(`/properties/${unit.propertyId}`);
+        revalidatePath(propertiesRoutes.detail(unit.propertyId));
         return { success: true, ownerId: result[0].id };
     } catch (error) {
         console.error("Error creating owner:", error);
@@ -206,7 +207,7 @@ export async function updateOwner(
         });
 
         if (unit) {
-            revalidatePath(`/properties/${unit.propertyId}`);
+            revalidatePath(propertiesRoutes.detail(unit.propertyId));
         }
 
         return { success: true };
@@ -253,7 +254,7 @@ export async function deleteOwner(
         await db.delete(owners).where(eq(owners.id, ownerId));
 
         if (unit) {
-            revalidatePath(`/properties/${unit.propertyId}`);
+            revalidatePath(propertiesRoutes.detail(unit.propertyId));
         }
 
         return { success: true };
