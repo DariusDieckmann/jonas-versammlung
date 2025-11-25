@@ -117,7 +117,7 @@ export function PropertyUnitsList({
                                             ({units.reduce((sum, unit) => {
                                                 // If unit has owner, count full MEA, else 0
                                                 return sum + (unit.owners.length > 0 ? unit.ownershipShares : 0);
-                                            }, 0)}/10000)
+                                            }, 0)}/1000)
                                         </span>
                                     </div>
                                 </TableHead>

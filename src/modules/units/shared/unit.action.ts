@@ -178,6 +178,25 @@ export async function createUnit(
             };
         }
 
+        // Validate that total MEA doesn't exceed 1000
+        const existingUnits = await db
+            .select()
+            .from(units)
+            .where(eq(units.propertyId, data.propertyId));
+
+        const currentTotalMEA = existingUnits.reduce(
+            (sum, unit) => sum + unit.ownershipShares,
+            0
+        );
+        const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
+
+        if (newTotalMEA > 1000) {
+            return {
+                success: false,
+                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+            };
+        }
+
         const now = new Date().toISOString();
         const result = await db
             .insert(units)
@@ -228,6 +247,28 @@ export async function updateUnit(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updateUnitSchema.parse(data);
+
+        // Validate that total MEA doesn't exceed 1000 (if ownershipShares is being changed)
+        if (validatedData.ownershipShares !== undefined) {
+            const existingUnits = await db
+                .select()
+                .from(units)
+                .where(eq(units.propertyId, existing[0].propertyId));
+
+            const currentTotalMEA = existingUnits
+                .filter(unit => unit.id !== unitId) // Exclude current unit
+                .reduce((sum, unit) => sum + unit.ownershipShares, 0);
+            
+            const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
+
+            if (newTotalMEA > 1000) {
+                return {
+                    success: false,
+                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                };
+            }
+        }
+
         const now = new Date().toISOString();
 
         await db
