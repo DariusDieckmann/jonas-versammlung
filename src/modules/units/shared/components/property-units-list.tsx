@@ -115,11 +115,8 @@ export function PropertyUnitsList({
                                         <span>MEA</span>
                                         <span className="text-xs font-normal text-muted-foreground">
                                             ({units.reduce((sum, unit) => {
-                                                const totalPercentage = unit.owners.reduce(
-                                                    (ownerSum, owner) => ownerSum + (owner.sharePercentage || 0),
-                                                    0
-                                                );
-                                                return sum + Math.round((totalPercentage / 100) * unit.ownershipShares);
+                                                // If unit has owner, count full MEA, else 0
+                                                return sum + (unit.owners.length > 0 ? unit.ownershipShares : 0);
                                             }, 0)}/10000)
                                         </span>
                                     </div>
@@ -147,26 +144,12 @@ export function PropertyUnitsList({
                                     </TableCell>
                                         <TableCell>
                                         {unit.owners.length === 0 ? (
-                                            <span className="text-sm text-muted-foreground">
-                                                Keine Eigentümer
+                                            <span className="text-sm">
+                                                -
                                             </span>
                                         ) : (
-                                            <div className="space-y-1">
-                                                {unit.owners.map((owner) => (
-                                                    <div
-                                                        key={owner.id}
-                                                        className="flex items-center gap-2 text-sm"
-                                                    >
-                                                        <span>
-                                                            {owner.firstName} {owner.lastName}
-                                                        </span>
-                                                        {owner.sharePercentage && (
-                                                            <Badge variant="outline" className="text-xs">
-                                                                {owner.sharePercentage}%
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                ))}
+                                            <div className="text-sm">
+                                                {unit.owners[0].firstName} {unit.owners[0].lastName}
                                             </div>
                                         )}
                                     </TableCell>

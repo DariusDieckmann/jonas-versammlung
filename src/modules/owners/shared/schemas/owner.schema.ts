@@ -16,7 +16,6 @@ export const owners = sqliteTable("owners", {
     lastName: text("last_name").notNull(),
     email: text("email"),
     phone: text("phone"),
-    sharePercentage: integer("share_percentage"),
     notes: text("notes"),
     createdAt: text("created_at")
         .notNull()
@@ -45,13 +44,6 @@ export const insertOwnerSchema = createInsertSchema(owners, {
     phone: z
         .string()
         .max(50, "Telefonnummer darf maximal 50 Zeichen lang sein")
-        .optional()
-        .nullable(),
-    sharePercentage: z
-        .number()
-        .int("Anteil muss eine Ganzzahl sein")
-        .min(1, "Anteil muss mindestens 1% betragen")
-        .max(100, "Anteil darf maximal 100% betragen")
         .optional()
         .nullable(),
     notes: z

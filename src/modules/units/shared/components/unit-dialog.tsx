@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,40 +30,19 @@ import { insertUnitSchema, type InsertUnit, type Unit } from "../schemas/unit.sc
 import { insertOwnerSchema, type InsertOwner, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
 import { z } from "zod";
 
-// Extended schema that includes owners for unit management
-const unitWithOwnersSchema = insertUnitSchema.extend({
-    owners: z.array(
-        z.object({
-            id: z.number().optional(), // For existing owners
-            firstName: z.string().min(1, "Vorname ist erforderlich"),
-            lastName: z.string().min(1, "Nachname ist erforderlich"),
-            email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),
-            phone: z.string().optional(),
-            sharePercentage: z.number().int().min(1, "Anteil muss mindestens 1% betragen").max(100, "Anteil darf maximal 100% betragen").optional().nullable(),
-            notes: z.string().optional(),
-            _deleted: z.boolean().optional(), // To track deletions
-        })
-    ).optional(),
-}).superRefine((data, ctx) => {
-    // Validate that total share percentage does not exceed 100%
-    if (data.owners && data.owners.length > 0) {
-        const activeOwners = data.owners.filter(o => !o._deleted);
-        const totalPercentage = activeOwners.reduce(
-            (sum, owner) => sum + (owner.sharePercentage || 0),
-            0
-        );
-        
-        if (totalPercentage > 100) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: `Die Summe der Anteile (${totalPercentage}%) darf 100% nicht überschreiten`,
-                path: ["owners"],
-            });
-        }
-    }
+// Extended schema that includes single owner for unit management
+const unitWithOwnerSchema = insertUnitSchema.extend({
+    owner: z.object({
+        id: z.number().optional(), // For existing owner
+        firstName: z.string().min(1, "Vorname ist erforderlich"),
+        lastName: z.string().min(1, "Nachname ist erforderlich"),
+        email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),
+        phone: z.string().optional(),
+        notes: z.string().optional(),
+    }).optional(),
 });
 
-type UnitWithOwners = z.infer<typeof unitWithOwnersSchema>;
+type UnitWithOwner = z.infer<typeof unitWithOwnerSchema>;
 
 interface UnitDialogProps {
     open: boolean;
@@ -83,8 +62,8 @@ export function UnitDialog({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingOwners, setLoadingOwners] = useState(false);
 
-    const form = useForm<UnitWithOwners>({
-        resolver: zodResolver(unitWithOwnersSchema),
+    const form = useForm<UnitWithOwner>({
+        resolver: zodResolver(unitWithOwnerSchema),
         mode: "onSubmit", // Only validate on submit, not during typing
         defaultValues: {
             propertyId: propertyId,
@@ -93,22 +72,19 @@ export function UnitDialog({
             area: undefined,
             ownershipShares: undefined,
             notes: undefined,
-            owners: [],
+            owner: undefined,
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "owners",
-    });
-
-    // Load owners when editing a unit
+    // Load owner when editing a unit
     useEffect(() => {
-        async function loadOwners() {
+        async function loadOwner() {
             if (open && unit) {
                 setLoadingOwners(true);
                 try {
                     const owners = await getOwnersByUnit(unit.id);
+                    const owner = owners[0]; // Get the first (and only) owner
+                    
                     form.reset({
                         propertyId: unit.propertyId,
                         name: unit.name,
@@ -116,19 +92,18 @@ export function UnitDialog({
                         area: unit.area ?? undefined,
                         ownershipShares: unit.ownershipShares,
                         notes: unit.notes ?? undefined,
-                        owners: owners.map(o => ({
-                            id: o.id,
-                            firstName: o.firstName,
-                            lastName: o.lastName,
-                            email: o.email || "",
-                            phone: o.phone || "",
-                            sharePercentage: o.sharePercentage ?? undefined,
-                            notes: o.notes || "",
-                        })),
+                        owner: owner ? {
+                            id: owner.id,
+                            firstName: owner.firstName,
+                            lastName: owner.lastName,
+                            email: owner.email || "",
+                            phone: owner.phone || "",
+                            notes: owner.notes || "",
+                        } : undefined,
                     });
                 } catch (error) {
-                    console.error("Error loading owners:", error);
-                    toast.error("Fehler beim Laden der Eigentümer");
+                    console.error("Error loading owner:", error);
+                    toast.error("Fehler beim Laden des Eigentümers");
                 } finally {
                     setLoadingOwners(false);
                 }
@@ -140,14 +115,14 @@ export function UnitDialog({
                     area: undefined,
                     ownershipShares: undefined,
                     notes: undefined,
-                    owners: [],
+                    owner: undefined,
                 });
             }
         }
-        loadOwners();
+        loadOwner();
     }, [open, unit, propertyId, form]);
 
-    async function onSubmit(data: UnitWithOwners) {
+    async function onSubmit(data: UnitWithOwner) {
         setIsSubmitting(true);
         try {
             let result: { success: boolean; error?: string; unitId?: number };
@@ -162,49 +137,44 @@ export function UnitDialog({
                     notes: data.notes,
                 });
 
-                // Handle owners - create new ones, update existing, delete removed
-                if (result.success && data.owners) {
-                    const ownerPromises = [];
-                    
-                    for (const owner of data.owners) {
-                        if (owner._deleted && owner.id) {
-                            // Delete existing owner
-                            ownerPromises.push(deleteOwner(owner.id));
-                        } else if (owner.id) {
-                            // Update existing owner (unitId is not changeable for security)
-                            ownerPromises.push(
-                                updateOwner(owner.id, {
-                                    firstName: owner.firstName,
-                                    lastName: owner.lastName,
-                                    email: owner.email || null,
-                                    phone: owner.phone || null,
-                                    sharePercentage: owner.sharePercentage || null,
-                                    notes: owner.notes || null,
-                                })
-                            );
+                // Handle single owner - create, update, or delete
+                if (result.success) {
+                    const existingOwners = await getOwnersByUnit(unit.id);
+                    const existingOwner = existingOwners[0]; // Get the first (and only) owner
+
+                    if (data.owner) {
+                        // User wants an owner
+                        if (existingOwner) {
+                            // Update existing owner
+                            const ownerResult = await updateOwner(existingOwner.id, {
+                                firstName: data.owner.firstName,
+                                lastName: data.owner.lastName,
+                                email: data.owner.email || null,
+                                phone: data.owner.phone || null,
+                                notes: data.owner.notes || null,
+                            });
+                            
+                            if (!ownerResult.success) {
+                                toast.error("Einheit aktualisiert, aber Eigentümer konnte nicht aktualisiert werden");
+                            }
                         } else {
                             // Create new owner
-                            ownerPromises.push(
-                                createOwner({
-                                    unitId: unit.id,
-                                    firstName: owner.firstName,
-                                    lastName: owner.lastName,
-                                    email: owner.email || null,
-                                    phone: owner.phone || null,
-                                    sharePercentage: owner.sharePercentage || null,
-                                    notes: owner.notes || null,
-                                })
-                            );
+                            const ownerResult = await createOwner({
+                                unitId: unit.id,
+                                firstName: data.owner.firstName,
+                                lastName: data.owner.lastName,
+                                email: data.owner.email || null,
+                                phone: data.owner.phone || null,
+                                notes: data.owner.notes || null,
+                            });
+                            
+                            if (!ownerResult.success) {
+                                toast.error("Einheit aktualisiert, aber Eigentümer konnte nicht hinzugefügt werden");
+                            }
                         }
-                    }
-
-                    const ownerResults = await Promise.all(ownerPromises);
-                    const failedOwners = ownerResults.filter((r) => !r.success);
-                    
-                    if (failedOwners.length > 0) {
-                        toast.error(
-                            `Einheit aktualisiert, aber ${failedOwners.length} Eigentümer konnte(n) nicht gespeichert werden`
-                        );
+                    } else if (existingOwner) {
+                        // User removed the owner - delete it
+                        await deleteOwner(existingOwner.id);
                     }
                 }
             } else {
@@ -218,27 +188,19 @@ export function UnitDialog({
                     notes: data.notes,
                 });
 
-                // If successful and owners were provided, create them
-                if (result.success && result.unitId && data.owners && data.owners.length > 0) {
-                    const ownerPromises = data.owners.map((owner) =>
-                        createOwner({
-                            unitId: result.unitId!,
-                            firstName: owner.firstName,
-                            lastName: owner.lastName,
-                            email: owner.email || null,
-                            phone: owner.phone || null,
-                            sharePercentage: owner.sharePercentage || null,
-                            notes: owner.notes || null,
-                        })
-                    );
-
-                    const ownerResults = await Promise.all(ownerPromises);
-                    const failedOwners = ownerResults.filter((r) => !r.success);
+                // If successful and owner was provided, create it
+                if (result.success && result.unitId && data.owner) {
+                    const ownerResult = await createOwner({
+                        unitId: result.unitId,
+                        firstName: data.owner.firstName,
+                        lastName: data.owner.lastName,
+                        email: data.owner.email || null,
+                        phone: data.owner.phone || null,
+                        notes: data.owner.notes || null,
+                    });
                     
-                    if (failedOwners.length > 0) {
-                        toast.error(
-                            `Einheit erstellt, aber ${failedOwners.length} Eigentümer konnte(n) nicht hinzugefügt werden`
-                        );
+                    if (!ownerResult.success) {
+                        toast.error("Einheit erstellt, aber Eigentümer konnte nicht hinzugefügt werden");
                     }
                 }
             }
@@ -395,209 +357,149 @@ export function UnitDialog({
                         <Separator className="my-6" />
                         
                         <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h3 className="text-lg font-medium">
-                                        {unit ? "Eigentümer" : "Eigentümer (optional)"}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        {unit 
-                                            ? "Verwalte die Eigentümer für diese Einheit"
-                                            : "Füge direkt Eigentümer für diese Einheit hinzu"
-                                        }
-                                    </p>
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() =>
-                                        append({
-                                            firstName: "",
-                                            lastName: "",
-                                            email: "",
-                                            phone: "",
-                                            sharePercentage: undefined,
-                                            notes: "",
-                                        })
+                            <div className="mb-4">
+                                <h3 className="text-lg font-medium">
+                                    {unit ? "Eigentümer" : "Eigentümer (optional)"}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    {unit 
+                                        ? "Verwalte den Eigentümer für diese Einheit"
+                                        : "Füge direkt einen Eigentümer für diese Einheit hinzu"
                                     }
-                                    disabled={loadingOwners}
-                                >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Eigentümer hinzufügen
-                                </Button>
+                                </p>
                             </div>
-
-                            {fields.length > 0 && (() => {
-                                const totalPercentage = fields.reduce(
-                                    (sum, _, index) => {
-                                        const value = form.watch(`owners.${index}.sharePercentage`);
-                                        return sum + (value || 0);
-                                    },
-                                    0
-                                );
-                                const isOverLimit = totalPercentage > 100;
-
-                                return (
-                                    <div className={`mb-4 p-3 text-sm rounded-md ${
-                                        isOverLimit 
-                                            ? 'bg-destructive/10 text-destructive' 
-                                            : totalPercentage === 100
-                                                ? 'bg-green-500/10 text-green-700 dark:text-green-400'
-                                                : 'bg-muted'
-                                    }`}>
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-medium">
-                                                Summe der Anteile: {totalPercentage}%
-                                            </span>
-                                            {isOverLimit && (
-                                                <span className="text-xs">
-                                                    ⚠️ Überschreitung um {totalPercentage - 100}%
-                                                </span>
-                                            )}
-                                            {totalPercentage === 100 && (
-                                                <span className="text-xs">
-                                                    ✓ Vollständig vergeben
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })()}
-
-                            {form.formState.errors.owners && (
-                                <div className="mb-4 p-3 text-sm bg-destructive/10 text-destructive rounded-md">
-                                    {form.formState.errors.owners.message}
-                                </div>
-                            )}
 
                             {loadingOwners ? (
                                 <div className="text-center py-8 text-muted-foreground">
                                     Lade Eigentümer...
                                 </div>
-                            ) : fields.length > 0 ? (
-                                <div className="space-y-4">
-                                    {fields.map((field, index) => (
-                                        <div
-                                                    key={field.id}
-                                                    className="border rounded-lg p-4 space-y-4"
+                            ) : (
+                                <>
+                                    {form.watch("owner") ? (
+                                        <div className="border rounded-lg p-4 space-y-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h4 className="font-medium text-sm">Eigentümer</h4>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => form.setValue("owner", undefined)}
                                                 >
-                                                    <div className="flex items-center justify-between mb-2">
-                                                        <h4 className="font-medium text-sm">
-                                                            Eigentümer {index + 1}
-                                                        </h4>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => remove(index)}
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
 
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <FormField
-                                                            control={form.control}
-                                                            name={`owners.${index}.firstName`}
-                                                            render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormLabel>Vorname *</FormLabel>
-                                                                    <FormControl>
-                                                                        <Input {...field} />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                        />
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="owner.firstName"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Vorname *</FormLabel>
+                                                            <FormControl>
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
 
-                                                        <FormField
-                                                            control={form.control}
-                                                            name={`owners.${index}.lastName`}
-                                                            render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormLabel>Nachname *</FormLabel>
-                                                                    <FormControl>
-                                                                        <Input {...field} />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                    </div>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="owner.lastName"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Nachname *</FormLabel>
+                                                            <FormControl>
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
 
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <FormField
-                                                            control={form.control}
-                                                            name={`owners.${index}.email`}
-                                                            render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormLabel>E-Mail</FormLabel>
-                                                                    <FormControl>
-                                                                        <Input
-                                                                            type="email"
-                                                                            placeholder="max@example.com"
-                                                                            {...field}
-                                                                        />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                        />
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="owner.email"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>E-Mail</FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="email"
+                                                                    placeholder="max@example.com"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
 
-                                                        <FormField
-                                                            control={form.control}
-                                                            name={`owners.${index}.phone`}
-                                                            render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormLabel>Telefon</FormLabel>
-                                                                    <FormControl>
-                                                                        <Input
-                                                                            type="tel"
-                                                                            placeholder="+49 123 456789"
-                                                                            {...field}
-                                                                        />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )}
-                                                        />
-                                                    </div>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="owner.phone"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Telefon</FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    type="tel"
+                                                                    placeholder="+49 123 456789"
+                                                                    {...field}
+                                                                />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
 
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`owners.${index}.sharePercentage`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormLabel>Anteil (%)</FormLabel>
-                                                                <FormControl>
-                                                                    <Input
-                                                                        type="number"
-                                                                        min="1"
-                                                                        max="100"
-                                                                        placeholder="z.B. 50"
-                                                                        {...field}
-                                                                        value={field.value ?? ""}
-                                                                        onChange={(e) => {
-                                                                            const raw = e.target.value;
-                                                                            if (raw === "") {
-                                                                                field.onChange(null);
-                                                                                return;
-                                                                            }
-                                                                            field.onChange(parseInt(raw, 10));
-                                                                        }}
-                                                                    />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
-                                            ))}
+                                            <FormField
+                                                control={form.control}
+                                                name="owner.notes"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Notizen</FormLabel>
+                                                        <FormControl>
+                                                            <Textarea
+                                                                placeholder="Zusätzliche Informationen..."
+                                                                className="resize-none"
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg border-dashed">
-                                            Keine Eigentümer hinzugefügt
+                                        <div className="space-y-4">
+                                            <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg border-dashed">
+                                                Kein Eigentümer zugewiesen
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="w-full"
+                                                onClick={() =>
+                                                    form.setValue("owner", {
+                                                        firstName: "",
+                                                        lastName: "",
+                                                        email: "",
+                                                        phone: "",
+                                                        notes: "",
+                                                    })
+                                                }
+                                                disabled={loadingOwners}
+                                            >
+                                                <Plus className="mr-2 h-4 w-4" />
+                                                Eigentümer hinzufügen
+                                            </Button>
                                         </div>
                                     )}
-                                </div>
+                                </>
+                            )}
+                        </div>
 
-                                <div className="flex gap-3 justify-end pt-4">
+                        <div className="flex gap-3 justify-end pt-4">
                             <Button
                                 type="button"
                                 variant="outline"

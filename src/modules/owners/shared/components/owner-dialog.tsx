@@ -50,7 +50,6 @@ export function OwnerDialog({
             lastName: "",
             email: undefined,
             phone: undefined,
-            sharePercentage: undefined,
             notes: undefined,
         },
     });
@@ -65,7 +64,6 @@ export function OwnerDialog({
                     lastName: owner.lastName,
                     email: owner.email ?? undefined,
                     phone: owner.phone ?? undefined,
-                    sharePercentage: owner.sharePercentage ?? undefined,
                     notes: owner.notes ?? undefined,
                 });
             } else {
@@ -75,7 +73,6 @@ export function OwnerDialog({
                     lastName: "",
                     email: undefined,
                     phone: undefined,
-                    sharePercentage: undefined,
                     notes: undefined,
                 });
             }
@@ -189,34 +186,6 @@ export function OwnerDialog({
                                                 placeholder="+49 123 456789"
                                                 {...field}
                                                 value={field.value || ""}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="sharePercentage"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Anteil (%)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                min="1"
-                                                max="100"
-                                                placeholder="z.B. 50 (bei Miteigentum)"
-                                                {...field}
-                                                value={field.value ?? ""}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value ? parseInt(e.target.value) : undefined
-                                                    )
-                                                }
                                             />
                                         </FormControl>
                                         <FormMessage />
