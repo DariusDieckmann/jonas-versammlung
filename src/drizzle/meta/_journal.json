@@ -43,6 +43,34 @@
       "when": 1757850562918,
       "tag": "0005_remove_todo_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1763930347603,
+      "tag": "0006_add_properties",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1763932306333,
+      "tag": "0007_cheerful_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1763978636807,
+      "tag": "0008_soft_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1764054472488,
+      "tag": "0009_romantic_betty_ross",
+      "breakpoints": true
     }
   ]
 }

@@ -18,8 +18,10 @@ import type {
     OrganizationMemberWithUser,
     OrganizationWithMemberCount,
 } from "./models/organization.model";
-import { isOwner, requireOwner, requireMember } from "./organization-permissions.action";
+import { requireOwner, requireMember } from "./organization-permissions.action";
 import { OrganizationRole, type OrganizationRoleType } from "./models/organization.model";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import settingsRoutes from "./settings.route";
 
 /**
  * Get all organizations for the current user
@@ -117,7 +119,7 @@ export async function createOrganization(data: {
             role: OrganizationRole.OWNER,
         });
 
-        revalidatePath("/dashboard");
+        revalidatePath(dashboardRoutes.dashboard);
         return { success: true, organizationId: newOrg.id };
     } catch (error) {
         console.error("Error creating organization:", error);
@@ -154,7 +156,7 @@ export async function updateOrganization(
             })
             .where(eq(organizations.id, organizationId));
 
-        revalidatePath("/dashboard");
+        revalidatePath(dashboardRoutes.dashboard);
         return { success: true };
     } catch (error) {
         console.error("Error updating organization:", error);
@@ -183,7 +185,7 @@ export async function deleteOrganization(
             .delete(organizations)
             .where(eq(organizations.id, organizationId));
 
-        revalidatePath("/dashboard");
+        revalidatePath(dashboardRoutes.dashboard);
         return { success: true };
     } catch (error) {
         console.error("Error deleting organization:", error);
@@ -283,8 +285,8 @@ export async function addOrganizationMember(
             .insert(organizationMembers)
             .values(validatedData as NewOrganizationMember);
 
-        revalidatePath("/dashboard");
-        revalidatePath("/dashboard/settings/organization");
+        revalidatePath(dashboardRoutes.dashboard);
+        revalidatePath(settingsRoutes.organization);
         return { success: true };
     } catch (error) {
         console.error("Error adding organization member:", error);
@@ -361,7 +363,7 @@ export async function removeOrganizationMember(
                     .delete(organizations)
                     .where(eq(organizations.id, organizationId));
 
-                revalidatePath("/dashboard");
+                revalidatePath(dashboardRoutes.dashboard);
                 return {
                     success: true,
                 };
@@ -383,8 +385,8 @@ export async function removeOrganizationMember(
                 ),
             );
 
-        revalidatePath("/dashboard");
-        revalidatePath("/dashboard/settings/organization");
+        revalidatePath(dashboardRoutes.dashboard);
+        revalidatePath(settingsRoutes.organization);
         return { success: true };
     } catch (error) {
         console.error("Error removing organization member:", error);
@@ -453,7 +455,7 @@ export async function updateMemberRole(
                 ),
             );
 
-        revalidatePath("/dashboard/settings/organization");
+        revalidatePath(settingsRoutes.organization);
         return { success: true };
     } catch (error) {
         console.error("Error updating member role:", error);

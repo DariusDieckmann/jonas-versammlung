@@ -1,0 +1,1 @@
+ALTER TABLE `owners` DROP COLUMN `share_percentage`;
