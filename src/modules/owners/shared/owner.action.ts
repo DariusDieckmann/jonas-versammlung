@@ -150,7 +150,7 @@ export async function createOwner(
             })
             .returning();
 
-        revalidatePath(`/dashboard/properties/${unit.propertyId}`);
+        revalidatePath(`/properties/${unit.propertyId}`);
         return { success: true, ownerId: result[0].id };
     } catch (error) {
         console.error("Error creating owner:", error);
@@ -206,7 +206,7 @@ export async function updateOwner(
         });
 
         if (unit) {
-            revalidatePath(`/dashboard/properties/${unit.propertyId}`);
+            revalidatePath(`/properties/${unit.propertyId}`);
         }
 
         return { success: true };
@@ -253,7 +253,7 @@ export async function deleteOwner(
         await db.delete(owners).where(eq(owners.id, ownerId));
 
         if (unit) {
-            revalidatePath(`/dashboard/properties/${unit.propertyId}`);
+            revalidatePath(`/properties/${unit.propertyId}`);
         }
 
         return { success: true };

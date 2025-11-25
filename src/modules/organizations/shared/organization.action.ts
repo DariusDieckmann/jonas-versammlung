@@ -384,7 +384,7 @@ export async function removeOrganizationMember(
             );
 
         revalidatePath("/dashboard");
-        revalidatePath("/dashboard/settings/organization");
+        revalidatePath("/settings/organization");
         return { success: true };
     } catch (error) {
         console.error("Error removing organization member:", error);
@@ -453,7 +453,7 @@ export async function updateMemberRole(
                 ),
             );
 
-        revalidatePath("/dashboard/settings/organization");
+        revalidatePath("/settings/organization");
         return { success: true };
     } catch (error) {
         console.error("Error updating member role:", error);

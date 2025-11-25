@@ -188,7 +188,7 @@ export async function createUnit(
             })
             .returning();
 
-        revalidatePath(`/dashboard/properties/${data.propertyId}`);
+        revalidatePath(`/properties/${data.propertyId}`);
         return { success: true, unitId: result[0].id };
     } catch (error) {
         console.error("Error creating unit:", error);
@@ -237,7 +237,7 @@ export async function updateUnit(
             })
             .where(eq(units.id, unitId));
 
-        revalidatePath(`/dashboard/properties/${existing[0].propertyId}`);
+        revalidatePath(`/properties/${existing[0].propertyId}`);
 
         return { success: true };
     } catch (error) {
@@ -277,7 +277,7 @@ export async function deleteUnit(
 
         await db.delete(units).where(eq(units.id, unitId));
 
-        revalidatePath(`/dashboard/properties/${existing[0].propertyId}`);
+        revalidatePath(`/properties/${existing[0].propertyId}`);
         return { success: true };
     } catch (error) {
         console.error("Error deleting unit:", error);

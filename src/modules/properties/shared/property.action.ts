@@ -104,7 +104,7 @@ export async function createProperty(
             })
             .returning();
 
-        revalidatePath("/dashboard/properties");
+        revalidatePath("/properties");
         return { success: true, propertyId: result[0].id };
     } catch (error) {
         console.error("Error creating property:", error);
@@ -153,8 +153,8 @@ export async function updateProperty(
             })
             .where(eq(properties.id, propertyId));
 
-        revalidatePath("/dashboard/properties");
-        revalidatePath(`/dashboard/properties/${propertyId}`);
+        revalidatePath("/properties");
+        revalidatePath(`/properties/${propertyId}`);
 
         return { success: true };
     } catch (error) {
@@ -194,7 +194,7 @@ export async function deleteProperty(
 
         await db.delete(properties).where(eq(properties.id, propertyId));
 
-        revalidatePath("/dashboard/properties");
+        revalidatePath("/properties");
         return { success: true };
     } catch (error) {
         console.error("Error deleting property:", error);

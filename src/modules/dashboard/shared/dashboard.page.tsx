@@ -33,7 +33,7 @@ export default async function Dashboard() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Link href="/dashboard/properties">
+                        <Link href="/properties">
                             <Button className="w-full">
                                 Zu den Liegenschaften
                             </Button>
@@ -52,7 +52,7 @@ export default async function Dashboard() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Link href="/dashboard/settings/organization">
+                        <Link href="/settings/organization">
                             <Button className="w-full" variant="outline">
                                 Zur Organisation
                             </Button>

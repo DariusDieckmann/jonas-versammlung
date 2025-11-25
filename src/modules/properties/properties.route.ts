@@ -1,8 +1,8 @@
 const propertiesRoutes = {
-    list: "/dashboard/properties",
-    new: "/dashboard/properties/new",
-    detail: (id: number) => `/dashboard/properties/${id}`,
-    edit: (id: number) => `/dashboard/properties/${id}/edit`,
+    list: "/properties",
+    new: "/properties/new",
+    detail: (id: number) => `/properties/${id}`,
+    edit: (id: number) => `/properties/${id}/edit`,
 } as const;
 
 export default propertiesRoutes;
