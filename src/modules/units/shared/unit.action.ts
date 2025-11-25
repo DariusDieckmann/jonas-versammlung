@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -25,7 +25,7 @@ import propertiesRoutes from "@/modules/properties/properties.route";
  * Get all units for a specific property
  */
 export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     // Get user's organization
@@ -56,7 +56,7 @@ export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
  * Get all units with their owners for a specific property
  */
 export async function getUnitsWithOwners(propertyId: number): Promise<Array<Unit & { owners: Owner[] }>> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     // Get user's organization
@@ -119,7 +119,7 @@ export async function getUnitsWithOwners(propertyId: number): Promise<Array<Unit
  * Get a single unit by ID
  */
 export async function getUnit(unitId: number): Promise<Unit | null> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     const result = await db
@@ -145,7 +145,7 @@ export async function createUnit(
     data: InsertUnit,
 ): Promise<{ success: boolean; error?: string; unitId?: number }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get user's organization
@@ -230,7 +230,7 @@ export async function updateUnit(
     data: UpdateUnit,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get unit to check organization
@@ -301,7 +301,7 @@ export async function deleteUnit(
     unitId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get unit to check organization

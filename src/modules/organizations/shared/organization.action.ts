@@ -18,7 +18,7 @@ import type {
     OrganizationMemberWithUser,
     OrganizationWithMemberCount,
 } from "./models/organization.model";
-import { isOwner, requireOwner, requireMember } from "./organization-permissions.action";
+import { requireOwner, requireMember } from "./organization-permissions.action";
 import { OrganizationRole, type OrganizationRoleType } from "./models/organization.model";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import settingsRoutes from "./settings.route";

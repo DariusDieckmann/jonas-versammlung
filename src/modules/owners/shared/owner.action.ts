@@ -24,7 +24,7 @@ import propertiesRoutes from "@/modules/properties/properties.route";
  * Get all owners for the user's organization
  */
 export async function getOwners(): Promise<Owner[]> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     // Get user's organization
@@ -50,7 +50,7 @@ export async function getOwners(): Promise<Owner[]> {
  * Get owners for a specific unit
  */
 export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     // Get user's organization
@@ -81,7 +81,7 @@ export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
  * Get a single owner by ID
  */
 export async function getOwner(ownerId: number): Promise<Owner | null> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     const result = await db
@@ -107,7 +107,7 @@ export async function createOwner(
     data: InsertOwner,
 ): Promise<{ success: boolean; error?: string; ownerId?: number }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get user's organization
@@ -173,7 +173,7 @@ export async function updateOwner(
     data: UpdateOwner,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get owner to check organization
@@ -230,7 +230,7 @@ export async function deleteOwner(
     ownerId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get owner to check organization

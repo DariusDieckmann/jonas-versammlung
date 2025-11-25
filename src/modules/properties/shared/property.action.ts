@@ -1,8 +1,7 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
@@ -24,7 +23,7 @@ import propertiesRoutes from "../properties.route";
  * Get all properties for the user's organization
  */
 export async function getProperties(): Promise<Property[]> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     // Get user's organization
@@ -52,7 +51,7 @@ export async function getProperties(): Promise<Property[]> {
 export async function getProperty(
     propertyId: number,
 ): Promise<Property | null> {
-    const user = await requireAuth();
+    await requireAuth();
     const db = await getDb();
 
     const result = await db
@@ -78,7 +77,7 @@ export async function createProperty(
     data: InsertProperty,
 ): Promise<{ success: boolean; error?: string; propertyId?: number }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get user's organization
@@ -127,7 +126,7 @@ export async function updateProperty(
     data: UpdateProperty,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get property to check organization
@@ -177,7 +176,7 @@ export async function deleteProperty(
     propertyId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        const user = await requireAuth();
+        await requireAuth();
         const db = await getDb();
 
         // Get property to check organization

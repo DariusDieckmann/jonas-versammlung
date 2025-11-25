@@ -19,15 +19,13 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { createUnit, updateUnit } from "../unit.action";
 import { createOwner, updateOwner, deleteOwner, getOwnersByUnit } from "@/modules/owners/shared/owner.action";
-import { insertUnitSchema, type InsertUnit, type Unit } from "../schemas/unit.schema";
-import { insertOwnerSchema, type InsertOwner, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
+import { insertUnitSchema, type Unit } from "../schemas/unit.schema";
 import { z } from "zod";
 
 // Extended schema that includes single owner for unit management

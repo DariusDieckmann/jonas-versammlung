@@ -14,7 +14,7 @@ interface EditPropertyPageProps {
 export default async function EditPropertyPage({
     propertyId,
 }: EditPropertyPageProps) {
-    const user = await requireAuth();
+    await requireAuth();
     const property = await getProperty(propertyId);
 
     if (!property) {
