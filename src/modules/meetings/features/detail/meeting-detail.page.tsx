@@ -10,6 +10,8 @@ import {
     FileText,
     CheckCircle2,
     Play,
+    XCircle,
+    MinusCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -28,6 +30,7 @@ import { deleteMeeting, getMeeting, startMeeting } from "../../shared/meeting.ac
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getMeetingLeaders } from "../../shared/meeting-leader.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
+import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
 import meetingsRoutes from "../../meetings.route";
 import conductRoutes from "../../conduct.route";
@@ -62,6 +65,15 @@ export default async function MeetingDetailPage({
     // Get property information and agenda items
     const property = await getProperty(meeting.propertyId);
     const agendaItems = await getAgendaItems(meetingId);
+
+    // Get resolutions if meeting is completed
+    let resolutions = new Map();
+    if (meeting.status === "completed") {
+        const itemsWithResolutions = agendaItems.filter(item => item.requiresResolution);
+        resolutions = await getResolutionsByAgendaItems(
+            itemsWithResolutions.map(item => item.id)
+        );
+    }
 
     // Determine which step to resume to
     let resumeRoute = conductRoutes.leaders(meetingId);
@@ -335,34 +347,105 @@ export default async function MeetingDetailPage({
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {agendaItems.map((item, index) => (
-                                    <div
-                                        key={item.id}
-                                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                                    >
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-sm font-semibold text-gray-500 min-w-[3rem]">
-                                                    TOP {index + 1}
-                                                </span>
-                                                <h4 className="font-semibold text-lg">
-                                                    {item.title}
-                                                </h4>
+                                {agendaItems.map((item, index) => {
+                                    const resolution = resolutions.get(item.id);
+                                    
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-sm font-semibold text-gray-500 min-w-[3rem]">
+                                                        TOP {index + 1}
+                                                    </span>
+                                                    <h4 className="font-semibold text-lg">
+                                                        {item.title}
+                                                    </h4>
+                                                </div>
+                                                {item.requiresResolution && (
+                                                    <Badge variant="outline" className="ml-2">
+                                                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                        Beschluss
+                                                    </Badge>
+                                                )}
                                             </div>
-                                            {item.requiresResolution && (
-                                                <Badge variant="outline" className="ml-2">
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                    Beschluss
-                                                </Badge>
+                                            {item.description && (
+                                                <p className="text-gray-600 text-sm whitespace-pre-wrap ml-[3.75rem] mb-3">
+                                                    {item.description}
+                                                </p>
+                                            )}
+                                            
+                                            {/* Show resolution results if completed */}
+                                            {meeting.status === "completed" && item.requiresResolution && resolution && (
+                                                <div className="ml-[3.75rem] mt-3 pt-3 border-t">
+                                                    <h5 className="font-semibold text-sm mb-3">Abstimmungsergebnis</h5>
+                                                    <div className="grid grid-cols-3 gap-3 mb-3">
+                                                        <div className="text-center p-2 bg-green-50 rounded">
+                                                            <div className="text-xl font-bold text-green-600">
+                                                                {resolution.votesYes}
+                                                            </div>
+                                                            <div className="text-xs text-gray-600">Ja-Stimmen</div>
+                                                            {resolution.yesShares && (
+                                                                <div className="text-xs font-semibold text-green-700 mt-1">
+                                                                    {resolution.yesShares} MEA
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-center p-2 bg-red-50 rounded">
+                                                            <div className="text-xl font-bold text-red-600">
+                                                                {resolution.votesNo}
+                                                            </div>
+                                                            <div className="text-xs text-gray-600">Nein-Stimmen</div>
+                                                            {resolution.noShares && (
+                                                                <div className="text-xs font-semibold text-red-700 mt-1">
+                                                                    {resolution.noShares} MEA
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-center p-2 bg-gray-50 rounded">
+                                                            <div className="text-xl font-bold text-gray-600">
+                                                                {resolution.votesAbstain}
+                                                            </div>
+                                                            <div className="text-xs text-gray-600">Enthaltungen</div>
+                                                            {resolution.abstainShares && (
+                                                                <div className="text-xs font-semibold text-gray-700 mt-1">
+                                                                    {resolution.abstainShares} MEA
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {resolution.result && (
+                                                        <div className={`flex items-center gap-2 p-2 rounded text-sm ${
+                                                            resolution.result === "accepted" 
+                                                                ? "bg-green-100 text-green-800" 
+                                                                : resolution.result === "rejected"
+                                                                    ? "bg-red-100 text-red-800"
+                                                                    : "bg-gray-100 text-gray-800"
+                                                        }`}>
+                                                            {resolution.result === "accepted" ? (
+                                                                <CheckCircle2 className="h-4 w-4" />
+                                                            ) : resolution.result === "rejected" ? (
+                                                                <XCircle className="h-4 w-4" />
+                                                            ) : (
+                                                                <MinusCircle className="h-4 w-4" />
+                                                            )}
+                                                            <span className="font-semibold">
+                                                                {resolution.result === "accepted" 
+                                                                    ? "Angenommen" 
+                                                                    : resolution.result === "rejected"
+                                                                        ? "Abgelehnt"
+                                                                        : "Verschoben"}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
-                                        {item.description && (
-                                            <p className="text-gray-600 text-sm whitespace-pre-wrap ml-[3.75rem]">
-                                                {item.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </CardContent>
                     </Card>
