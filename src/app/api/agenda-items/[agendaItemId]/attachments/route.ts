@@ -1,0 +1,90 @@
+import { NextRequest, NextResponse } from "next/server";
+import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { uploadToR2 } from "@/lib/r2";
+import { validateFile, MAX_FILES_PER_MEETING } from "@/lib/file-validation";
+import { createAgendaItemAttachment, getAgendaItemAttachments } from "@/modules/meetings/shared/agenda-item-attachment.action";
+
+export async function POST(
+    request: NextRequest,
+    { params }: { params: Promise<{ agendaItemId: string }> }
+) {
+    try {
+        await requireAuth();
+        const { agendaItemId } = await params;
+        const agendaItemIdNum = Number.parseInt(agendaItemId);
+
+        if (Number.isNaN(agendaItemIdNum)) {
+            return NextResponse.json(
+                { error: "Ungültige Tagesordnungspunkt-ID" },
+                { status: 400 }
+            );
+        }
+
+        // Check if max files limit reached
+        const existingAttachments = await getAgendaItemAttachments(agendaItemIdNum);
+        if (existingAttachments.length >= MAX_FILES_PER_MEETING) {
+            return NextResponse.json(
+                { error: `Maximum ${MAX_FILES_PER_MEETING} Dateien pro Tagesordnungspunkt erlaubt` },
+                { status: 400 }
+            );
+        }
+
+        const formData = await request.formData();
+        const file = formData.get("file") as File;
+
+        if (!file) {
+            return NextResponse.json(
+                { error: "Keine Datei hochgeladen" },
+                { status: 400 }
+            );
+        }
+
+        // Validate file (type and size)
+        const validation = validateFile(file);
+        if (!validation.valid) {
+            return NextResponse.json(
+                { error: validation.error },
+                { status: 400 }
+            );
+        }
+
+        // Upload to R2
+        const uploadResult = await uploadToR2(file, `agenda-items/${agendaItemId}`);
+
+        if (!uploadResult.success || !uploadResult.key || !uploadResult.url) {
+            return NextResponse.json(
+                { error: uploadResult.error || "Upload fehlgeschlagen" },
+                { status: 500 }
+            );
+        }
+
+        // Save to database
+        const result = await createAgendaItemAttachment({
+            agendaItemId: agendaItemIdNum,
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            r2Key: uploadResult.key,
+            r2Url: uploadResult.url,
+            uploadedBy: "", // Will be set by the action from auth
+        });
+
+        if (!result.success) {
+            return NextResponse.json(
+                { error: result.error || "Fehler beim Speichern" },
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json({
+            success: true,
+            data: result.data,
+        });
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        return NextResponse.json(
+            { error: "Fehler beim Hochladen der Datei" },
+            { status: 500 }
+        );
+    }
+}

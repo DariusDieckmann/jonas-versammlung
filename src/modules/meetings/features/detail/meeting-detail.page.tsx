@@ -32,8 +32,10 @@ import { getMeetingLeaders } from "../../shared/meeting-leader.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
+import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
+import { AgendaItemAttachments } from "./agenda-item-attachments";
 import meetingsRoutes from "../../meetings.route";
 import conductRoutes from "../../conduct.route";
 import propertiesRoutes from "@/modules/properties/properties.route";
@@ -68,6 +70,11 @@ export default async function MeetingDetailPage({
     const property = await getProperty(meeting.propertyId);
     const agendaItems = await getAgendaItems(meetingId);
     const attachments = await getMeetingAttachments(meetingId);
+    
+    // Get agenda item attachments
+    const agendaItemAttachments = await getAgendaItemAttachmentsByItems(
+        agendaItems.map(item => item.id)
+    );
 
     // Get resolutions if meeting is completed
     let resolutions = new Map();
@@ -352,6 +359,7 @@ export default async function MeetingDetailPage({
                             <div className="space-y-4">
                                 {agendaItems.map((item, index) => {
                                     const resolution = resolutions.get(item.id);
+                                    const itemAttachments = agendaItemAttachments.get(item.id) || [];
                                     
                                     return (
                                         <div
@@ -378,6 +386,17 @@ export default async function MeetingDetailPage({
                                                 <p className="text-gray-600 text-sm whitespace-pre-wrap ml-[3.75rem] mb-3">
                                                     {item.description}
                                                 </p>
+                                            )}
+                                            
+                                            {/* Agenda Item Attachments */}
+                                            {(itemAttachments.length > 0 || meeting.status !== "completed") && (
+                                                <div className="ml-[3.75rem] mb-3">
+                                                    <AgendaItemAttachments
+                                                        agendaItemId={item.id}
+                                                        attachments={itemAttachments}
+                                                        canEdit={meeting.status !== "completed"}
+                                                    />
+                                                </div>
                                             )}
                                             
                                             {/* Show resolution results if completed */}
