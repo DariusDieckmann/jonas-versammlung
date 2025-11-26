@@ -1,4 +1,4 @@
-import { Building, Building2, Home } from "lucide-react";
+import { Building, Building2, CalendarDays, Home } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "../modules/auth/features/logout/logout-button";
@@ -26,6 +26,12 @@ export function Navigation() {
                                 <Button variant="ghost" size="sm">
                                     <Building className="mr-2 h-4 w-4" />
                                     Liegenschaften
+                                </Button>
+                            </Link>
+                            <Link href="/meetings">
+                                <Button variant="ghost" size="sm">
+                                    <CalendarDays className="mr-2 h-4 w-4" />
+                                    Versammlungen
                                 </Button>
                             </Link>
                             <Link href="/settings/organization">

@@ -71,6 +71,13 @@
       "when": 1764054472488,
       "tag": "0009_romantic_betty_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1764145960018,
+      "tag": "0010_wise_zarek",
+      "breakpoints": true
     }
   ]
 }
