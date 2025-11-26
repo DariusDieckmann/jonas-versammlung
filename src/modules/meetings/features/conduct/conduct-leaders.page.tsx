@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
+import { getMeetingLeaders } from "../../shared/meeting-leader.action";
 import meetingsRoutes from "../../meetings.route";
 import { ConductLeadersForm } from "./conduct-leaders-form";
 
@@ -20,6 +21,9 @@ export default async function ConductLeadersPage({
     if (!meeting) {
         notFound();
     }
+
+    // Get existing leaders
+    const existingLeaders = await getMeetingLeaders(meetingId);
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-3xl">
@@ -52,7 +56,7 @@ export default async function ConductLeadersPage({
                 </div>
             </div>
 
-            <ConductLeadersForm meetingId={meetingId} />
+            <ConductLeadersForm meetingId={meetingId} existingLeaders={existingLeaders} />
         </div>
     );
 }

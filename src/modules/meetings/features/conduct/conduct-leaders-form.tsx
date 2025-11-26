@@ -20,7 +20,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { createMeetingLeaders } from "../../shared/meeting-leader.action";
+import { createMeetingLeaders, deleteMeetingLeaders } from "../../shared/meeting-leader.action";
+import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 import conductRoutes from "../../conduct.route";
 
 interface LeaderFormData {
@@ -30,6 +31,7 @@ interface LeaderFormData {
 
 interface ConductLeadersFormProps {
     meetingId: number;
+    existingLeaders: MeetingLeader[];
 }
 
 const LEADER_ROLES = [
@@ -39,11 +41,18 @@ const LEADER_ROLES = [
     { value: "Sonstiges", label: "Sonstiges" },
 ];
 
-export function ConductLeadersForm({ meetingId }: ConductLeadersFormProps) {
+export function ConductLeadersForm({ meetingId, existingLeaders }: ConductLeadersFormProps) {
     const router = useRouter();
-    const [leaders, setLeaders] = useState<LeaderFormData[]>([
-        { name: "", role: "Versammlungsleiter" },
-    ]);
+    
+    // Initialize with existing leaders or default empty leader
+    const initialLeaders: LeaderFormData[] = existingLeaders.length > 0
+        ? existingLeaders.map(leader => ({
+            name: leader.name,
+            role: leader.role || "Versammlungsleiter",
+        }))
+        : [{ name: "", role: "Versammlungsleiter" }];
+    
+    const [leaders, setLeaders] = useState<LeaderFormData[]>(initialLeaders);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addLeader = () => {
@@ -77,6 +86,11 @@ export function ConductLeadersForm({ meetingId }: ConductLeadersFormProps) {
                 alert("Bitte mindestens einen Leiter eintragen");
                 setIsSubmitting(false);
                 return;
+            }
+
+            // Delete existing leaders first if any exist
+            if (existingLeaders.length > 0) {
+                await deleteMeetingLeaders(meetingId);
             }
 
             const result = await createMeetingLeaders(meetingId, validLeaders);

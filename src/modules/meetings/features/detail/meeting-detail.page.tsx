@@ -24,8 +24,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { deleteMeeting, getMeeting } from "../../shared/meeting.action";
+import { deleteMeeting, getMeeting, startMeeting } from "../../shared/meeting.action";
 import { getAgendaItems } from "../../shared/agenda-item.action";
+import { getMeetingLeaders } from "../../shared/meeting-leader.action";
+import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
 import meetingsRoutes from "../../meetings.route";
 import conductRoutes from "../../conduct.route";
@@ -61,11 +63,29 @@ export default async function MeetingDetailPage({
     const property = await getProperty(meeting.propertyId);
     const agendaItems = await getAgendaItems(meetingId);
 
+    // Determine which step to resume to
+    let resumeRoute = conductRoutes.leaders(meetingId);
+    if (meeting.status === "in-progress") {
+        const leaders = await getMeetingLeaders(meetingId);
+        if (leaders.length > 0) {
+            // Leaders are done, go to participants
+            resumeRoute = conductRoutes.participants(meetingId);
+        }
+    }
+
     async function handleDelete() {
         "use server";
         const result = await deleteMeeting(meetingId);
         if (result.success) {
             redirect(meetingsRoutes.list);
+        }
+    }
+
+    async function handleStart() {
+        "use server";
+        const result = await startMeeting(meetingId);
+        if (result.success) {
+            redirect(conductRoutes.leaders(meetingId));
         }
     }
 
@@ -130,10 +150,18 @@ export default async function MeetingDetailPage({
 
                     <div className="flex gap-2">
                         {meeting.status === "planned" && (
-                            <Link href={conductRoutes.leaders(meeting.id)}>
-                                <Button variant="default" size="sm">
+                            <form action={handleStart}>
+                                <Button variant="default" size="sm" type="submit">
                                     <Play className="mr-2 h-4 w-4" />
                                     Starten
+                                </Button>
+                            </form>
+                        )}
+                        {meeting.status === "in-progress" && (
+                            <Link href={resumeRoute}>
+                                <Button variant="default" size="sm">
+                                    <Play className="mr-2 h-4 w-4" />
+                                    Fortsetzen
                                 </Button>
                             </Link>
                         )}

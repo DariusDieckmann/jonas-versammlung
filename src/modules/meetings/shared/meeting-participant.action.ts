@@ -147,7 +147,8 @@ export async function createParticipantsFromOwners(
             });
         }
 
-        revalidatePath(meetingsRoutes.detail(meetingId));
+        // Don't revalidate here as this is called during render
+        // The page component will fetch the newly created participants immediately after
         return { success: true };
     } catch (error) {
         console.error("Error creating participants:", error);

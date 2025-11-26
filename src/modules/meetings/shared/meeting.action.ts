@@ -257,3 +257,52 @@ export async function deleteMeeting(
         };
     }
 }
+
+/**
+ * Start a meeting - sets status to in-progress
+ */
+export async function startMeeting(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Get meeting with property to check organization
+        const existing = await db
+            .select({
+                meeting: meetings,
+                property: properties,
+            })
+            .from(meetings)
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(meetings.id, meetingId))
+            .limit(1);
+
+        if (!existing.length) {
+            return { success: false, error: "Versammlung nicht gefunden" };
+        }
+
+        await requireMember(existing[0].property.organizationId);
+
+        await db
+            .update(meetings)
+            .set({
+                status: "in-progress",
+                updatedAt: new Date().toISOString(),
+            })
+            .where(eq(meetings.id, meetingId));
+
+        revalidatePath(meetingsRoutes.detail(meetingId));
+        return { success: true };
+    } catch (error) {
+        console.error("Error starting meeting:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Starten der Versammlung",
+        };
+    }
+}
