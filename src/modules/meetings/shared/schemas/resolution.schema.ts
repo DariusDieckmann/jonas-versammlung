@@ -8,7 +8,6 @@ export const resolutions = sqliteTable("resolutions", {
     agendaItemId: integer("agenda_item_id")
         .notNull()
         .references(() => agendaItems.id, { onDelete: "cascade" }),
-    resolutionText: text("resolution_text").notNull(),
     majorityType: text("majority_type", {
         enum: ["simple", "qualified", "unanimous"],
     })
@@ -28,10 +27,6 @@ export const resolutions = sqliteTable("resolutions", {
 
 // Validation schemas
 export const insertResolutionSchema = createInsertSchema(resolutions, {
-    resolutionText: z
-        .string()
-        .min(10, "Beschlusstext muss mindestens 10 Zeichen lang sein")
-        .max(5000, "Beschlusstext darf maximal 5000 Zeichen lang sein"),
     majorityType: z.enum(["simple", "qualified", "unanimous"]),
     result: z.enum(["accepted", "rejected", "postponed"]).optional().nullable(),
     votesYes: z.number().int().min(0, "Stimmen müssen positiv sein").default(0),

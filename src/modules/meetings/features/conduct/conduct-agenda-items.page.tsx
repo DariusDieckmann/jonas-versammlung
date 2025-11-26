@@ -4,17 +4,18 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
-import { getMeetingLeaders } from "../../shared/meeting-leader.action";
+import { getAgendaItems } from "../../shared/agenda-item.action";
+import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import meetingsRoutes from "../../meetings.route";
-import { ConductLeadersForm } from "./conduct-leaders-form";
+import { ConductAgendaItemsView } from "./conduct-agenda-items-view";
 
-interface ConductLeadersPageProps {
+interface ConductAgendaItemsPageProps {
     meetingId: number;
 }
 
-export default async function ConductLeadersPage({
+export default async function ConductAgendaItemsPage({
     meetingId,
-}: ConductLeadersPageProps) {
+}: ConductAgendaItemsPageProps) {
     await requireAuth();
     const meeting = await getMeeting(meetingId);
 
@@ -22,11 +23,11 @@ export default async function ConductLeadersPage({
         notFound();
     }
 
-    // Get existing leaders
-    const existingLeaders = await getMeetingLeaders(meetingId);
+    const agendaItems = await getAgendaItems(meetingId);
+    const participants = await getMeetingParticipants(meetingId);
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-3xl">
+        <div className="container mx-auto py-8 px-4 max-w-7xl">
             <div className="mb-6">
                 <Link href={meetingsRoutes.detail(meetingId)}>
                     <Button variant="ghost">
@@ -40,30 +41,34 @@ export default async function ConductLeadersPage({
                 <h1 className="text-3xl font-bold">Versammlung durchführen</h1>
                 <p className="text-gray-600 mt-1">{meeting.title}</p>
                 <div className="mt-4 flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-gray-400">
+                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-semibold">
+                            ✓
+                        </div>
+                        <span>Leiter festgelegt</span>
+                    </div>
+                    <div className="h-px w-8 bg-gray-300" />
+                    <div className="flex items-center gap-2 text-gray-400">
+                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-semibold">
+                            ✓
+                        </div>
+                        <span>Teilnehmer geprüft</span>
+                    </div>
+                    <div className="h-px w-8 bg-gray-300" />
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold">
-                            1
-                        </div>
-                        <span className="font-medium">Leiter festlegen</span>
-                    </div>
-                    <div className="h-px w-8 bg-gray-300" />
-                    <div className="flex items-center gap-2 text-gray-400">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
-                            2
-                        </div>
-                        <span>Teilnehmer prüfen</span>
-                    </div>
-                    <div className="h-px w-8 bg-gray-300" />
-                    <div className="flex items-center gap-2 text-gray-400">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
                             3
                         </div>
-                        <span>Tagesordnung</span>
+                        <span className="font-medium">Tagesordnung</span>
                     </div>
                 </div>
             </div>
 
-            <ConductLeadersForm meetingId={meetingId} existingLeaders={existingLeaders} />
+            <ConductAgendaItemsView
+                meetingId={meetingId}
+                agendaItems={agendaItems}
+                participants={participants}
+            />
         </div>
     );
 }

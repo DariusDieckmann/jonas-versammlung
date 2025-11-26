@@ -76,9 +76,8 @@ export function ConductParticipantsForm({
 
     const handleFinish = () => {
         setIsSubmitting(true);
-        // For now, just redirect back to meeting detail
-        // Later we can add status update here
-        router.push(meetingsRoutes.detail(meetingId));
+        // Navigate to agenda items step
+        router.push(conductRoutes.agendaItems(meetingId));
     };
 
     const totalShares = participants.reduce((sum, p) => sum + p.shares, 0);

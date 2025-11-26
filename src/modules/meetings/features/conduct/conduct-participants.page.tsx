@@ -70,6 +70,13 @@ export default async function ConductParticipantsPage({
                         </div>
                         <span className="font-medium">Teilnehmer prüfen</span>
                     </div>
+                    <div className="h-px w-8 bg-gray-300" />
+                    <div className="flex items-center gap-2 text-gray-400">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-semibold">
+                            3
+                        </div>
+                        <span>Tagesordnung</span>
+                    </div>
                 </div>
             </div>
 

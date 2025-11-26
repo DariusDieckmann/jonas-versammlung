@@ -67,7 +67,12 @@ export default async function MeetingDetailPage({
     let resumeRoute = conductRoutes.leaders(meetingId);
     if (meeting.status === "in-progress") {
         const leaders = await getMeetingLeaders(meetingId);
-        if (leaders.length > 0) {
+        const participants = await getMeetingParticipants(meetingId);
+        
+        if (leaders.length > 0 && participants.length > 0) {
+            // Both leaders and participants are done, go to agenda items
+            resumeRoute = conductRoutes.agendaItems(meetingId);
+        } else if (leaders.length > 0) {
             // Leaders are done, go to participants
             resumeRoute = conductRoutes.participants(meetingId);
         }

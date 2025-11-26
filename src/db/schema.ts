@@ -15,3 +15,4 @@ export { agendaItems } from "@/modules/meetings/shared/schemas/agenda-item.schem
 export { resolutions } from "@/modules/meetings/shared/schemas/resolution.schema";
 export { meetingLeaders } from "@/modules/meetings/shared/schemas/meeting-leader.schema";
 export { meetingParticipants } from "@/modules/meetings/shared/schemas/meeting-participant.schema";
+export { votes } from "@/modules/meetings/shared/schemas/vote.schema";
