@@ -306,3 +306,57 @@ export async function startMeeting(
         };
     }
 }
+
+/**
+ * Complete a meeting - sets status to completed
+ */
+export async function completeMeeting(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Get meeting with property to check organization
+        const existing = await db
+            .select({
+                meeting: meetings,
+                property: properties,
+            })
+            .from(meetings)
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(meetings.id, meetingId))
+            .limit(1);
+
+        if (!existing.length) {
+            return { success: false, error: "Versammlung nicht gefunden" };
+        }
+
+        await requireMember(existing[0].property.organizationId);
+
+        // Check if meeting is in-progress
+        if (existing[0].meeting.status !== "in-progress") {
+            return { success: false, error: "Versammlung muss im Status 'In Bearbeitung' sein" };
+        }
+
+        await db
+            .update(meetings)
+            .set({
+                status: "completed",
+                updatedAt: new Date().toISOString(),
+            })
+            .where(eq(meetings.id, meetingId));
+
+        revalidatePath(meetingsRoutes.detail(meetingId));
+        return { success: true };
+    } catch (error) {
+        console.error("Error completing meeting:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Abschließen der Versammlung",
+        };
+    }
+}

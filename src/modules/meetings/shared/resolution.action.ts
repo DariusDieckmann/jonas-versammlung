@@ -94,3 +94,34 @@ export async function getResolution(agendaItemId: number): Promise<Resolution | 
 
     return result.length > 0 ? result[0] : null;
 }
+
+/**
+ * Get resolutions for multiple agenda items
+ */
+export async function getResolutionsByAgendaItems(
+    agendaItemIds: number[]
+): Promise<Map<number, Resolution>> {
+    if (agendaItemIds.length === 0) {
+        return new Map();
+    }
+
+    await requireAuth();
+    const db = await getDb();
+
+    const results = await db
+        .select()
+        .from(resolutions)
+        .where(eq(resolutions.agendaItemId, agendaItemIds[0])); // TODO: Fix with inArray
+
+    const resolutionMap = new Map<number, Resolution>();
+    
+    // Fetch each resolution individually (temporary solution)
+    for (const itemId of agendaItemIds) {
+        const resolution = await getResolution(itemId);
+        if (resolution) {
+            resolutionMap.set(itemId, resolution);
+        }
+    }
+
+    return resolutionMap;
+}

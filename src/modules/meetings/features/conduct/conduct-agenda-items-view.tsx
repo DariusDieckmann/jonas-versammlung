@@ -15,6 +15,7 @@ import {
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductVotingForm } from "./conduct-voting-form";
+import conductRoutes from "../../conduct.route";
 import meetingsRoutes from "../../meetings.route";
 
 interface ConductAgendaItemsViewProps {
@@ -49,8 +50,8 @@ export function ConductAgendaItemsView({
         if (currentIndex < agendaItems.length - 1) {
             setSelectedItemId(agendaItems[currentIndex + 1].id);
         } else {
-            // All items done - return to meeting detail
-            router.push(meetingsRoutes.detail(meetingId));
+            // All items done - go to summary page
+            router.push(conductRoutes.summary(meetingId));
         }
     };
 

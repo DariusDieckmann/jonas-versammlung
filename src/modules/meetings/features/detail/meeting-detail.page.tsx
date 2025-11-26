@@ -155,37 +155,53 @@ export default async function MeetingDetailPage({
 
                     <div className="flex gap-2">
                         {meeting.status === "planned" && (
-                            <form action={handleStart}>
-                                <Button variant="default" size="sm" type="submit">
-                                    <Play className="mr-2 h-4 w-4" />
-                                    Starten
-                                </Button>
-                            </form>
+                            <>
+                                <form action={handleStart}>
+                                    <Button variant="default" size="sm" type="submit">
+                                        <Play className="mr-2 h-4 w-4" />
+                                        Starten
+                                    </Button>
+                                </form>
+                                <Link href={meetingsRoutes.edit(meeting.id)}>
+                                    <Button variant="outline" size="sm">
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Bearbeiten
+                                    </Button>
+                                </Link>
+                                <form action={handleDelete}>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        type="submit"
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Löschen
+                                    </Button>
+                                </form>
+                            </>
                         )}
                         {meeting.status === "in-progress" && (
-                            <Link href={resumeRoute}>
-                                <Button variant="default" size="sm">
-                                    <Play className="mr-2 h-4 w-4" />
-                                    Fortsetzen
-                                </Button>
-                            </Link>
+                            <>
+                                <Link href={resumeRoute}>
+                                    <Button variant="default" size="sm">
+                                        <Play className="mr-2 h-4 w-4" />
+                                        Fortsetzen
+                                    </Button>
+                                </Link>
+                                <Link href={meetingsRoutes.edit(meeting.id)}>
+                                    <Button variant="outline" size="sm">
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Bearbeiten
+                                    </Button>
+                                </Link>
+                            </>
                         )}
-                        <Link href={meetingsRoutes.edit(meeting.id)}>
-                            <Button variant="outline" size="sm">
-                                <Edit className="mr-2 h-4 w-4" />
-                                Bearbeiten
-                            </Button>
-                        </Link>
-                        <form action={handleDelete}>
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                type="submit"
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Löschen
-                            </Button>
-                        </form>
+                        {meeting.status === "completed" && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
+                                <CheckCircle2 className="mr-2 h-4 w-4" />
+                                Versammlung abgeschlossen
+                            </Badge>
+                        )}
                     </div>
                 </div>
             </div>
