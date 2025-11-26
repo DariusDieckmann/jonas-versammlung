@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Circle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { updateAgendaItem } from "../../shared/agenda-item.action";
+import { markAgendaItemCompleted } from "../../shared/resolution.action";
 import { ConductVotingForm } from "./conduct-voting-form";
 import conductRoutes from "../../conduct.route";
 import meetingsRoutes from "../../meetings.route";
@@ -26,23 +27,34 @@ interface ConductAgendaItemsViewProps {
     meetingId: number;
     agendaItems: AgendaItem[];
     participants: MeetingParticipant[];
+    completedAgendaItemIds: number[];
 }
 
 export function ConductAgendaItemsView({
     meetingId,
     agendaItems,
     participants,
+    completedAgendaItemIds,
 }: ConductAgendaItemsViewProps) {
     const router = useRouter();
     const [selectedItemId, setSelectedItemId] = useState<number | null>(
         agendaItems.length > 0 ? agendaItems[0].id : null
     );
-    const [completedItems, setCompletedItems] = useState<Set<number>>(new Set());
+    
+    // Initialize completedItems from existing resolutions
+    const [completedItems, setCompletedItems] = useState<Set<number>>(() => {
+        return new Set(completedAgendaItemIds);
+    });
     
     // Track edited values for each item
     const [editedItems, setEditedItems] = useState<Map<number, { title: string; description: string }>>(
         new Map(agendaItems.map(item => [item.id, { title: item.title, description: item.description || "" }]))
     );
+
+    // Update completed items when completedAgendaItemIds changes (e.g., after navigation back)
+    useEffect(() => {
+        setCompletedItems(new Set(completedAgendaItemIds));
+    }, [completedAgendaItemIds]);
 
     // Filter only present and represented participants for voting
     const votingParticipants = participants.filter(
@@ -85,6 +97,16 @@ export function ConductAgendaItemsView({
                     title: edited.title,
                     description: edited.description || null,
                 });
+            }
+        }
+
+        // For items without voting, mark as completed in DB
+        const item = agendaItems.find(i => i.id === itemId);
+        if (item && !item.requiresResolution) {
+            const result = await markAgendaItemCompleted(itemId);
+            if (!result.success) {
+                alert(result.error || "Fehler beim Markieren als erledigt");
+                return;
             }
         }
 

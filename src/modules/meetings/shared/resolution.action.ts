@@ -125,3 +125,63 @@ export async function getResolutionsByAgendaItems(
 
     return resolutionMap;
 }
+
+/**
+ * Mark an agenda item as completed (for items without voting)
+ * Creates a resolution without votes to track completion
+ */
+export async function markAgendaItemCompleted(
+    agendaItemId: number
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Check access
+        const agendaItem = await db
+            .select({
+                agendaItem: agendaItems,
+                property: properties,
+            })
+            .from(agendaItems)
+            .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(agendaItems.id, agendaItemId))
+            .limit(1);
+
+        if (!agendaItem.length) {
+            return { success: false, error: "Tagesordnungspunkt nicht gefunden" };
+        }
+
+        await requireMember(agendaItem[0].property.organizationId);
+
+        // Check if resolution already exists
+        const existing = await db
+            .select()
+            .from(resolutions)
+            .where(eq(resolutions.agendaItemId, agendaItemId))
+            .limit(1);
+
+        if (existing.length > 0) {
+            return { success: true };
+        }
+
+        // Create a resolution without votes to mark as completed
+        const now = new Date().toISOString();
+        
+        await db.insert(resolutions).values({
+            agendaItemId,
+            majorityType: "simple", // Default value, not relevant for non-voting items
+            createdAt: now,
+            updatedAt: now,
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error marking agenda item as completed:", error);
+        return {
+            success: false,
+            error: "Fehler beim Markieren als erledigt",
+        };
+    }
+}

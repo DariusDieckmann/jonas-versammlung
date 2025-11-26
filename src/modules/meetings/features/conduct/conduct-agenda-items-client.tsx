@@ -10,12 +10,14 @@ interface ConductAgendaItemsClientProps {
     meeting: Meeting;
     agendaItems: AgendaItem[];
     participants: MeetingParticipant[];
+    completedAgendaItemIds: number[];
 }
 
 export function ConductAgendaItemsClient({ 
     meeting, 
     agendaItems, 
-    participants 
+    participants,
+    completedAgendaItemIds
 }: ConductAgendaItemsClientProps) {
     return (
         <ConductLayout 
@@ -26,6 +28,7 @@ export function ConductAgendaItemsClient({
                 meetingId={meeting.id}
                 agendaItems={agendaItems}
                 participants={participants}
+                completedAgendaItemIds={completedAgendaItemIds}
             />
         </ConductLayout>
     );

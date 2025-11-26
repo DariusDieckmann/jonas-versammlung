@@ -34,7 +34,7 @@ interface ConductLeadersFormProps {
     meetingId: number;
     existingLeaders: MeetingLeader[];
     onSuccess?: () => void;
-    formRef?: React.RefObject<HTMLFormElement>;
+    formRef?: React.RefObject<HTMLFormElement | null>;
 }
 
 const LEADER_ROLES = [
