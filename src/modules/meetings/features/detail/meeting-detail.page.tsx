@@ -31,7 +31,9 @@ import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getMeetingLeaders } from "../../shared/meeting-leader.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
+import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
+import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 import meetingsRoutes from "../../meetings.route";
 import conductRoutes from "../../conduct.route";
 import propertiesRoutes from "@/modules/properties/properties.route";
@@ -65,6 +67,7 @@ export default async function MeetingDetailPage({
     // Get property information and agenda items
     const property = await getProperty(meeting.propertyId);
     const agendaItems = await getAgendaItems(meetingId);
+    const attachments = await getMeetingAttachments(meetingId);
 
     // Get resolutions if meeting is completed
     let resolutions = new Map();
@@ -450,6 +453,13 @@ export default async function MeetingDetailPage({
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Attachments */}
+                <MeetingAttachmentsSection
+                    meetingId={meetingId}
+                    attachments={attachments}
+                    canEdit={meeting.status !== "completed"}
+                />
 
                 {/* Metadaten */}
                 <Card>
