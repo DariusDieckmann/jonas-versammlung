@@ -54,16 +54,24 @@ interface MeetingFormProps {
     properties: Property[];
     initialData?: Meeting;
     initialAgendaItems?: AgendaItem[];
+    agendaItems?: AgendaItemFormData[];
+    onAgendaItemsChange?: (items: AgendaItemFormData[]) => void;
+    onSubmit?: (data: FormData) => Promise<void>;
+    isSubmitting?: boolean;
 }
 
 export function MeetingForm({
     properties,
     initialData,
     initialAgendaItems = [],
+    agendaItems: externalAgendaItems,
+    onAgendaItemsChange,
+    onSubmit: externalOnSubmit,
+    isSubmitting: externalIsSubmitting,
 }: MeetingFormProps) {
     const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [agendaItems, setAgendaItems] = useState<AgendaItemFormData[]>(
+    const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
+    const [internalAgendaItems, setInternalAgendaItems] = useState<AgendaItemFormData[]>(
         initialAgendaItems.length > 0
             ? initialAgendaItems.map((item) => ({
                   title: item.title,
@@ -73,6 +81,11 @@ export function MeetingForm({
             : [{ title: "", description: "", requiresResolution: false }],
     );
     const isEditing = !!initialData;
+
+    // Use external values if provided, otherwise use internal state
+    const agendaItems = externalAgendaItems || internalAgendaItems;
+    const setAgendaItems = onAgendaItemsChange || setInternalAgendaItems;
+    const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
 
     const form = useForm<FormData>({
         resolver: zodResolver(insertMeetingSchema),
@@ -90,7 +103,12 @@ export function MeetingForm({
     });
 
     async function onSubmit(data: FormData) {
-        setIsSubmitting(true);
+        if (externalOnSubmit) {
+            await externalOnSubmit(data);
+            return;
+        }
+
+        setInternalIsSubmitting(true);
 
         try {
             if (isEditing && initialData) {
@@ -131,7 +149,7 @@ export function MeetingForm({
             console.error("Form submission error:", error);
             alert("Ein Fehler ist aufgetreten");
         } finally {
-            setIsSubmitting(false);
+            setInternalIsSubmitting(false);
         }
     }
 
@@ -340,40 +358,6 @@ export function MeetingForm({
                         />
                     </form>
                 </Form>
-
-                {/* Agenda Items Section */}
-                {!isEditing && (
-                    <div className="mt-6">
-                        <AgendaItemsFormSection
-                            value={agendaItems}
-                            onChange={setAgendaItems}
-                        />
-                    </div>
-                )}
-
-                {/* Submit buttons */}
-                <div className="flex gap-4 mt-6">
-                    <Button
-                        type="submit"
-                        onClick={form.handleSubmit(onSubmit)}
-                        disabled={isSubmitting}
-                        className="flex-1"
-                    >
-                        {isSubmitting
-                            ? "Wird gespeichert..."
-                            : isEditing
-                              ? "Änderungen speichern"
-                              : "Versammlung erstellen"}
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => router.back()}
-                        disabled={isSubmitting}
-                    >
-                        Abbrechen
-                    </Button>
-                </div>
             </CardContent>
         </Card>
     );

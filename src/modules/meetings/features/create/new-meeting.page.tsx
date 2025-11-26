@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getProperties } from "@/modules/properties/shared/property.action";
-import { MeetingForm } from "../../shared/components/meeting-form";
+import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 import meetingsRoutes from "../../meetings.route";
 
 export default async function NewMeetingPage() {
@@ -11,7 +11,7 @@ export default async function NewMeetingPage() {
     const properties = await getProperties();
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-3xl">
+        <div className="container mx-auto py-8 px-4 max-w-6xl">
             <div className="mb-8">
                 <Link href={meetingsRoutes.list}>
                     <Button variant="ghost" className="mb-4">
@@ -25,7 +25,7 @@ export default async function NewMeetingPage() {
                 </p>
             </div>
 
-            <MeetingForm properties={properties} />
+            <MeetingFormWithAgenda properties={properties} />
         </div>
     );
 }
