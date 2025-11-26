@@ -41,17 +41,37 @@ import {
 } from "../schemas/meeting.schema";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../../meetings.route";
+import {
+    AgendaItemsFormSection,
+    type AgendaItemFormData,
+} from "./agenda-items-form-section";
+import { createAgendaItems, getAgendaItems } from "../agenda-item.action";
+import type { AgendaItem } from "../schemas/agenda-item.schema";
 
 type FormData = z.infer<typeof insertMeetingSchema>;
 
 interface MeetingFormProps {
     properties: Property[];
     initialData?: Meeting;
+    initialAgendaItems?: AgendaItem[];
 }
 
-export function MeetingForm({ properties, initialData }: MeetingFormProps) {
+export function MeetingForm({
+    properties,
+    initialData,
+    initialAgendaItems = [],
+}: MeetingFormProps) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [agendaItems, setAgendaItems] = useState<AgendaItemFormData[]>(
+        initialAgendaItems.length > 0
+            ? initialAgendaItems.map((item) => ({
+                  title: item.title,
+                  description: item.description || "",
+                  requiresResolution: item.requiresResolution,
+              }))
+            : [{ title: "", description: "", requiresResolution: false }],
+    );
     const isEditing = !!initialData;
 
     const form = useForm<FormData>({
@@ -76,15 +96,32 @@ export function MeetingForm({ properties, initialData }: MeetingFormProps) {
             if (isEditing && initialData) {
                 const result = await updateMeeting(initialData.id, data);
                 if (result.success) {
+                    // Note: Agenda items are updated separately if needed
                     router.push(meetingsRoutes.detail(initialData.id));
                     router.refresh();
                 } else {
                     alert(result.error || "Fehler beim Aktualisieren");
                 }
             } else {
+                // Create meeting first
                 const result = await createMeeting(data);
                 if (result.success && result.meetingId) {
-                    router.push(meetingsRoutes.list);
+                    // Create agenda items if we have any with titles
+                    const validAgendaItems = agendaItems
+                        .filter((item) => item.title.trim() !== "")
+                        .map((item, index) => ({
+                            ...item,
+                            orderIndex: index,
+                        }));
+
+                    if (validAgendaItems.length > 0) {
+                        await createAgendaItems(
+                            result.meetingId,
+                            validAgendaItems,
+                        );
+                    }
+
+                    router.push(meetingsRoutes.detail(result.meetingId));
                     router.refresh();
                 } else {
                     alert(result.error || "Fehler beim Erstellen");
@@ -301,30 +338,42 @@ export function MeetingForm({ properties, initialData }: MeetingFormProps) {
                                 </FormItem>
                             )}
                         />
-
-                        <div className="flex gap-4">
-                            <Button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="flex-1"
-                            >
-                                {isSubmitting
-                                    ? "Wird gespeichert..."
-                                    : isEditing
-                                      ? "Änderungen speichern"
-                                      : "Versammlung erstellen"}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => router.back()}
-                                disabled={isSubmitting}
-                            >
-                                Abbrechen
-                            </Button>
-                        </div>
                     </form>
                 </Form>
+
+                {/* Agenda Items Section */}
+                {!isEditing && (
+                    <div className="mt-6">
+                        <AgendaItemsFormSection
+                            value={agendaItems}
+                            onChange={setAgendaItems}
+                        />
+                    </div>
+                )}
+
+                {/* Submit buttons */}
+                <div className="flex gap-4 mt-6">
+                    <Button
+                        type="submit"
+                        onClick={form.handleSubmit(onSubmit)}
+                        disabled={isSubmitting}
+                        className="flex-1"
+                    >
+                        {isSubmitting
+                            ? "Wird gespeichert..."
+                            : isEditing
+                              ? "Änderungen speichern"
+                              : "Versammlung erstellen"}
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => router.back()}
+                        disabled={isSubmitting}
+                    >
+                        Abbrechen
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     );

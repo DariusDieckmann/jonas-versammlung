@@ -7,6 +7,8 @@ import {
     Trash2,
     Building2,
     AlertCircle,
+    FileText,
+    CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -22,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { deleteMeeting, getMeeting } from "../../shared/meeting.action";
+import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
 import meetingsRoutes from "../../meetings.route";
 import propertiesRoutes from "@/modules/properties/properties.route";
@@ -52,8 +55,9 @@ export default async function MeetingDetailPage({
         notFound();
     }
 
-    // Get property information
+    // Get property information and agenda items
     const property = await getProperty(meeting.propertyId);
+    const agendaItems = await getAgendaItems(meetingId);
 
     async function handleDelete() {
         "use server";
@@ -251,6 +255,56 @@ export default async function MeetingDetailPage({
                                     </div>
                                 </div>
                             </Link>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Tagesordnung */}
+                {agendaItems.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileText className="h-5 w-5" />
+                                Tagesordnung
+                            </CardTitle>
+                            <CardDescription>
+                                {agendaItems.length}{" "}
+                                {agendaItems.length === 1
+                                    ? "Tagesordnungspunkt"
+                                    : "Tagesordnungspunkte"}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {agendaItems.map((item, index) => (
+                                    <div
+                                        key={item.id}
+                                        className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <div className="flex items-start justify-between mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-sm font-semibold text-gray-500 min-w-[3rem]">
+                                                    TOP {index + 1}
+                                                </span>
+                                                <h4 className="font-semibold text-lg">
+                                                    {item.title}
+                                                </h4>
+                                            </div>
+                                            {item.requiresResolution && (
+                                                <Badge variant="outline" className="ml-2">
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                    Beschluss
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {item.description && (
+                                            <p className="text-gray-600 text-sm whitespace-pre-wrap ml-[3.75rem]">
+                                                {item.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </CardContent>
                     </Card>
                 )}

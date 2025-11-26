@@ -1,0 +1,68 @@
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
+import { agendaItems } from "./agenda-item.schema";
+
+export const resolutions = sqliteTable("resolutions", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    agendaItemId: integer("agenda_item_id")
+        .notNull()
+        .references(() => agendaItems.id, { onDelete: "cascade" }),
+    resolutionText: text("resolution_text").notNull(),
+    majorityType: text("majority_type", {
+        enum: ["simple", "qualified", "unanimous"],
+    })
+        .notNull()
+        .default("simple"),
+    result: text("result", { enum: ["accepted", "rejected", "postponed"] }),
+    votesYes: integer("votes_yes").notNull().default(0),
+    votesNo: integer("votes_no").notNull().default(0),
+    votesAbstain: integer("votes_abstain").notNull().default(0),
+    yesShares: text("yes_shares"), // Stored as string for decimal precision
+    noShares: text("no_shares"),
+    abstainShares: text("abstain_shares"),
+    comment: text("comment"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+});
+
+// Validation schemas
+export const insertResolutionSchema = createInsertSchema(resolutions, {
+    resolutionText: z
+        .string()
+        .min(10, "Beschlusstext muss mindestens 10 Zeichen lang sein")
+        .max(5000, "Beschlusstext darf maximal 5000 Zeichen lang sein"),
+    majorityType: z.enum(["simple", "qualified", "unanimous"]),
+    result: z.enum(["accepted", "rejected", "postponed"]).optional().nullable(),
+    votesYes: z.number().int().min(0, "Stimmen müssen positiv sein").default(0),
+    votesNo: z.number().int().min(0, "Stimmen müssen positiv sein").default(0),
+    votesAbstain: z
+        .number()
+        .int()
+        .min(0, "Stimmen müssen positiv sein")
+        .default(0),
+    yesShares: z.string().optional().nullable(),
+    noShares: z.string().optional().nullable(),
+    abstainShares: z.string().optional().nullable(),
+    comment: z
+        .string()
+        .max(2000, "Kommentar darf maximal 2000 Zeichen lang sein")
+        .optional()
+        .nullable(),
+}).omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+});
+
+export const selectResolutionSchema = createSelectSchema(resolutions);
+
+export const updateResolutionSchema = insertResolutionSchema.partial();
+
+// Types
+export type Resolution = typeof resolutions.$inferSelect;
+export type NewResolution = typeof resolutions.$inferInsert;
+export type InsertResolution = z.infer<typeof insertResolutionSchema>;
+export type UpdateResolution = z.infer<typeof updateResolutionSchema>;
+export type MajorityType = "simple" | "qualified" | "unanimous";
+export type ResolutionResult = "accepted" | "rejected" | "postponed";

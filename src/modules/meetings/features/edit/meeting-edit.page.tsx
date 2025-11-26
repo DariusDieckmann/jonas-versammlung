@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
+import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getProperties } from "@/modules/properties/shared/property.action";
 import { MeetingForm } from "../../shared/components/meeting-form";
 import meetingsRoutes from "../../meetings.route";
@@ -23,6 +24,8 @@ export default async function MeetingEditPage({
         notFound();
     }
 
+    const agendaItems = await getAgendaItems(meetingId);
+
     return (
         <div className="container mx-auto py-8 px-4 max-w-3xl">
             <div className="mb-8">
@@ -38,7 +41,11 @@ export default async function MeetingEditPage({
                 </p>
             </div>
 
-            <MeetingForm properties={properties} initialData={meeting} />
+            <MeetingForm
+                properties={properties}
+                initialData={meeting}
+                initialAgendaItems={agendaItems}
+            />
         </div>
     );
 }

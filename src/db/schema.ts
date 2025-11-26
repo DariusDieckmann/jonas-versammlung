@@ -11,3 +11,5 @@ export { properties } from "@/modules/properties/shared/schemas/property.schema"
 export { units } from "@/modules/units/shared/schemas/unit.schema";
 export { owners } from "@/modules/owners/shared/schemas/owner.schema";
 export { meetings } from "@/modules/meetings/shared/schemas/meeting.schema";
+export { agendaItems } from "@/modules/meetings/shared/schemas/agenda-item.schema";
+export { resolutions } from "@/modules/meetings/shared/schemas/resolution.schema";
