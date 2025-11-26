@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GripVertical, Plus, Trash2, FileText } from "lucide-react";
+import { Plus, Trash2, FileText, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +14,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 
 export interface AgendaItemFormData {
     title: string;
@@ -35,6 +36,7 @@ export function AgendaItemsFormSection({
             ? value
             : [{ title: "", description: "", requiresResolution: false }],
     );
+    const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
     const updateItems = (newItems: AgendaItemFormData[]) => {
         setItems(newItems);
@@ -42,15 +44,24 @@ export function AgendaItemsFormSection({
     };
 
     const addItem = () => {
-        updateItems([
+        const newItems = [
             ...items,
             { title: "", description: "", requiresResolution: false },
-        ]);
+        ];
+        updateItems(newItems);
+        setSelectedIndex(newItems.length - 1); // Select the newly added item
     };
 
     const removeItem = (index: number) => {
         if (items.length > 1) {
-            updateItems(items.filter((_, i) => i !== index));
+            const newItems = items.filter((_, i) => i !== index);
+            updateItems(newItems);
+            // Adjust selected index if needed
+            if (selectedIndex >= newItems.length) {
+                setSelectedIndex(newItems.length - 1);
+            } else if (selectedIndex === index && index > 0) {
+                setSelectedIndex(index - 1);
+            }
         }
     };
 
@@ -79,7 +90,10 @@ export function AgendaItemsFormSection({
             newItems[index],
         ];
         updateItems(newItems);
+        setSelectedIndex(targetIndex); // Follow the moved item
     };
+
+    const selectedItem = items[selectedIndex];
 
     return (
         <Card>
@@ -92,38 +106,103 @@ export function AgendaItemsFormSection({
                     Füge Tagesordnungspunkte für die Versammlung hinzu
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                {items.map((item, index) => (
-                    <Card key={index} className="border-2">
-                        <CardContent className="pt-6">
-                            <div className="space-y-4">
+            <CardContent>
+                <div className="flex gap-4 h-[600px]">
+                    {/* Left Side - List of TOPs (30%) */}
+                    <div className="w-[30%] flex flex-col gap-2">
+                        <div className="flex-1 border rounded-lg overflow-y-auto p-2 space-y-2">
+                            {items.map((item, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={() => setSelectedIndex(index)}
+                                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                                        selectedIndex === index
+                                            ? "bg-blue-50 border-2 border-blue-500"
+                                            : "bg-white border border-gray-200 hover:bg-gray-50"
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            <span className="text-sm font-semibold text-gray-500">
+                                                TOP {index + 1}
+                                            </span>
+                                            {item.requiresResolution && (
+                                                <Badge
+                                                    variant="outline"
+                                                    className="text-xs"
+                                                >
+                                                    Beschluss
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <ChevronRight
+                                            className={`h-4 w-4 flex-shrink-0 ${
+                                                selectedIndex === index
+                                                    ? "text-blue-500"
+                                                    : "text-gray-400"
+                                            }`}
+                                        />
+                                    </div>
+                                    <div className="mt-1 text-sm font-medium truncate">
+                                        {item.title || (
+                                            <span className="text-gray-400">
+                                                Ohne Titel
+                                            </span>
+                                        )}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Add Button */}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={addItem}
+                            className="w-full"
+                            size="sm"
+                        >
+                            <Plus className="mr-2 h-4 w-4" />
+                            TOP hinzufügen
+                        </Button>
+                    </div>
+
+                    {/* Right Side - Detail View (70%) */}
+                    <div className="w-[70%] border rounded-lg p-4 overflow-y-auto">
+                        {selectedItem && (
+                            <div className="space-y-6">
                                 {/* Header with controls */}
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-semibold text-gray-500">
-                                            TOP {index + 1}
-                                        </span>
+                                <div className="flex items-center justify-between pb-4 border-b">
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="text-lg font-semibold text-gray-700">
+                                            TOP {selectedIndex + 1}
+                                        </h3>
                                         <div className="flex gap-1">
                                             <Button
                                                 type="button"
-                                                variant="ghost"
+                                                variant="outline"
                                                 size="sm"
                                                 onClick={() =>
-                                                    moveItem(index, "up")
+                                                    moveItem(selectedIndex, "up")
                                                 }
-                                                disabled={index === 0}
+                                                disabled={selectedIndex === 0}
                                             >
                                                 ↑
                                             </Button>
                                             <Button
                                                 type="button"
-                                                variant="ghost"
+                                                variant="outline"
                                                 size="sm"
                                                 onClick={() =>
-                                                    moveItem(index, "down")
+                                                    moveItem(
+                                                        selectedIndex,
+                                                        "down",
+                                                    )
                                                 }
                                                 disabled={
-                                                    index === items.length - 1
+                                                    selectedIndex ===
+                                                    items.length - 1
                                                 }
                                             >
                                                 ↓
@@ -134,7 +213,7 @@ export function AgendaItemsFormSection({
                                         type="button"
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => removeItem(index)}
+                                        onClick={() => removeItem(selectedIndex)}
                                         disabled={items.length === 1}
                                     >
                                         <Trash2 className="h-4 w-4 text-red-600" />
@@ -143,16 +222,16 @@ export function AgendaItemsFormSection({
 
                                 {/* Title */}
                                 <div className="space-y-2">
-                                    <Label htmlFor={`agenda-title-${index}`}>
+                                    <Label htmlFor="agenda-title">
                                         Titel *
                                     </Label>
                                     <Input
-                                        id={`agenda-title-${index}`}
+                                        id="agenda-title"
                                         placeholder="z.B. Genehmigung des Protokolls"
-                                        value={item.title}
+                                        value={selectedItem.title}
                                         onChange={(e) =>
                                             updateItem(
-                                                index,
+                                                selectedIndex,
                                                 "title",
                                                 e.target.value,
                                             )
@@ -163,61 +242,48 @@ export function AgendaItemsFormSection({
 
                                 {/* Description */}
                                 <div className="space-y-2">
-                                    <Label
-                                        htmlFor={`agenda-description-${index}`}
-                                    >
+                                    <Label htmlFor="agenda-description">
                                         Beschreibung
                                     </Label>
                                     <Textarea
-                                        id={`agenda-description-${index}`}
+                                        id="agenda-description"
                                         placeholder="Zusätzliche Details oder Kontext..."
-                                        value={item.description}
+                                        value={selectedItem.description}
                                         onChange={(e) =>
                                             updateItem(
-                                                index,
+                                                selectedIndex,
                                                 "description",
                                                 e.target.value,
                                             )
                                         }
-                                        rows={3}
+                                        rows={8}
                                     />
                                 </div>
 
                                 {/* Requires Resolution */}
                                 <div className="flex items-center space-x-2">
                                     <Checkbox
-                                        id={`agenda-resolution-${index}`}
-                                        checked={item.requiresResolution}
+                                        id="agenda-resolution"
+                                        checked={selectedItem.requiresResolution}
                                         onCheckedChange={(checked) =>
                                             updateItem(
-                                                index,
+                                                selectedIndex,
                                                 "requiresResolution",
                                                 checked === true,
                                             )
                                         }
                                     />
                                     <Label
-                                        htmlFor={`agenda-resolution-${index}`}
+                                        htmlFor="agenda-resolution"
                                         className="text-sm font-normal cursor-pointer"
                                     >
                                         Erfordert Beschlussfassung
                                     </Label>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
-                ))}
-
-                {/* Add Button */}
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={addItem}
-                    className="w-full"
-                >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Tagesordnungspunkt hinzufügen
-                </Button>
+                        )}
+                    </div>
+                </div>
             </CardContent>
         </Card>
     );
