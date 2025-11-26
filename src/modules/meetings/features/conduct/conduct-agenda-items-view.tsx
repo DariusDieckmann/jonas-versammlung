@@ -34,6 +34,11 @@ export function ConductAgendaItemsView({
     );
     const [completedItems, setCompletedItems] = useState<Set<number>>(new Set());
 
+    // Filter only present and represented participants for voting
+    const votingParticipants = participants.filter(
+        p => p.attendanceStatus === "present" || p.attendanceStatus === "represented"
+    );
+
     const selectedItem = agendaItems.find(item => item.id === selectedItemId);
 
     const handleItemComplete = (itemId: number) => {
@@ -161,7 +166,7 @@ export function ConductAgendaItemsView({
                         {selectedItem.requiresResolution ? (
                             <ConductVotingForm
                                 agendaItem={selectedItem}
-                                participants={participants}
+                                participants={votingParticipants}
                                 onComplete={() => handleItemComplete(selectedItem.id)}
                             />
                         ) : (
