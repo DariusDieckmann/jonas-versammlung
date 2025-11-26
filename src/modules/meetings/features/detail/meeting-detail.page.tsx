@@ -9,6 +9,7 @@ import {
     AlertCircle,
     FileText,
     CheckCircle2,
+    Play,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -27,6 +28,7 @@ import { deleteMeeting, getMeeting } from "../../shared/meeting.action";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getProperty } from "@/modules/properties/shared/property.action";
 import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../conduct.route";
 import propertiesRoutes from "@/modules/properties/properties.route";
 
 interface MeetingDetailPageProps {
@@ -127,6 +129,14 @@ export default async function MeetingDetailPage({
                     </div>
 
                     <div className="flex gap-2">
+                        {meeting.status === "planned" && (
+                            <Link href={conductRoutes.leaders(meeting.id)}>
+                                <Button variant="default" size="sm">
+                                    <Play className="mr-2 h-4 w-4" />
+                                    Starten
+                                </Button>
+                            </Link>
+                        )}
                         <Link href={meetingsRoutes.edit(meeting.id)}>
                             <Button variant="outline" size="sm">
                                 <Edit className="mr-2 h-4 w-4" />
