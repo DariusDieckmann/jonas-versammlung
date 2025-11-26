@@ -1,13 +1,17 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../conduct.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface ConductLayoutProps {
     meeting: Meeting;
     currentStep: 1 | 2 | 3;
     maxWidth?: "3xl" | "5xl" | "7xl";
+    onNext?: () => void;
+    nextLabel?: string;
+    nextDisabled?: boolean;
     children: React.ReactNode;
 }
 
@@ -17,17 +21,38 @@ const steps = [
     { number: 3, label: "Tagesordnung" },
 ];
 
-export function ConductLayout({ meeting, currentStep, maxWidth = "7xl", children }: ConductLayoutProps) {
+export function ConductLayout({ 
+    meeting, 
+    currentStep, 
+    maxWidth = "7xl",
+    onNext,
+    nextLabel = "Weiter",
+    nextDisabled = false,
+    children 
+}: ConductLayoutProps) {
     const maxWidthClass = `max-w-${maxWidth}`;
+    
+    // Step navigation
+    const getPreviousStepHref = () => {
+        if (currentStep === 2) return conductRoutes.leaders(meeting.id);
+        if (currentStep === 3) return conductRoutes.participants(meeting.id);
+        return null;
+    };
+
+    const getNextStepHref = () => {
+        if (currentStep === 1) return conductRoutes.participants(meeting.id);
+        if (currentStep === 2) return conductRoutes.agendaItems(meeting.id);
+        return null;
+    };
     
     return (
         <div className={`container mx-auto py-8 px-4 ${maxWidthClass}`}>
-            {/* Back Button */}
+            {/* Top: Back to Overview */}
             <div className="mb-6">
                 <Link href={meetingsRoutes.detail(meeting.id)}>
                     <Button variant="ghost">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Zurück zur Versammlung
+                        Zurück zur Übersicht
                     </Button>
                 </Link>
             </div>
@@ -73,6 +98,36 @@ export function ConductLayout({ meeting, currentStep, maxWidth = "7xl", children
 
             {/* Content */}
             {children}
+
+            {/* Bottom: Step Navigation */}
+            <div className="mt-8 pt-6 border-t flex items-center justify-between">
+                {getPreviousStepHref() ? (
+                    <Link href={getPreviousStepHref()!}>
+                        <Button variant="outline">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Zurück
+                        </Button>
+                    </Link>
+                ) : (
+                    <div></div>
+                )}
+
+                {onNext ? (
+                    <Button onClick={onNext} disabled={nextDisabled}>
+                        {nextLabel}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                ) : getNextStepHref() ? (
+                    <Link href={getNextStepHref()!}>
+                        <Button>
+                            {nextLabel}
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    </Link>
+                ) : (
+                    <div></div>
+                )}
+            </div>
         </div>
     );
 }

@@ -5,8 +5,7 @@ import {
     getMeetingParticipants,
     createParticipantsFromOwners 
 } from "../../shared/meeting-participant.action";
-import { ConductLayout } from "./conduct-layout";
-import { ConductParticipantsForm } from "./conduct-participants-form";
+import { ConductParticipantsClient } from "./conduct-participants-client";
 
 interface ConductParticipantsPageProps {
     meetingId: number;
@@ -39,11 +38,6 @@ export default async function ConductParticipantsPage({
     }
 
     return (
-        <ConductLayout meeting={meeting} currentStep={2} maxWidth="5xl">
-            <ConductParticipantsForm
-                meetingId={meetingId}
-                initialParticipants={participants}
-            />
-        </ConductLayout>
+        <ConductParticipantsClient meeting={meeting} participants={participants} />
     );
 }

@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
 import { getMeetingLeaders } from "../../shared/meeting-leader.action";
-import { ConductLayout } from "./conduct-layout";
-import { ConductLeadersForm } from "./conduct-leaders-form";
+import { ConductLeadersClient } from "./conduct-leaders-client";
 
 interface ConductLeadersPageProps {
     meetingId: number;
@@ -23,8 +22,6 @@ export default async function ConductLeadersPage({
     const existingLeaders = await getMeetingLeaders(meetingId);
 
     return (
-        <ConductLayout meeting={meeting} currentStep={1} maxWidth="3xl">
-            <ConductLeadersForm meetingId={meetingId} existingLeaders={existingLeaders} />
-        </ConductLayout>
+        <ConductLeadersClient meeting={meeting} existingLeaders={existingLeaders} />
     );
 }

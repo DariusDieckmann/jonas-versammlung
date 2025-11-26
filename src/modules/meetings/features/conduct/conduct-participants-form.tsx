@@ -29,11 +29,13 @@ import conductRoutes from "../../conduct.route";
 interface ConductParticipantsFormProps {
     meetingId: number;
     initialParticipants: MeetingParticipant[];
+    onFinish?: () => void;
 }
 
 export function ConductParticipantsForm({
     meetingId,
     initialParticipants,
+    onFinish,
 }: ConductParticipantsFormProps) {
     const router = useRouter();
     const [participants, setParticipants] =
@@ -75,9 +77,12 @@ export function ConductParticipantsForm({
     };
 
     const handleFinish = () => {
-        setIsSubmitting(true);
-        // Navigate to agenda items step
-        router.push(conductRoutes.agendaItems(meetingId));
+        if (onFinish) {
+            onFinish();
+        } else {
+            // Fallback: Navigate to agenda items step
+            router.push(conductRoutes.agendaItems(meetingId));
+        }
     };
 
     const totalShares = participants.reduce((sum, p) => sum + p.shares, 0);
@@ -236,21 +241,6 @@ export function ConductParticipantsForm({
                     </Table>
                 </CardContent>
             </Card>
-
-            <div className="flex justify-end gap-4 mt-6">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push(conductRoutes.leaders(meetingId))}
-                    disabled={isSubmitting}
-                >
-                    Zurück
-                </Button>
-                <Button onClick={handleFinish} disabled={isSubmitting}>
-                    {isSubmitting ? "Wird gespeichert..." : "Abschließen"}
-                    <Check className="ml-2 h-4 w-4" />
-                </Button>
-            </div>
         </>
     );
 }

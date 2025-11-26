@@ -3,8 +3,7 @@ import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
-import { ConductLayout } from "./conduct-layout";
-import { ConductAgendaItemsView } from "./conduct-agenda-items-view";
+import { ConductAgendaItemsClient } from "./conduct-agenda-items-client";
 
 interface ConductAgendaItemsPageProps {
     meetingId: number;
@@ -24,12 +23,10 @@ export default async function ConductAgendaItemsPage({
     const participants = await getMeetingParticipants(meetingId);
 
     return (
-        <ConductLayout meeting={meeting} currentStep={3}>
-            <ConductAgendaItemsView
-                meetingId={meetingId}
-                agendaItems={agendaItems}
-                participants={participants}
-            />
-        </ConductLayout>
+        <ConductAgendaItemsClient 
+            meeting={meeting}
+            agendaItems={agendaItems}
+            participants={participants}
+        />
     );
 }

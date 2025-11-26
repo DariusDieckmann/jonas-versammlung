@@ -33,6 +33,8 @@ interface LeaderFormData {
 interface ConductLeadersFormProps {
     meetingId: number;
     existingLeaders: MeetingLeader[];
+    onSuccess?: () => void;
+    formRef?: React.RefObject<HTMLFormElement>;
 }
 
 const LEADER_ROLES = [
@@ -42,7 +44,7 @@ const LEADER_ROLES = [
     { value: "Sonstiges", label: "Sonstiges" },
 ];
 
-export function ConductLeadersForm({ meetingId, existingLeaders }: ConductLeadersFormProps) {
+export function ConductLeadersForm({ meetingId, existingLeaders, onSuccess, formRef }: ConductLeadersFormProps) {
     const router = useRouter();
     
     // Initialize with existing leaders or default empty leader
@@ -97,8 +99,13 @@ export function ConductLeadersForm({ meetingId, existingLeaders }: ConductLeader
             const result = await createMeetingLeaders(meetingId, validLeaders);
 
             if (result.success) {
-                // Navigate to participants step
-                router.push(conductRoutes.participants(meetingId));
+                // Call onSuccess callback if provided
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    // Fallback: Navigate to participants step
+                    router.push(conductRoutes.participants(meetingId));
+                }
             } else {
                 alert(result.error || "Fehler beim Speichern");
             }
@@ -111,7 +118,7 @@ export function ConductLeadersForm({ meetingId, existingLeaders }: ConductLeader
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit}>
             <Card>
                 <CardHeader>
                     <CardTitle>Versammlungsleiter festlegen</CardTitle>
@@ -201,21 +208,6 @@ export function ConductLeadersForm({ meetingId, existingLeaders }: ConductLeader
                     </Button>
                 </CardContent>
             </Card>
-
-            <div className="flex justify-end gap-4 mt-6">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push(meetingsRoutes.detail(meetingId))}
-                    disabled={isSubmitting}
-                >
-                    Abbrechen
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Wird gespeichert..." : "Weiter"}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-            </div>
         </form>
     );
 }

@@ -228,7 +228,7 @@ export function ConductVotingForm({
                         disabled={isSubmitting || votedCount === 0}
                         size="lg"
                     >
-                        {isSubmitting ? "Wird gespeichert..." : "Abstimmung abschließen"}
+                        {isSubmitting ? "Wird gespeichert..." : "Abstimmung speichern"}
                         <Check className="ml-2 h-4 w-4" />
                     </Button>
                 </div>
