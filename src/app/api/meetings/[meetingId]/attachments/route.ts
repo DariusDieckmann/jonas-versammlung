@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { uploadToR2 } from "@/lib/r2";
-import { createMeetingAttachment } from "@/modules/meetings/shared/meeting-attachment.action";
+import { validateFile, MAX_FILE_SIZE, formatFileSize } from "@/lib/file-validation";
+import { createMeetingAttachment, getMeetingAttachments } from "@/modules/meetings/shared/meeting-attachment.action";
+import { MAX_FILES_PER_MEETING } from "@/lib/file-validation";
 
 export async function POST(
     request: NextRequest,
@@ -19,12 +21,30 @@ export async function POST(
             );
         }
 
+        // Check if max files limit reached
+        const existingAttachments = await getMeetingAttachments(meetingIdNum);
+        if (existingAttachments.length >= MAX_FILES_PER_MEETING) {
+            return NextResponse.json(
+                { error: `Maximum ${MAX_FILES_PER_MEETING} Dateien pro Versammlung erlaubt` },
+                { status: 400 }
+            );
+        }
+
         const formData = await request.formData();
         const file = formData.get("file") as File;
 
         if (!file) {
             return NextResponse.json(
                 { error: "Keine Datei hochgeladen" },
+                { status: 400 }
+            );
+        }
+
+        // Validate file (type and size)
+        const validation = validateFile(file);
+        if (!validation.valid) {
+            return NextResponse.json(
+                { error: validation.error },
                 { status: 400 }
             );
         }

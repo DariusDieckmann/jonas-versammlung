@@ -1,4 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { validateFile, type FileValidationResult } from "./file-validation";
 
 export interface UploadResult {
     success: boolean;
@@ -12,6 +13,15 @@ export async function uploadToR2(
     folder: string = "uploads",
 ): Promise<UploadResult> {
     try {
+        // Validate file before upload
+        const validation = validateFile(file);
+        if (!validation.valid) {
+            return {
+                success: false,
+                error: validation.error,
+            };
+        }
+
         const { env } = await getCloudflareContext();
 
         // Generate unique filename
@@ -27,6 +37,7 @@ export async function uploadToR2(
         const result = await env.BUCKET.put(key, arrayBuffer, {
             httpMetadata: {
                 contentType: file.type,
+                contentDisposition: 'attachment', // Force download, prevent execution
                 cacheControl: "public, max-age=31536000", // 1 year
             },
             customMetadata: {

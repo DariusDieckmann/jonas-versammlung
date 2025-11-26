@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, File, Trash2, Download, Loader2 } from "lucide-react";
+import { Upload, File, Trash2, Download, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteMeetingAttachment } from "../../shared/meeting-attachment.action";
+import { validateFile, getAcceptedFileTypes, formatFileSize, MAX_FILE_SIZE, MAX_FILES_PER_MEETING } from "@/lib/file-validation";
 import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
 
 interface MeetingAttachmentsProps {
@@ -26,6 +27,21 @@ export function MeetingAttachments({
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        // Client-side validation
+        const validation = validateFile(file);
+        if (!validation.valid) {
+            setUploadError(validation.error || "Ungültige Datei");
+            e.target.value = ""; // Reset input
+            return;
+        }
+
+        // Check max files limit
+        if (attachments.length >= MAX_FILES_PER_MEETING) {
+            setUploadError(`Maximum ${MAX_FILES_PER_MEETING} Dateien pro Versammlung erlaubt`);
+            e.target.value = "";
+            return;
+        }
 
         setIsUploading(true);
         setUploadError(null);
@@ -71,18 +87,16 @@ export function MeetingAttachments({
         }
     };
 
-    const formatFileSize = (bytes: number): string => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    };
-
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Dateien</CardTitle>
                 <CardDescription>
                     Einladungen, Protokolle und weitere Dokumente
+                    <br />
+                    <span className="text-xs text-gray-500">
+                        Erlaubte Formate: PDF, Word, Excel, PowerPoint, Bilder, TXT, CSV • Max. {formatFileSize(MAX_FILE_SIZE)} • Max. {MAX_FILES_PER_MEETING} Dateien
+                    </span>
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -92,7 +106,7 @@ export function MeetingAttachments({
                             <Button
                                 variant="outline"
                                 className="w-full"
-                                disabled={isUploading}
+                                disabled={isUploading || attachments.length >= MAX_FILES_PER_MEETING}
                                 asChild
                             >
                                 <span className="cursor-pointer">
@@ -100,6 +114,11 @@ export function MeetingAttachments({
                                         <>
                                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                             Wird hochgeladen...
+                                        </>
+                                    ) : attachments.length >= MAX_FILES_PER_MEETING ? (
+                                        <>
+                                            <AlertCircle className="h-4 w-4 mr-2" />
+                                            Maximum erreicht ({MAX_FILES_PER_MEETING} Dateien)
                                         </>
                                     ) : (
                                         <>
@@ -115,10 +134,14 @@ export function MeetingAttachments({
                             type="file"
                             className="hidden"
                             onChange={handleFileUpload}
-                            disabled={isUploading}
+                            disabled={isUploading || attachments.length >= MAX_FILES_PER_MEETING}
+                            accept={getAcceptedFileTypes()}
                         />
                         {uploadError && (
-                            <p className="text-sm text-red-600 mt-2">{uploadError}</p>
+                            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
+                                <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-sm text-red-600">{uploadError}</p>
+                            </div>
                         )}
                     </div>
                 )}
