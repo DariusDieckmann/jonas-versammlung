@@ -7,7 +7,7 @@ import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface ConductLayoutProps {
     meeting: Meeting;
-    currentStep: 1 | 2 | 3;
+    currentStep: 1 | 2 | 3 | 4;
     maxWidth?: "3xl" | "5xl" | "7xl";
     onNext?: () => void;
     nextLabel?: string;
@@ -19,6 +19,7 @@ const steps = [
     { number: 1, label: "Leiter festlegen" },
     { number: 2, label: "Teilnehmer prüfen" },
     { number: 3, label: "Tagesordnung" },
+    { number: 4, label: "Zusammenfassung" },
 ];
 
 export function ConductLayout({ 
@@ -36,12 +37,14 @@ export function ConductLayout({
     const getPreviousStepHref = () => {
         if (currentStep === 2) return conductRoutes.leaders(meeting.id);
         if (currentStep === 3) return conductRoutes.participants(meeting.id);
+        if (currentStep === 4) return conductRoutes.agendaItems(meeting.id);
         return null;
     };
 
     const getNextStepHref = () => {
         if (currentStep === 1) return conductRoutes.participants(meeting.id);
         if (currentStep === 2) return conductRoutes.agendaItems(meeting.id);
+        if (currentStep === 3) return conductRoutes.summary(meeting.id);
         return null;
     };
     

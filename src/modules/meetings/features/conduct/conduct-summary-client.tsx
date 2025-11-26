@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, MinusCircle, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
     Card,
@@ -45,8 +44,11 @@ export function ConductSummaryClient({ meeting, agendaItems, resolutions }: Cond
     return (
         <ConductLayout 
             meeting={meeting} 
-            currentStep={3}
+            currentStep={4}
             maxWidth="5xl"
+            onNext={handleComplete}
+            nextLabel={isCompleting ? "Wird abgeschlossen..." : "Versammlung abschließen"}
+            nextDisabled={isCompleting}
         >
             <div className="space-y-6">
                 <Card>
@@ -181,30 +183,6 @@ export function ConductSummaryClient({ meeting, agendaItems, resolutions }: Cond
                         ))}
                     </div>
                 )}
-
-                <Card className="bg-blue-50 border-blue-200">
-                    <CardContent className="pt-6">
-                        <div className="flex items-start gap-4">
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-lg mb-2">
-                                    Versammlung abschließen
-                                </h3>
-                                <p className="text-sm text-gray-700 mb-4">
-                                    Durch das Abschließen wird die Versammlung auf "Beendet" gesetzt.
-                                    Danach können keine weiteren Änderungen mehr vorgenommen werden.
-                                </p>
-                                <Button 
-                                    size="lg"
-                                    onClick={handleComplete}
-                                    disabled={isCompleting}
-                                >
-                                    {isCompleting ? "Wird abgeschlossen..." : "Versammlung abschließen"}
-                                    <Check className="ml-2 h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </ConductLayout>
     );
