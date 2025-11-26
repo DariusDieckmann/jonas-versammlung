@@ -9,6 +9,7 @@ import {
     createParticipantsFromOwners 
 } from "../../shared/meeting-participant.action";
 import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../conduct.route";
 import { ConductParticipantsForm } from "./conduct-participants-form";
 
 interface ConductParticipantsPageProps {

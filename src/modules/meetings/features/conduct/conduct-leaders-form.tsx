@@ -23,6 +23,7 @@ import {
 import { createMeetingLeaders, deleteMeetingLeaders } from "../../shared/meeting-leader.action";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 import conductRoutes from "../../conduct.route";
+import meetingsRoutes from "../../meetings.route";
 
 interface LeaderFormData {
     name: string;
@@ -205,7 +206,7 @@ export function ConductLeadersForm({ meetingId, existingLeaders }: ConductLeader
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => router.back()}
+                    onClick={() => router.push(meetingsRoutes.detail(meetingId))}
                     disabled={isSubmitting}
                 >
                     Abbrechen

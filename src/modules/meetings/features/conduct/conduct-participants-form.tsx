@@ -24,6 +24,7 @@ import {
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { updateMeetingParticipant } from "../../shared/meeting-participant.action";
 import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../conduct.route";
 
 interface ConductParticipantsFormProps {
     meetingId: number;
@@ -241,7 +242,7 @@ export function ConductParticipantsForm({
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => router.back()}
+                    onClick={() => router.push(conductRoutes.leaders(meetingId))}
                     disabled={isSubmitting}
                 >
                     Zurück
