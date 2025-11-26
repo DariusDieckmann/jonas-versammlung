@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, Circle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
     Card,
     CardContent,
@@ -14,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
+import { updateAgendaItem } from "../../shared/agenda-item.action";
 import { ConductVotingForm } from "./conduct-voting-form";
 import conductRoutes from "../../conduct.route";
 import meetingsRoutes from "../../meetings.route";
@@ -34,6 +38,11 @@ export function ConductAgendaItemsView({
         agendaItems.length > 0 ? agendaItems[0].id : null
     );
     const [completedItems, setCompletedItems] = useState<Set<number>>(new Set());
+    
+    // Track edited values for each item
+    const [editedItems, setEditedItems] = useState<Map<number, { title: string; description: string }>>(
+        new Map(agendaItems.map(item => [item.id, { title: item.title, description: item.description || "" }]))
+    );
 
     // Filter only present and represented participants for voting
     const votingParticipants = participants.filter(
@@ -41,8 +50,44 @@ export function ConductAgendaItemsView({
     );
 
     const selectedItem = agendaItems.find(item => item.id === selectedItemId);
+    const editedData = selectedItemId ? editedItems.get(selectedItemId) : null;
 
-    const handleItemComplete = (itemId: number) => {
+    const handleTitleChange = (itemId: number, title: string) => {
+        setEditedItems(prev => {
+            const newMap = new Map(prev);
+            const current = newMap.get(itemId) || { title: "", description: "" };
+            newMap.set(itemId, { ...current, title });
+            return newMap;
+        });
+    };
+
+    const handleDescriptionChange = (itemId: number, description: string) => {
+        setEditedItems(prev => {
+            const newMap = new Map(prev);
+            const current = newMap.get(itemId) || { title: "", description: "" };
+            newMap.set(itemId, { ...current, description });
+            return newMap;
+        });
+    };
+
+    const handleItemComplete = async (itemId: number) => {
+        // Save changes before completing
+        const edited = editedItems.get(itemId);
+        const originalItem = agendaItems.find(i => i.id === itemId);
+        
+        if (edited && originalItem) {
+            const hasChanges = 
+                edited.title !== originalItem.title || 
+                edited.description !== (originalItem.description || "");
+            
+            if (hasChanges) {
+                await updateAgendaItem(itemId, {
+                    title: edited.title,
+                    description: edited.description || null,
+                });
+            }
+        }
+
         setCompletedItems(prev => new Set([...prev, itemId]));
         
         // Move to next item
@@ -136,32 +181,44 @@ export function ConductAgendaItemsView({
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Badge variant="secondary">
-                                                TOP {agendaItems.findIndex(i => i.id === selectedItem.id) + 1}
-                                            </Badge>
-                                            {selectedItem.requiresResolution && (
-                                                <Badge variant="default">
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                    Beschluss erforderlich
-                                                </Badge>
-                                            )}
-                                        </div>
-                                        <CardTitle className="text-2xl">{selectedItem.title}</CardTitle>
-                                    </div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Badge variant="secondary">
+                                        TOP {agendaItems.findIndex(i => i.id === selectedItem.id) + 1}
+                                    </Badge>
+                                    {selectedItem.requiresResolution && (
+                                        <Badge variant="default">
+                                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                                            Beschluss erforderlich
+                                        </Badge>
+                                    )}
                                 </div>
                             </CardHeader>
-                            {selectedItem.description && (
-                                <CardContent>
-                                    <div className="prose max-w-none">
-                                        <p className="text-gray-700 whitespace-pre-wrap">
-                                            {selectedItem.description}
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            )}
+                            <CardContent className="space-y-4">
+                                <div>
+                                    <Label htmlFor="title" className="text-sm font-medium mb-2">
+                                        Titel
+                                    </Label>
+                                    <Input
+                                        id="title"
+                                        value={editedData?.title || ""}
+                                        onChange={(e) => handleTitleChange(selectedItem.id, e.target.value)}
+                                        placeholder="Titel des Tagesordnungspunkts"
+                                        className="text-lg font-semibold"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="description" className="text-sm font-medium mb-2">
+                                        Beschreibung (optional)
+                                    </Label>
+                                    <Textarea
+                                        id="description"
+                                        value={editedData?.description || ""}
+                                        onChange={(e) => handleDescriptionChange(selectedItem.id, e.target.value)}
+                                        placeholder="Zusätzliche Informationen..."
+                                        rows={4}
+                                    />
+                                </div>
+                            </CardContent>
                         </Card>
 
                         {selectedItem.requiresResolution ? (
