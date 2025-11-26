@@ -97,47 +97,47 @@ export function AgendaItemsFormSection({
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-xl">
                     <FileText className="h-5 w-5" />
                     Tagesordnung
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                     Füge Tagesordnungspunkte für die Versammlung hinzu
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                <div className="flex gap-4 h-[600px]">
+            <CardContent className="pt-0">
+                <div className="flex gap-4 h-[500px]">
                     {/* Left Side - List of TOPs (30%) */}
                     <div className="w-[30%] flex flex-col gap-2">
-                        <div className="flex-1 border rounded-lg overflow-y-auto p-2 space-y-2">
+                        <div className="flex-1 border rounded-lg overflow-y-auto p-2 space-y-1">
                             {items.map((item, index) => (
                                 <button
                                     key={index}
                                     type="button"
                                     onClick={() => setSelectedIndex(index)}
-                                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                                    className={`w-full text-left p-2.5 rounded-lg transition-colors ${
                                         selectedIndex === index
                                             ? "bg-blue-50 border-2 border-blue-500"
                                             : "bg-white border border-gray-200 hover:bg-gray-50"
                                     }`}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                                            <span className="text-sm font-semibold text-gray-500">
+                                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                                            <span className="text-xs font-semibold text-gray-500">
                                                 TOP {index + 1}
                                             </span>
                                             {item.requiresResolution && (
                                                 <Badge
                                                     variant="outline"
-                                                    className="text-xs"
+                                                    className="text-[10px] py-0 px-1.5"
                                                 >
                                                     Beschluss
                                                 </Badge>
                                             )}
                                         </div>
                                         <ChevronRight
-                                            className={`h-4 w-4 flex-shrink-0 ${
+                                            className={`h-3.5 w-3.5 flex-shrink-0 ${
                                                 selectedIndex === index
                                                     ? "text-blue-500"
                                                     : "text-gray-400"
@@ -146,7 +146,7 @@ export function AgendaItemsFormSection({
                                     </div>
                                     <div className="mt-1 text-sm font-medium truncate">
                                         {item.title || (
-                                            <span className="text-gray-400">
+                                            <span className="text-gray-400 text-xs">
                                                 Ohne Titel
                                             </span>
                                         )}
@@ -169,13 +169,13 @@ export function AgendaItemsFormSection({
                     </div>
 
                     {/* Right Side - Detail View (70%) */}
-                    <div className="w-[70%] border rounded-lg p-4 overflow-y-auto">
+                    <div className="w-[70%] border rounded-lg p-3 overflow-y-auto">
                         {selectedItem && (
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {/* Header with controls */}
-                                <div className="flex items-center justify-between pb-4 border-b">
-                                    <div className="flex items-center gap-3">
-                                        <h3 className="text-lg font-semibold text-gray-700">
+                                <div className="flex items-center justify-between pb-3 border-b">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-base font-semibold text-gray-700">
                                             TOP {selectedIndex + 1}
                                         </h3>
                                         <div className="flex gap-1">
@@ -187,6 +187,7 @@ export function AgendaItemsFormSection({
                                                     moveItem(selectedIndex, "up")
                                                 }
                                                 disabled={selectedIndex === 0}
+                                                className="h-7 w-7 p-0"
                                             >
                                                 ↑
                                             </Button>
@@ -204,6 +205,7 @@ export function AgendaItemsFormSection({
                                                     selectedIndex ===
                                                     items.length - 1
                                                 }
+                                                className="h-7 w-7 p-0"
                                             >
                                                 ↓
                                             </Button>
@@ -215,15 +217,16 @@ export function AgendaItemsFormSection({
                                         size="sm"
                                         onClick={() => removeItem(selectedIndex)}
                                         disabled={items.length === 1}
+                                        className="h-7 w-7 p-0"
                                     >
                                         <Trash2 className="h-4 w-4 text-red-600" />
                                     </Button>
                                 </div>
 
                                 {/* Title */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="agenda-title">
-                                        Titel *
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="agenda-title" className="text-sm">
+                                        Titel
                                     </Label>
                                     <Input
                                         id="agenda-title"
@@ -237,12 +240,13 @@ export function AgendaItemsFormSection({
                                             )
                                         }
                                         required
+                                        className="h-9"
                                     />
                                 </div>
 
                                 {/* Description */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="agenda-description">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="agenda-description" className="text-sm">
                                         Beschreibung
                                     </Label>
                                     <Textarea
@@ -256,7 +260,8 @@ export function AgendaItemsFormSection({
                                                 e.target.value,
                                             )
                                         }
-                                        rows={8}
+                                        rows={6}
+                                        className="text-sm"
                                     />
                                 </div>
 

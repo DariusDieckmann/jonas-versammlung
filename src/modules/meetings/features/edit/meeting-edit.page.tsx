@@ -6,7 +6,7 @@ import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getProperties } from "@/modules/properties/shared/property.action";
-import { MeetingForm } from "../../shared/components/meeting-form";
+import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 import meetingsRoutes from "../../meetings.route";
 
 interface MeetingEditPageProps {
@@ -27,21 +27,17 @@ export default async function MeetingEditPage({
     const agendaItems = await getAgendaItems(meetingId);
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-3xl">
-            <div className="mb-8">
+        <div className="container mx-auto py-8 px-4 max-w-6xl">
+            <div className="mb-4">
                 <Link href={meetingsRoutes.detail(meetingId)}>
-                    <Button variant="ghost" className="mb-4">
+                    <Button variant="ghost">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Zurück zur Versammlung
                     </Button>
                 </Link>
-                <h1 className="text-3xl font-bold">Versammlung bearbeiten</h1>
-                <p className="text-gray-600 mt-1">
-                    Aktualisiere die Details der Versammlung
-                </p>
             </div>
 
-            <MeetingForm
+            <MeetingFormWithAgenda
                 properties={properties}
                 initialData={meeting}
                 initialAgendaItems={agendaItems}

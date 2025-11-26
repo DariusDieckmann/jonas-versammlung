@@ -168,23 +168,23 @@ export function MeetingForm({
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>
+            <CardHeader className="pb-0">
+                <CardTitle className="text-xl">
                     {isEditing
                         ? "Versammlung bearbeiten"
-                        : "Neue Versammlung erstellen"}
+                        : "Neue Versammlung"}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                     {isEditing
                         ? "Bearbeite die Details der Versammlung"
-                        : "Fülle die folgenden Felder aus, um eine neue Versammlung anzulegen"}
+                        : "Erstelle eine neue Versammlung für eine Liegenschaft"}
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
                         {/* Property Selection */}
                         <FormField
@@ -192,7 +192,7 @@ export function MeetingForm({
                             name="propertyId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Liegenschaft *</FormLabel>
+                                    <FormLabel className="text-sm">Liegenschaft</FormLabel>
                                     <Select
                                         onValueChange={(value) =>
                                             field.onChange(parseInt(value))
@@ -200,7 +200,7 @@ export function MeetingForm({
                                         value={field.value?.toString()}
                                     >
                                         <FormControl>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="h-9">
                                                 <SelectValue placeholder="Wähle eine Liegenschaft" />
                                             </SelectTrigger>
                                         </FormControl>
@@ -215,9 +215,6 @@ export function MeetingForm({
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <FormDescription>
-                                        Wähle die Liegenschaft für diese Versammlung
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -229,31 +226,29 @@ export function MeetingForm({
                             name="title"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Titel *</FormLabel>
+                                    <FormLabel className="text-sm">Titel</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="z.B. Jahreshauptversammlung 2024"
                                             {...field}
+                                            className="h-9"
                                         />
                                     </FormControl>
-                                    <FormDescription>
-                                        Gib der Versammlung einen aussagekräftigen Titel
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
                         {/* Date and Time */}
-                        <div className="grid gap-4 md:grid-cols-3">
+                        <div className="grid gap-3 md:grid-cols-3">
                             <FormField
                                 control={form.control}
                                 name="date"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Datum *</FormLabel>
+                                        <FormLabel className="text-sm">Datum</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <Input type="date" {...field} className="h-9" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -264,11 +259,12 @@ export function MeetingForm({
                                 name="startTime"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Startzeit *</FormLabel>
+                                        <FormLabel className="text-sm">Beginn</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="time"
                                                 {...field}
+                                                className="h-9"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -280,12 +276,13 @@ export function MeetingForm({
                                 name="endTime"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Endzeit</FormLabel>
+                                        <FormLabel className="text-sm">Ende</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="time"
                                                 {...field}
                                                 value={field.value || ""}
+                                                className="h-9"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -295,46 +292,44 @@ export function MeetingForm({
                         </div>
 
                         {/* Location */}
-                        <FormField
-                            control={form.control}
-                            name="locationName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Veranstaltungsort *</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="z.B. Gemeindehaus, Raum 101"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Name des Veranstaltungsortes
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid gap-3 md:grid-cols-2">
+                            <FormField
+                                control={form.control}
+                                name="locationName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-sm">Veranstaltungsort</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="z.B. Gemeindehaus"
+                                                {...field}
+                                                className="h-9"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <FormField
-                            control={form.control}
-                            name="locationAddress"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Adresse</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder="Vollständige Adresse des Veranstaltungsortes"
-                                            {...field}
-                                            value={field.value || ""}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Optional: Vollständige Adresse für die Einladung
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="locationAddress"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-sm">Adresse</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Straße, PLZ Ort"
+                                                {...field}
+                                                value={field.value || ""}
+                                                className="h-9"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
                         {/* Invitation Deadline */}
                         <FormField
@@ -342,16 +337,14 @@ export function MeetingForm({
                             name="invitationDeadline"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Einladungsfrist *</FormLabel>
+                                    <FormLabel className="text-sm">Einladungsfrist</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="datetime-local"
                                             {...field}
+                                            className="h-9"
                                         />
                                     </FormControl>
-                                    <FormDescription>
-                                        Bis wann müssen Einladungen verschickt werden
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

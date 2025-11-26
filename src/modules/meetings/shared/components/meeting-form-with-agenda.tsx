@@ -9,7 +9,7 @@ import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import { Button } from "@/components/ui/button";
 import { createMeeting, updateMeeting } from "../meeting.action";
-import { createAgendaItems } from "../agenda-item.action";
+import { createAgendaItems, updateAgendaItem, deleteAgendaItem, createAgendaItem } from "../agenda-item.action";
 import meetingsRoutes from "@/modules/meetings/meetings.route";
 
 interface MeetingFormWithAgendaProps {
@@ -34,6 +34,9 @@ export function MeetingFormWithAgenda({
             : [{ title: "", description: "", requiresResolution: false }],
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [initialAgendaItemsIds] = useState<number[]>(
+        initialAgendaItems.map((item) => item.id)
+    );
 
     const isEditing = !!initialData;
 
@@ -42,13 +45,55 @@ export function MeetingFormWithAgenda({
 
         try {
             if (isEditing && initialData) {
+                // Update meeting
                 const result = await updateMeeting(initialData.id, data);
-                if (result.success) {
-                    router.push(meetingsRoutes.detail(initialData.id));
-                    router.refresh();
-                } else {
+                if (!result.success) {
                     alert(result.error || "Fehler beim Aktualisieren");
+                    return;
                 }
+
+                // Update agenda items
+                const validAgendaItems = agendaItems.filter(
+                    (item) => item.title.trim() !== ""
+                );
+
+                // Update or create each agenda item
+                for (let i = 0; i < validAgendaItems.length; i++) {
+                    const item = validAgendaItems[i];
+                    const existingId = initialAgendaItemsIds[i];
+
+                    if (existingId) {
+                        // Update existing item
+                        await updateAgendaItem(existingId, {
+                            ...item,
+                            orderIndex: i,
+                        });
+                    } else {
+                        // Create new item
+                        await createAgendaItem({
+                            meetingId: initialData.id,
+                            ...item,
+                            orderIndex: i,
+                        });
+                    }
+                }
+
+                // Delete removed items (if there were more initially)
+                if (initialAgendaItemsIds.length > validAgendaItems.length) {
+                    for (
+                        let i = validAgendaItems.length;
+                        i < initialAgendaItemsIds.length;
+                        i++
+                    ) {
+                        const idToDelete = initialAgendaItemsIds[i];
+                        if (idToDelete) {
+                            await deleteAgendaItem(idToDelete);
+                        }
+                    }
+                }
+
+                router.push(meetingsRoutes.detail(initialData.id));
+                router.refresh();
             } else {
                 const result = await createMeeting(data);
                 if (result.success && result.meetingId) {
@@ -85,7 +130,7 @@ export function MeetingFormWithAgenda({
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             <MeetingForm
                 properties={properties}
                 initialData={initialData}
@@ -97,15 +142,13 @@ export function MeetingFormWithAgenda({
             />
 
             {/* Agenda Items Section - Separate Card */}
-            {!isEditing && (
-                <AgendaItemsFormSection
-                    value={agendaItems}
-                    onChange={setAgendaItems}
-                />
-            )}
+            <AgendaItemsFormSection
+                value={agendaItems}
+                onChange={setAgendaItems}
+            />
 
             {/* Action Buttons - Below all cards */}
-            <div className="flex justify-end gap-4 pb-8">
+            <div className="flex justify-end gap-4 pb-6">
                 <Button
                     type="button"
                     variant="outline"

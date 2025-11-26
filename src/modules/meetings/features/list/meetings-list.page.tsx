@@ -8,7 +8,7 @@ import meetingsRoutes from "../../meetings.route";
 import { MeetingsList } from "./meetings-list";
 
 export default async function MeetingsListPage() {
-    const user = await requireAuth();
+    await requireAuth();
     const meetings = await getMeetings();
     const properties = await getProperties();
 
