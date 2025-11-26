@@ -215,21 +215,20 @@ export function ConductParticipantsForm({
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {participant.attendanceStatus === "represented" && (
-                                            <Input
-                                                placeholder="Name des Vertreters"
-                                                value={
-                                                    participant.representedBy || ""
-                                                }
-                                                onChange={(e) =>
-                                                    handleUpdateRepresentation(
-                                                        participant.id,
-                                                        e.target.value || null,
-                                                    )
-                                                }
-                                                className="max-w-xs"
-                                            />
-                                        )}
+                                        <Input
+                                            placeholder="Name des Vertreters"
+                                            value={
+                                                participant.representedBy || ""
+                                            }
+                                            onChange={(e) =>
+                                                handleUpdateRepresentation(
+                                                    participant.id,
+                                                    e.target.value || null,
+                                                )
+                                            }
+                                            disabled={participant.attendanceStatus !== "represented"}
+                                            className="max-w-xs"
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}
