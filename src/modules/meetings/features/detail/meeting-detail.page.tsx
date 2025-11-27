@@ -167,10 +167,12 @@ export default async function MeetingDetailPage({
                         </div>
                         {property && (
                             <Link href={propertiesRoutes.detail(property.id)}>
-                                <p className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2">
-                                    <Building2 className="h-4 w-4" />
-                                    {property.name}
-                                </p>
+                                <div className="text-gray-600 hover:text-gray-900 transition-colors">
+                                    <p className="flex items-center gap-2">
+                                        <Building2 className="h-4 w-4" />
+                                        <span>{property.name}, {property.street} {property.houseNumber}, {property.postalCode} {property.city}</span>
+                                    </p>
+                                </div>
                             </Link>
                         )}
                     </div>
@@ -229,22 +231,19 @@ export default async function MeetingDetailPage({
             </div>
 
             <div className="grid gap-6">
-                {/* Datum & Uhrzeit */}
+                {/* Datum, Uhrzeit & Ort */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Datum & Uhrzeit</CardTitle>
-                        <CardDescription>
-                            Wann findet die Versammlung statt
-                        </CardDescription>
+                        <CardTitle>Datum, Uhrzeit & Ort</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid md:grid-cols-2 gap-6">
+                    <CardContent>
+                        <div className="grid md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                                     <CalendarDays className="h-4 w-4" />
                                     <span>Datum</span>
                                 </div>
-                                <div className="text-lg font-medium">
+                                <div className="font-medium">
                                     {formatDate(meeting.date)}
                                 </div>
                             </div>
@@ -254,91 +253,38 @@ export default async function MeetingDetailPage({
                                     <Clock className="h-4 w-4" />
                                     <span>Uhrzeit</span>
                                 </div>
-                                <div className="text-lg font-medium">
+                                <div className="font-medium">
                                     {formatTime(meeting.startTime)}
                                     {meeting.endTime &&
                                         ` - ${formatTime(meeting.endTime)}`}
                                 </div>
                             </div>
+                        </div>
 
+                        <div className="grid md:grid-cols-2 gap-4">
                             <div>
                                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                                     <AlertCircle className="h-4 w-4" />
                                     <span>Einladungsfrist</span>
                                 </div>
-                                <div className="text-lg font-medium">
+                                <div className="font-medium">
                                     {formatDateTime(meeting.invitationDeadline)}
                                 </div>
                             </div>
+
+                            <div>
+                                <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                                    <MapPin className="h-4 w-4" />
+                                    <span>Ort</span>
+                                </div>
+                                <div className="font-medium">
+                                    {meeting.locationName}
+                                    {meeting.locationAddress && `, ${meeting.locationAddress}`}
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* Veranstaltungsort */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Veranstaltungsort</CardTitle>
-                        <CardDescription>
-                            Wo findet die Versammlung statt
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                                <MapPin className="h-4 w-4" />
-                                <span>Ort</span>
-                            </div>
-                            <div className="text-lg font-medium">
-                                {meeting.locationName}
-                            </div>
-                        </div>
-
-                        {meeting.locationAddress && (
-                            <>
-                                <Separator />
-                                <div>
-                                    <div className="text-sm text-gray-500 mb-2">
-                                        Adresse
-                                    </div>
-                                    <div className="text-gray-700 whitespace-pre-wrap">
-                                        {meeting.locationAddress}
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* Liegenschaft */}
-                {property && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Liegenschaft</CardTitle>
-                            <CardDescription>
-                                Zugehörige Immobilie
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Link href={propertiesRoutes.detail(property.id)}>
-                                <div className="hover:bg-gray-50 p-4 rounded-lg transition-colors border">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Building2 className="h-5 w-5 text-blue-600" />
-                                        <h3 className="font-semibold text-lg">
-                                            {property.name}
-                                        </h3>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <MapPin className="h-4 w-4" />
-                                        <span>
-                                            {property.street} {property.houseNumber}
-                                            , {property.postalCode} {property.city}
-                                        </span>
-                                    </div>
-                                </div>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                )}
 
                 {/* Tagesordnung */}
                 {agendaItems.length > 0 && (
