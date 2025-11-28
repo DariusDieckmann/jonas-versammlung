@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -359,4 +359,48 @@ export async function completeMeeting(
                     : "Fehler beim Abschließen der Versammlung",
         };
     }
+}
+
+/**
+ * Get upcoming open meetings (status: planned, date in the future)
+ */
+export async function getUpcomingOpenMeetings(): Promise<(Meeting & { propertyName: string })[]> {
+    await requireAuth();
+    const db = await getDb();
+
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get all meetings with property info
+    const result = await db
+        .select({
+            meeting: meetings,
+            property: properties,
+        })
+        .from(meetings)
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(
+            and(
+                eq(meetings.status, "planned"),
+                gte(meetings.date, today)
+            )
+        )
+        .orderBy(meetings.date);
+
+    // Filter by organization membership and add property name
+    const accessibleMeetings: (Meeting & { propertyName: string })[] = [];
+    for (const { meeting, property } of result) {
+        try {
+            await requireMember(property.organizationId);
+            accessibleMeetings.push({
+                ...meeting,
+                propertyName: property.name,
+            });
+        } catch {
+            // User doesn't have access to this property's organization
+            continue;
+        }
+    }
+
+    return accessibleMeetings;
 }

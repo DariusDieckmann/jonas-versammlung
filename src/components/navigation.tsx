@@ -13,13 +13,13 @@ export function Navigation() {
                             href="/"
                             className="text-xl font-bold text-gray-900"
                         >
-                            App
+                            Triple-D
                         </Link>
                         <div className="items-center space-x-4 hidden md:flex">
                             <Link href="/">
                                 <Button variant="ghost" size="sm">
                                     <Home className="mr-2 h-4 w-4" />
-                                    Home
+                                    Startseite
                                 </Button>
                             </Link>
                             <Link href="/properties">
@@ -37,7 +37,7 @@ export function Navigation() {
                             <Link href="/settings/organization">
                                 <Button variant="ghost" size="sm">
                                     <Building2 className="mr-2 h-4 w-4" />
-                                    Organization
+                                    Eigene Organisation
                                 </Button>
                             </Link>
                         </div>
