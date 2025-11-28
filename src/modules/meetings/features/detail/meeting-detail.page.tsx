@@ -166,7 +166,7 @@ export default async function MeetingDetailPage({
                             </Badge>
                         </div>
                         {property && (
-                            <Link href={propertiesRoutes.detail(property.id)}>
+                            <Link href={`${propertiesRoutes.detail(property.id)}?from=meeting&meetingId=${meetingId}`}>
                                 <div className="text-gray-600 hover:text-gray-900 transition-colors">
                                     <p className="flex items-center gap-2">
                                         <Building2 className="h-4 w-4" />

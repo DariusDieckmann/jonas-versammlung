@@ -15,15 +15,18 @@ import { deleteProperty, getProperty } from "../../shared/property.action";
 import propertiesRoutes from "../../properties.route";
 import { getUnitsWithOwners } from "@/modules/units/shared/unit.action";
 import { PropertyUnitsList } from "@/modules/units/shared/components/property-units-list";
+import meetingsRoutes from "@/modules/meetings/meetings.route";
 
 interface PropertyDetailPageProps {
     propertyId: number;
+    searchParams?: { from?: string; meetingId?: string };
 }
 
 export default async function PropertyDetailPage({
     propertyId,
+    searchParams,
 }: PropertyDetailPageProps) {
-    const user = await requireAuth();
+    await requireAuth();
     const property = await getProperty(propertyId);
 
     if (!property) {
@@ -32,6 +35,16 @@ export default async function PropertyDetailPage({
 
     // Get units with owners for this property
     const unitsWithOwners = await getUnitsWithOwners(propertyId);
+    
+    // Determine back link based on where user came from
+    const from = searchParams?.from;
+    const meetingId = searchParams?.meetingId;
+    const backLink = from === 'meeting' && meetingId 
+        ? meetingsRoutes.detail(parseInt(meetingId, 10))
+        : propertiesRoutes.list;
+    const backText = from === 'meeting' && meetingId 
+        ? 'Zurück zur Versammlung' 
+        : 'Zurück zur Übersicht';
 
     async function handleDelete() {
         "use server";
@@ -44,10 +57,10 @@ export default async function PropertyDetailPage({
     return (
         <div className="container mx-auto py-8 px-4 max-w-4xl">
             <div className="mb-8">
-                <Link href={propertiesRoutes.list}>
+                <Link href={backLink}>
                     <Button variant="ghost" className="mb-4">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Zurück zur Übersicht
+                        {backText}
                     </Button>
                 </Link>
 
