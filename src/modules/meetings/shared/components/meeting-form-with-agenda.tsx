@@ -147,10 +147,7 @@ export function MeetingFormWithAgenda({
                 properties={properties}
                 initialData={initialData}
                 initialAgendaItems={initialAgendaItems}
-                agendaItems={agendaItems}
-                onAgendaItemsChange={setAgendaItems}
                 onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
             />
 
             {/* Agenda Items Section - Separate Card */}

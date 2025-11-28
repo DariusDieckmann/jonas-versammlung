@@ -31,9 +31,7 @@ export function ConductParticipantsClient({
             nextLabel="Weiter"
         >
             <ConductParticipantsForm
-                meetingId={meeting.id}
                 initialParticipants={participants}
-                onFinish={handleFinish}
             />
         </ConductLayout>
     );

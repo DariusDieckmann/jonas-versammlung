@@ -30,11 +30,9 @@ import {
 } from "@/components/ui/select";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../../meetings.route";
-import { createAgendaItems } from "../agenda-item.action";
 import { createMeeting, updateMeeting } from "../meeting.action";
 import type { AgendaItem } from "../schemas/agenda-item.schema";
 import { insertMeetingSchema, type Meeting } from "../schemas/meeting.schema";
-import type { AgendaItemFormData } from "./agenda-items-form-section";
 
 type FormData = z.infer<typeof insertMeetingSchema>;
 
@@ -42,36 +40,18 @@ interface MeetingFormProps {
     properties: Property[];
     initialData?: Meeting;
     initialAgendaItems?: AgendaItem[];
-    agendaItems?: AgendaItemFormData[];
-    onAgendaItemsChange?: (items: AgendaItemFormData[]) => void;
     onSubmit?: (data: FormData) => Promise<void>;
-    isSubmitting?: boolean;
 }
 
 export function MeetingForm({
     properties,
     initialData,
     initialAgendaItems = [],
-    agendaItems: externalAgendaItems,
-    onAgendaItemsChange: _onAgendaItemsChange,
     onSubmit: externalOnSubmit,
-    isSubmitting: _externalIsSubmitting,
 }: MeetingFormProps) {
     const router = useRouter();
     const [, setInternalIsSubmitting] = useState(false);
-    const [internalAgendaItems] = useState<AgendaItemFormData[]>(
-        initialAgendaItems.length > 0
-            ? initialAgendaItems.map((item) => ({
-                  title: item.title,
-                  description: item.description || "",
-                  requiresResolution: item.requiresResolution,
-              }))
-            : [{ title: "", description: "", requiresResolution: false }],
-    );
     const isEditing = !!initialData;
-
-    // Use external values if provided, otherwise use internal state
-    const agendaItems = externalAgendaItems || internalAgendaItems;
 
     const form = useForm<FormData>({
         resolver: zodResolver(insertMeetingSchema),
@@ -110,21 +90,6 @@ export function MeetingForm({
                 // Create meeting first
                 const result = await createMeeting(data);
                 if (result.success && result.meetingId) {
-                    // Create agenda items if we have any with titles
-                    const validAgendaItems = agendaItems
-                        .filter((item) => item.title.trim() !== "")
-                        .map((item, index) => ({
-                            ...item,
-                            orderIndex: index,
-                        }));
-
-                    if (validAgendaItems.length > 0) {
-                        await createAgendaItems(
-                            result.meetingId,
-                            validAgendaItems,
-                        );
-                    }
-
                     router.push(meetingsRoutes.detail(result.meetingId));
                     router.refresh();
                 } else {

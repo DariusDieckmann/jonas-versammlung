@@ -25,15 +25,11 @@ import { updateMeetingParticipant } from "../../shared/meeting-participant.actio
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 
 interface ConductParticipantsFormProps {
-    meetingId: number;
     initialParticipants: MeetingParticipant[];
-    onFinish?: () => void;
 }
 
 export function ConductParticipantsForm({
-    meetingId: _meetingId,
     initialParticipants,
-    onFinish: _onFinish,
 }: ConductParticipantsFormProps) {
     const router = useRouter();
     const [participants, setParticipants] =
