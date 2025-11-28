@@ -1,20 +1,21 @@
 import {
+    AlertCircle,
     ArrowLeft,
+    Building2,
     CalendarDays,
+    CheckCircle2,
     Clock,
     Edit,
-    MapPin,
-    Trash2,
-    Building2,
-    AlertCircle,
     FileText,
-    CheckCircle2,
-    Play,
-    XCircle,
+    MapPin,
     MinusCircle,
+    Play,
+    Trash2,
+    XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -23,22 +24,24 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { deleteMeeting, getMeeting, startMeeting } from "../../shared/meeting.action";
+import propertiesRoutes from "@/modules/properties/properties.route";
+import { getProperty } from "@/modules/properties/shared/property.action";
+import conductRoutes from "../../conduct.route";
+import meetingsRoutes from "../../meetings.route";
 import { getAgendaItems } from "../../shared/agenda-item.action";
+import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
+import {
+    deleteMeeting,
+    getMeeting,
+    startMeeting,
+} from "../../shared/meeting.action";
+import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import { getMeetingLeaders } from "../../shared/meeting-leader.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
-import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
-import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
-import { getProperty } from "@/modules/properties/shared/property.action";
-import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
-import meetingsRoutes from "../../meetings.route";
-import conductRoutes from "../../conduct.route";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -59,7 +62,7 @@ const statusLabels = {
 export default async function MeetingDetailPage({
     meetingId,
 }: MeetingDetailPageProps) {
-    const user = await requireAuth();
+    await requireAuth();
     const meeting = await getMeeting(meetingId);
 
     if (!meeting) {
@@ -70,18 +73,20 @@ export default async function MeetingDetailPage({
     const property = await getProperty(meeting.propertyId);
     const agendaItems = await getAgendaItems(meetingId);
     const attachments = await getMeetingAttachments(meetingId);
-    
+
     // Get agenda item attachments
     const agendaItemAttachments = await getAgendaItemAttachmentsByItems(
-        agendaItems.map(item => item.id)
+        agendaItems.map((item) => item.id),
     );
 
     // Get resolutions if meeting is completed
     let resolutions = new Map();
     if (meeting.status === "completed") {
-        const itemsWithResolutions = agendaItems.filter(item => item.requiresResolution);
+        const itemsWithResolutions = agendaItems.filter(
+            (item) => item.requiresResolution,
+        );
         resolutions = await getResolutionsByAgendaItems(
-            itemsWithResolutions.map(item => item.id)
+            itemsWithResolutions.map((item) => item.id),
         );
     }
 
@@ -90,7 +95,7 @@ export default async function MeetingDetailPage({
     if (meeting.status === "in-progress") {
         const leaders = await getMeetingLeaders(meetingId);
         const participants = await getMeetingParticipants(meetingId);
-        
+
         if (leaders.length > 0 && participants.length > 0) {
             // Both leaders and participants are done, go to agenda items
             resumeRoute = conductRoutes.agendaItems(meetingId);
@@ -166,11 +171,18 @@ export default async function MeetingDetailPage({
                             </Badge>
                         </div>
                         {property && (
-                            <Link href={`${propertiesRoutes.detail(property.id)}?from=meeting&meetingId=${meetingId}`}>
+                            <Link
+                                href={`${propertiesRoutes.detail(property.id)}?from=meeting&meetingId=${meetingId}`}
+                            >
                                 <div className="text-gray-600 hover:text-gray-900 transition-colors">
                                     <p className="flex items-center gap-2">
                                         <Building2 className="h-4 w-4" />
-                                        <span>{property.name}, {property.street} {property.houseNumber}, {property.postalCode} {property.city}</span>
+                                        <span>
+                                            {property.name}, {property.street}{" "}
+                                            {property.houseNumber},{" "}
+                                            {property.postalCode}{" "}
+                                            {property.city}
+                                        </span>
                                     </p>
                                 </div>
                             </Link>
@@ -181,7 +193,11 @@ export default async function MeetingDetailPage({
                         {meeting.status === "planned" && (
                             <>
                                 <form action={handleStart}>
-                                    <Button variant="default" size="sm" type="submit">
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        type="submit"
+                                    >
                                         <Play className="mr-2 h-4 w-4" />
                                         Starten
                                     </Button>
@@ -221,7 +237,10 @@ export default async function MeetingDetailPage({
                             </>
                         )}
                         {meeting.status === "completed" && (
-                            <Badge variant="secondary" className="bg-green-100 text-green-800 px-4 py-2">
+                            <Badge
+                                variant="secondary"
+                                className="bg-green-100 text-green-800 px-4 py-2"
+                            >
                                 <CheckCircle2 className="mr-2 h-4 w-4" />
                                 Versammlung abgeschlossen
                             </Badge>
@@ -279,7 +298,8 @@ export default async function MeetingDetailPage({
                                 </div>
                                 <div className="font-medium">
                                     {meeting.locationName}
-                                    {meeting.locationAddress && `, ${meeting.locationAddress}`}
+                                    {meeting.locationAddress &&
+                                        `, ${meeting.locationAddress}`}
                                 </div>
                             </div>
                         </div>
@@ -305,8 +325,10 @@ export default async function MeetingDetailPage({
                             <div className="space-y-4">
                                 {agendaItems.map((item, index) => {
                                     const resolution = resolutions.get(item.id);
-                                    const itemAttachments = agendaItemAttachments.get(item.id) || [];
-                                    
+                                    const itemAttachments =
+                                        agendaItemAttachments.get(item.id) ||
+                                        [];
+
                                     return (
                                         <div
                                             key={item.id}
@@ -322,7 +344,10 @@ export default async function MeetingDetailPage({
                                                     </h4>
                                                 </div>
                                                 {item.requiresResolution && (
-                                                    <Badge variant="outline" className="ml-2">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="ml-2"
+                                                    >
                                                         <CheckCircle2 className="h-3 w-3 mr-1" />
                                                         Beschluss
                                                     </Badge>
@@ -333,84 +358,124 @@ export default async function MeetingDetailPage({
                                                     {item.description}
                                                 </p>
                                             )}
-                                            
+
                                             {/* Agenda Item Attachments */}
-                                            {(itemAttachments.length > 0 || meeting.status !== "completed") && (
+                                            {(itemAttachments.length > 0 ||
+                                                meeting.status !==
+                                                    "completed") && (
                                                 <div className="ml-[3.75rem] mb-3">
                                                     <AgendaItemAttachments
                                                         agendaItemId={item.id}
-                                                        attachments={itemAttachments}
-                                                        canEdit={meeting.status !== "completed"}
+                                                        attachments={
+                                                            itemAttachments
+                                                        }
+                                                        canEdit={
+                                                            meeting.status !==
+                                                            "completed"
+                                                        }
                                                     />
                                                 </div>
                                             )}
-                                            
+
                                             {/* Show resolution results if completed */}
-                                            {meeting.status === "completed" && item.requiresResolution && resolution && (
-                                                <div className="ml-[3.75rem] mt-3 pt-3 border-t">
-                                                    <h5 className="font-semibold text-sm mb-3">Abstimmungsergebnis</h5>
-                                                    <div className="grid grid-cols-3 gap-3 mb-3">
-                                                        <div className="text-center p-2 bg-green-50 rounded">
-                                                            <div className="text-xl font-bold text-green-600">
-                                                                {resolution.votesYes}
-                                                            </div>
-                                                            <div className="text-xs text-gray-600">Ja-Stimmen</div>
-                                                            {resolution.yesShares && (
-                                                                <div className="text-xs font-semibold text-green-700 mt-1">
-                                                                    {resolution.yesShares} MEA
+                                            {meeting.status === "completed" &&
+                                                item.requiresResolution &&
+                                                resolution && (
+                                                    <div className="ml-[3.75rem] mt-3 pt-3 border-t">
+                                                        <h5 className="font-semibold text-sm mb-3">
+                                                            Abstimmungsergebnis
+                                                        </h5>
+                                                        <div className="grid grid-cols-3 gap-3 mb-3">
+                                                            <div className="text-center p-2 bg-green-50 rounded">
+                                                                <div className="text-xl font-bold text-green-600">
+                                                                    {
+                                                                        resolution.votesYes
+                                                                    }
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="text-center p-2 bg-red-50 rounded">
-                                                            <div className="text-xl font-bold text-red-600">
-                                                                {resolution.votesNo}
-                                                            </div>
-                                                            <div className="text-xs text-gray-600">Nein-Stimmen</div>
-                                                            {resolution.noShares && (
-                                                                <div className="text-xs font-semibold text-red-700 mt-1">
-                                                                    {resolution.noShares} MEA
+                                                                <div className="text-xs text-gray-600">
+                                                                    Ja-Stimmen
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="text-center p-2 bg-gray-50 rounded">
-                                                            <div className="text-xl font-bold text-gray-600">
-                                                                {resolution.votesAbstain}
+                                                                {resolution.yesShares && (
+                                                                    <div className="text-xs font-semibold text-green-700 mt-1">
+                                                                        {
+                                                                            resolution.yesShares
+                                                                        }{" "}
+                                                                        MEA
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                            <div className="text-xs text-gray-600">Enthaltungen</div>
-                                                            {resolution.abstainShares && (
-                                                                <div className="text-xs font-semibold text-gray-700 mt-1">
-                                                                    {resolution.abstainShares} MEA
+                                                            <div className="text-center p-2 bg-red-50 rounded">
+                                                                <div className="text-xl font-bold text-red-600">
+                                                                    {
+                                                                        resolution.votesNo
+                                                                    }
                                                                 </div>
-                                                            )}
+                                                                <div className="text-xs text-gray-600">
+                                                                    Nein-Stimmen
+                                                                </div>
+                                                                {resolution.noShares && (
+                                                                    <div className="text-xs font-semibold text-red-700 mt-1">
+                                                                        {
+                                                                            resolution.noShares
+                                                                        }{" "}
+                                                                        MEA
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="text-center p-2 bg-gray-50 rounded">
+                                                                <div className="text-xl font-bold text-gray-600">
+                                                                    {
+                                                                        resolution.votesAbstain
+                                                                    }
+                                                                </div>
+                                                                <div className="text-xs text-gray-600">
+                                                                    Enthaltungen
+                                                                </div>
+                                                                {resolution.abstainShares && (
+                                                                    <div className="text-xs font-semibold text-gray-700 mt-1">
+                                                                        {
+                                                                            resolution.abstainShares
+                                                                        }{" "}
+                                                                        MEA
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
+
+                                                        {resolution.result && (
+                                                            <div
+                                                                className={`flex items-center gap-2 p-2 rounded text-sm ${
+                                                                    resolution.result ===
+                                                                    "accepted"
+                                                                        ? "bg-green-100 text-green-800"
+                                                                        : resolution.result ===
+                                                                            "rejected"
+                                                                          ? "bg-red-100 text-red-800"
+                                                                          : "bg-gray-100 text-gray-800"
+                                                                }`}
+                                                            >
+                                                                {resolution.result ===
+                                                                "accepted" ? (
+                                                                    <CheckCircle2 className="h-4 w-4" />
+                                                                ) : resolution.result ===
+                                                                  "rejected" ? (
+                                                                    <XCircle className="h-4 w-4" />
+                                                                ) : (
+                                                                    <MinusCircle className="h-4 w-4" />
+                                                                )}
+                                                                <span className="font-semibold">
+                                                                    {resolution.result ===
+                                                                    "accepted"
+                                                                        ? "Angenommen"
+                                                                        : resolution.result ===
+                                                                            "rejected"
+                                                                          ? "Abgelehnt"
+                                                                          : "Verschoben"}
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    
-                                                    {resolution.result && (
-                                                        <div className={`flex items-center gap-2 p-2 rounded text-sm ${
-                                                            resolution.result === "accepted" 
-                                                                ? "bg-green-100 text-green-800" 
-                                                                : resolution.result === "rejected"
-                                                                    ? "bg-red-100 text-red-800"
-                                                                    : "bg-gray-100 text-gray-800"
-                                                        }`}>
-                                                            {resolution.result === "accepted" ? (
-                                                                <CheckCircle2 className="h-4 w-4" />
-                                                            ) : resolution.result === "rejected" ? (
-                                                                <XCircle className="h-4 w-4" />
-                                                            ) : (
-                                                                <MinusCircle className="h-4 w-4" />
-                                                            )}
-                                                            <span className="font-semibold">
-                                                                {resolution.result === "accepted" 
-                                                                    ? "Angenommen" 
-                                                                    : resolution.result === "rejected"
-                                                                        ? "Abgelehnt"
-                                                                        : "Verschoben"}
-                                                            </span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                                )}
                                         </div>
                                     );
                                 })}

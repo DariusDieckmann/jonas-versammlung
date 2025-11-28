@@ -4,21 +4,21 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    insertOwnerSchema,
-    owners,
-    updateOwnerSchema,
-    type InsertOwner,
-    type Owner,
-    type UpdateOwner,
-} from "./schemas/owner.schema";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import { units } from "@/modules/units/shared/schemas/unit.schema";
 import propertiesRoutes from "@/modules/properties/properties.route";
+import { units } from "@/modules/units/shared/schemas/unit.schema";
+import {
+    type InsertOwner,
+    insertOwnerSchema,
+    type Owner,
+    owners,
+    type UpdateOwner,
+    updateOwnerSchema,
+} from "./schemas/owner.schema";
 
 /**
  * Get all owners for the user's organization
@@ -69,8 +69,8 @@ export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
         .where(
             and(
                 eq(owners.organizationId, organization.id),
-                eq(owners.unitId, unitId)
-            )
+                eq(owners.unitId, unitId),
+            ),
         )
         .orderBy(owners.lastName, owners.firstName);
 
@@ -129,7 +129,7 @@ export async function createOwner(
         const unit = await db.query.units.findFirst({
             where: and(
                 eq(units.id, data.unitId),
-                eq(units.organizationId, organization.id)
+                eq(units.organizationId, organization.id),
             ),
         });
 

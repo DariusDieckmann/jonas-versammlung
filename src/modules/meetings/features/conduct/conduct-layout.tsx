@@ -1,8 +1,8 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import meetingsRoutes from "../../meetings.route";
 import conductRoutes from "../../conduct.route";
+import meetingsRoutes from "../../meetings.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface ConductLayoutProps {
@@ -22,17 +22,17 @@ const steps = [
     { number: 4, label: "Zusammenfassung" },
 ];
 
-export function ConductLayout({ 
-    meeting, 
-    currentStep, 
+export function ConductLayout({
+    meeting,
+    currentStep,
     maxWidth = "7xl",
     onNext,
     nextLabel = "Weiter",
     nextDisabled = false,
-    children 
+    children,
 }: ConductLayoutProps) {
     const maxWidthClass = `max-w-${maxWidth}`;
-    
+
     // Step navigation
     const getPreviousStepHref = () => {
         if (currentStep === 2) return conductRoutes.leaders(meeting.id);
@@ -47,7 +47,7 @@ export function ConductLayout({
         if (currentStep === 3) return conductRoutes.summary(meeting.id);
         return null;
     };
-    
+
     return (
         <div className={`container mx-auto py-8 px-4 ${maxWidthClass}`}>
             {/* Top: Back to Overview */}
@@ -64,34 +64,55 @@ export function ConductLayout({
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Versammlung durchführen</h1>
                 <p className="text-gray-600 mt-1">{meeting.title}</p>
-                
+
                 {/* Progress Bar */}
                 <div className="mt-4 flex items-center gap-2">
                     {steps.map((step, index) => (
-                        <div key={step.number} className="flex items-center gap-2">
-                            {index > 0 && <div className="h-px w-8 bg-gray-300" />}
-                            
-                            <div className={`flex items-center gap-2 ${
-                                step.number === currentStep 
-                                    ? "" 
-                                    : step.number < currentStep 
-                                        ? "text-gray-400" 
-                                        : "text-gray-400"
-                            }`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
+                        <div
+                            key={step.number}
+                            className="flex items-center gap-2"
+                        >
+                            {index > 0 && (
+                                <div className="h-px w-8 bg-gray-300" />
+                            )}
+
+                            <div
+                                className={`flex items-center gap-2 ${
                                     step.number === currentStep
-                                        ? "bg-blue-500 text-white"
+                                        ? ""
                                         : step.number < currentStep
-                                            ? "bg-green-500 text-white"
-                                            : "bg-gray-200"
-                                }`}>
-                                    {step.number < currentStep ? "✓" : step.number}
+                                          ? "text-gray-400"
+                                          : "text-gray-400"
+                                }`}
+                            >
+                                <div
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
+                                        step.number === currentStep
+                                            ? "bg-blue-500 text-white"
+                                            : step.number < currentStep
+                                              ? "bg-green-500 text-white"
+                                              : "bg-gray-200"
+                                    }`}
+                                >
+                                    {step.number < currentStep
+                                        ? "✓"
+                                        : step.number}
                                 </div>
-                                <span className={step.number === currentStep ? "font-medium" : ""}>
-                                    {step.number < currentStep 
-                                        ? step.label.replace("festlegen", "festgelegt").replace("prüfen", "geprüft")
-                                        : step.label
+                                <span
+                                    className={
+                                        step.number === currentStep
+                                            ? "font-medium"
+                                            : ""
                                     }
+                                >
+                                    {step.number < currentStep
+                                        ? step.label
+                                              .replace(
+                                                  "festlegen",
+                                                  "festgelegt",
+                                              )
+                                              .replace("prüfen", "geprüft")
+                                        : step.label}
                                 </span>
                             </div>
                         </div>
@@ -104,32 +125,41 @@ export function ConductLayout({
 
             {/* Bottom: Step Navigation */}
             <div className="mt-8 pt-6 border-t flex items-center justify-between">
-                {getPreviousStepHref() ? (
-                    <Link href={getPreviousStepHref()!}>
-                        <Button variant="outline">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Zurück
-                        </Button>
-                    </Link>
-                ) : (
-                    <div></div>
-                )}
+                {(() => {
+                    const prevHref = getPreviousStepHref();
+                    return prevHref ? (
+                        <Link href={prevHref}>
+                            <Button variant="outline">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                Zurück
+                            </Button>
+                        </Link>
+                    ) : (
+                        <div></div>
+                    );
+                })()}
 
-                {onNext ? (
-                    <Button onClick={onNext} disabled={nextDisabled}>
-                        {nextLabel}
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                ) : getNextStepHref() ? (
-                    <Link href={getNextStepHref()!}>
-                        <Button>
-                            {nextLabel}
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </Link>
-                ) : (
-                    <div></div>
-                )}
+                {(() => {
+                    if (onNext) {
+                        return (
+                            <Button onClick={onNext} disabled={nextDisabled}>
+                                {nextLabel}
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        );
+                    }
+                    const nextHref = getNextStepHref();
+                    return nextHref ? (
+                        <Link href={nextHref}>
+                            <Button>
+                                {nextLabel}
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </Link>
+                    ) : (
+                        <div></div>
+                    );
+                })()}
             </div>
         </div>
     );

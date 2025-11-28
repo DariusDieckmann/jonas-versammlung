@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getProperties } from "@/modules/properties/shared/property.action";
-import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 import meetingsRoutes from "../../meetings.route";
+import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 
 export default async function NewMeetingPage() {
     await requireAuth();

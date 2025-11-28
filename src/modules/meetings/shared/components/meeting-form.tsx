@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
@@ -16,14 +15,12 @@ import {
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -31,22 +28,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    createMeeting,
-    updateMeeting,
-} from "../meeting.action";
-import {
-    insertMeetingSchema,
-    type Meeting,
-} from "../schemas/meeting.schema";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../../meetings.route";
-import {
-    AgendaItemsFormSection,
-    type AgendaItemFormData,
-} from "./agenda-items-form-section";
-import { createAgendaItems, getAgendaItems } from "../agenda-item.action";
+import { createAgendaItems } from "../agenda-item.action";
+import { createMeeting, updateMeeting } from "../meeting.action";
 import type { AgendaItem } from "../schemas/agenda-item.schema";
+import { insertMeetingSchema, type Meeting } from "../schemas/meeting.schema";
+import type { AgendaItemFormData } from "./agenda-items-form-section";
 
 type FormData = z.infer<typeof insertMeetingSchema>;
 
@@ -65,13 +53,13 @@ export function MeetingForm({
     initialData,
     initialAgendaItems = [],
     agendaItems: externalAgendaItems,
-    onAgendaItemsChange,
+    onAgendaItemsChange: _onAgendaItemsChange,
     onSubmit: externalOnSubmit,
-    isSubmitting: externalIsSubmitting,
+    isSubmitting: _externalIsSubmitting,
 }: MeetingFormProps) {
     const router = useRouter();
-    const [internalIsSubmitting, setInternalIsSubmitting] = useState(false);
-    const [internalAgendaItems, setInternalAgendaItems] = useState<AgendaItemFormData[]>(
+    const [, setInternalIsSubmitting] = useState(false);
+    const [internalAgendaItems] = useState<AgendaItemFormData[]>(
         initialAgendaItems.length > 0
             ? initialAgendaItems.map((item) => ({
                   title: item.title,
@@ -84,8 +72,6 @@ export function MeetingForm({
 
     // Use external values if provided, otherwise use internal state
     const agendaItems = externalAgendaItems || internalAgendaItems;
-    const setAgendaItems = onAgendaItemsChange || setInternalAgendaItems;
-    const isSubmitting = externalIsSubmitting !== undefined ? externalIsSubmitting : internalIsSubmitting;
 
     const form = useForm<FormData>({
         resolver: zodResolver(insertMeetingSchema),
@@ -159,7 +145,8 @@ export function MeetingForm({
                 <CardHeader>
                     <CardTitle>Keine Liegenschaften verfügbar</CardTitle>
                     <CardDescription>
-                        Du musst zuerst eine Liegenschaft erstellen, bevor du eine Versammlung anlegen kannst.
+                        Du musst zuerst eine Liegenschaft erstellen, bevor du
+                        eine Versammlung anlegen kannst.
                     </CardDescription>
                 </CardHeader>
             </Card>
@@ -170,9 +157,7 @@ export function MeetingForm({
         <Card>
             <CardHeader className="pb-0">
                 <CardTitle className="text-xl">
-                    {isEditing
-                        ? "Versammlung bearbeiten"
-                        : "Neue Versammlung"}
+                    {isEditing ? "Versammlung bearbeiten" : "Neue Versammlung"}
                 </CardTitle>
                 <CardDescription className="text-sm">
                     {isEditing
@@ -192,10 +177,12 @@ export function MeetingForm({
                             name="propertyId"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-sm">Liegenschaft</FormLabel>
+                                    <FormLabel className="text-sm">
+                                        Liegenschaft
+                                    </FormLabel>
                                     <Select
                                         onValueChange={(value) =>
-                                            field.onChange(parseInt(value))
+                                            field.onChange(parseInt(value, 10))
                                         }
                                         value={field.value?.toString()}
                                     >
@@ -226,7 +213,9 @@ export function MeetingForm({
                             name="title"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-sm">Titel</FormLabel>
+                                    <FormLabel className="text-sm">
+                                        Titel
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="z.B. Jahreshauptversammlung 2024"
@@ -246,9 +235,15 @@ export function MeetingForm({
                                 name="date"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm">Datum</FormLabel>
+                                        <FormLabel className="text-sm">
+                                            Datum
+                                        </FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} className="h-9" />
+                                            <Input
+                                                type="date"
+                                                {...field}
+                                                className="h-9"
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -259,7 +254,9 @@ export function MeetingForm({
                                 name="startTime"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm">Beginn</FormLabel>
+                                        <FormLabel className="text-sm">
+                                            Beginn
+                                        </FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="time"
@@ -276,7 +273,9 @@ export function MeetingForm({
                                 name="endTime"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm">Ende</FormLabel>
+                                        <FormLabel className="text-sm">
+                                            Ende
+                                        </FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="time"
@@ -298,7 +297,9 @@ export function MeetingForm({
                                 name="locationName"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm">Veranstaltungsort</FormLabel>
+                                        <FormLabel className="text-sm">
+                                            Veranstaltungsort
+                                        </FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="z.B. Gemeindehaus"
@@ -316,7 +317,9 @@ export function MeetingForm({
                                 name="locationAddress"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm">Adresse</FormLabel>
+                                        <FormLabel className="text-sm">
+                                            Adresse
+                                        </FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="Straße, PLZ Ort"
@@ -337,7 +340,9 @@ export function MeetingForm({
                             name="invitationDeadline"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-sm">Einladungsfrist</FormLabel>
+                                    <FormLabel className="text-sm">
+                                        Einladungsfrist
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             type="datetime-local"

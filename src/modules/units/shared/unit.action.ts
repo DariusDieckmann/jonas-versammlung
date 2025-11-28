@@ -4,22 +4,25 @@ import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
 import {
-    insertUnitSchema,
-    units,
-    updateUnitSchema,
+    type Owner,
+    owners,
+} from "@/modules/owners/shared/schemas/owner.schema";
+import propertiesRoutes from "@/modules/properties/properties.route";
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import {
     type InsertUnit,
+    insertUnitSchema,
     type Unit,
     type UpdateUnit,
+    units,
+    updateUnitSchema,
 } from "./schemas/unit.schema";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import { owners, type Owner } from "@/modules/owners/shared/schemas/owner.schema";
-import propertiesRoutes from "@/modules/properties/properties.route";
 
 /**
  * Get all units for a specific property
@@ -44,8 +47,8 @@ export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
         .where(
             and(
                 eq(units.organizationId, organization.id),
-                eq(units.propertyId, propertyId)
-            )
+                eq(units.propertyId, propertyId),
+            ),
         )
         .orderBy(units.name);
 
@@ -55,7 +58,9 @@ export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
 /**
  * Get all units with their owners for a specific property
  */
-export async function getUnitsWithOwners(propertyId: number): Promise<Array<Unit & { owners: Owner[] }>> {
+export async function getUnitsWithOwners(
+    propertyId: number,
+): Promise<Array<Unit & { owners: Owner[] }>> {
     await requireAuth();
     const db = await getDb();
 
@@ -76,14 +81,14 @@ export async function getUnitsWithOwners(propertyId: number): Promise<Array<Unit
         .where(
             and(
                 eq(units.organizationId, organization.id),
-                eq(units.propertyId, propertyId)
-            )
+                eq(units.propertyId, propertyId),
+            ),
         )
         .orderBy(units.name);
 
     // Get all owners for these units
-    const unitIds = unitsResult.map(u => u.id);
-    
+    const unitIds = unitsResult.map((u) => u.id);
+
     if (unitIds.length === 0) {
         return [];
     }
@@ -94,24 +99,27 @@ export async function getUnitsWithOwners(propertyId: number): Promise<Array<Unit
         .where(
             and(
                 eq(owners.organizationId, organization.id),
-                inArray(owners.unitId, unitIds)
-            )
+                inArray(owners.unitId, unitIds),
+            ),
         )
         .orderBy(owners.lastName, owners.firstName);
 
     // Group owners by unitId
-    const ownersByUnit = ownersResult.reduce((acc, owner) => {
-        if (!acc[owner.unitId]) {
-            acc[owner.unitId] = [];
-        }
-        acc[owner.unitId].push(owner);
-        return acc;
-    }, {} as Record<number, Owner[]>);
+    const ownersByUnit = ownersResult.reduce(
+        (acc, owner) => {
+            if (!acc[owner.unitId]) {
+                acc[owner.unitId] = [];
+            }
+            acc[owner.unitId].push(owner);
+            return acc;
+        },
+        {} as Record<number, Owner[]>,
+    );
 
     // Combine units with their owners
-    return unitsResult.map(unit => ({
+    return unitsResult.map((unit) => ({
         ...unit,
-        owners: ownersByUnit[unit.id] || []
+        owners: ownersByUnit[unit.id] || [],
     }));
 }
 
@@ -167,7 +175,7 @@ export async function createUnit(
         const property = await db.query.properties.findFirst({
             where: and(
                 eq(properties.id, data.propertyId),
-                eq(properties.organizationId, organization.id)
+                eq(properties.organizationId, organization.id),
             ),
         });
 
@@ -186,7 +194,7 @@ export async function createUnit(
 
         const currentTotalMEA = existingUnits.reduce(
             (sum, unit) => sum + unit.ownershipShares,
-            0
+            0,
         );
         const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
@@ -256,9 +264,9 @@ export async function updateUnit(
                 .where(eq(units.propertyId, existing[0].propertyId));
 
             const currentTotalMEA = existingUnits
-                .filter(unit => unit.id !== unitId) // Exclude current unit
+                .filter((unit) => unit.id !== unitId) // Exclude current unit
                 .reduce((sum, unit) => sum + unit.ownershipShares, 0);
-            
+
             const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
             if (newTotalMEA > 1000) {

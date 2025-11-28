@@ -47,7 +47,10 @@ export const insertPropertySchema = createInsertSchema(properties, {
         .number()
         .int()
         .min(1800, "Baujahr muss nach 1800 liegen")
-        .max(new Date().getFullYear() + 5, "Baujahr liegt zu weit in der Zukunft")
+        .max(
+            new Date().getFullYear() + 5,
+            "Baujahr liegt zu weit in der Zukunft",
+        )
         .optional()
         .nullable(),
     numberOfUnits: z

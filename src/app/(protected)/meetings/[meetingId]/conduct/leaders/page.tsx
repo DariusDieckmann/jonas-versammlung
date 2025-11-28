@@ -6,5 +6,5 @@ export default async function Page({
     params: Promise<{ meetingId: string }>;
 }) {
     const { meetingId } = await params;
-    return <ConductLeadersPage meetingId={parseInt(meetingId)} />;
+    return <ConductLeadersPage meetingId={parseInt(meetingId, 10)} />;
 }

@@ -24,15 +24,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    createProperty,
-    updateProperty,
-} from "../../shared/property.action";
+import propertiesRoutes from "../../properties.route";
+import { createProperty, updateProperty } from "../../shared/property.action";
 import {
     insertPropertySchema,
     type Property,
 } from "../../shared/schemas/property.schema";
-import propertiesRoutes from "../../properties.route";
 
 type FormData = z.infer<typeof insertPropertySchema>;
 
@@ -153,7 +150,10 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                     <FormItem>
                                         <FormLabel>Hausnummer *</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="42a" {...field} />
+                                            <Input
+                                                placeholder="42a"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -169,7 +169,10 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                     <FormItem>
                                         <FormLabel>PLZ *</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="12345" {...field} />
+                                            <Input
+                                                placeholder="12345"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -212,7 +215,8 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                                     field.onChange(
                                                         e.target.value
                                                             ? Number(
-                                                                  e.target.value,
+                                                                  e.target
+                                                                      .value,
                                                               )
                                                             : null,
                                                     )
@@ -240,7 +244,8 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                                     field.onChange(
                                                         e.target.value
                                                             ? Number(
-                                                                  e.target.value,
+                                                                  e.target
+                                                                      .value,
                                                               )
                                                             : null,
                                                     )
@@ -271,7 +276,8 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                                     field.onChange(
                                                         e.target.value
                                                             ? Number(
-                                                                  e.target.value,
+                                                                  e.target
+                                                                      .value,
                                                               )
                                                             : null,
                                                     )

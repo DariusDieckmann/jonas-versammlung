@@ -1,4 +1,12 @@
-import { ArrowLeft, Building2, Calendar, Edit, MapPin, Trash2, Users } from "lucide-react";
+import {
+    ArrowLeft,
+    Building2,
+    Calendar,
+    Edit,
+    MapPin,
+    Trash2,
+    Users,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,11 +19,11 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { deleteProperty, getProperty } from "../../shared/property.action";
-import propertiesRoutes from "../../properties.route";
-import { getUnitsWithOwners } from "@/modules/units/shared/unit.action";
-import { PropertyUnitsList } from "@/modules/units/shared/components/property-units-list";
 import meetingsRoutes from "@/modules/meetings/meetings.route";
+import { PropertyUnitsList } from "@/modules/units/shared/components/property-units-list";
+import { getUnitsWithOwners } from "@/modules/units/shared/unit.action";
+import propertiesRoutes from "../../properties.route";
+import { deleteProperty, getProperty } from "../../shared/property.action";
 
 interface PropertyDetailPageProps {
     propertyId: number;
@@ -35,16 +43,18 @@ export default async function PropertyDetailPage({
 
     // Get units with owners for this property
     const unitsWithOwners = await getUnitsWithOwners(propertyId);
-    
+
     // Determine back link based on where user came from
     const from = searchParams?.from;
     const meetingId = searchParams?.meetingId;
-    const backLink = from === 'meeting' && meetingId 
-        ? meetingsRoutes.detail(parseInt(meetingId, 10))
-        : propertiesRoutes.list;
-    const backText = from === 'meeting' && meetingId 
-        ? 'Zurück zur Versammlung' 
-        : 'Zurück zur Übersicht';
+    const backLink =
+        from === "meeting" && meetingId
+            ? meetingsRoutes.detail(parseInt(meetingId, 10))
+            : propertiesRoutes.list;
+    const backText =
+        from === "meeting" && meetingId
+            ? "Zurück zur Versammlung"
+            : "Zurück zur Übersicht";
 
     async function handleDelete() {
         "use server";
@@ -78,9 +88,7 @@ export default async function PropertyDetailPage({
                     </div>
 
                     <div className="flex gap-2">
-                        <Link
-                            href={propertiesRoutes.edit(property.id)}
-                        >
+                        <Link href={propertiesRoutes.edit(property.id)}>
                             <Button variant="outline" size="sm">
                                 <Edit className="mr-2 h-4 w-4" />
                                 Bearbeiten
@@ -169,7 +177,8 @@ export default async function PropertyDetailPage({
                     <CardHeader>
                         <CardTitle>Einheiten & Eigentümer</CardTitle>
                         <CardDescription>
-                            Verwalte die Einheiten und Eigentümer dieser Liegenschaft
+                            Verwalte die Einheiten und Eigentümer dieser
+                            Liegenschaft
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

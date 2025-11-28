@@ -5,15 +5,14 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    meetingLeaders,
-    insertMeetingLeaderSchema,
-    type MeetingLeader,
-    type InsertMeetingLeader,
-} from "./schemas/meeting-leader.schema";
-import { meetings } from "./schemas/meeting.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../meetings.route";
+import { meetings } from "./schemas/meeting.schema";
+import {
+    insertMeetingLeaderSchema,
+    type MeetingLeader,
+    meetingLeaders,
+} from "./schemas/meeting-leader.schema";
 
 /**
  * Get all leaders for a meeting

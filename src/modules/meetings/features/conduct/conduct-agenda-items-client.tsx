@@ -1,10 +1,10 @@
 "use client";
 
-import { ConductLayout } from "./conduct-layout";
-import { ConductAgendaItemsView } from "./conduct-agenda-items-view";
-import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
+import { ConductAgendaItemsView } from "./conduct-agenda-items-view";
+import { ConductLayout } from "./conduct-layout";
 
 interface ConductAgendaItemsClientProps {
     meeting: Meeting;
@@ -13,17 +13,14 @@ interface ConductAgendaItemsClientProps {
     completedAgendaItemIds: number[];
 }
 
-export function ConductAgendaItemsClient({ 
-    meeting, 
-    agendaItems, 
+export function ConductAgendaItemsClient({
+    meeting,
+    agendaItems,
     participants,
-    completedAgendaItemIds
+    completedAgendaItemIds,
 }: ConductAgendaItemsClientProps) {
     return (
-        <ConductLayout 
-            meeting={meeting} 
-            currentStep={3}
-        >
+        <ConductLayout meeting={meeting} currentStep={3}>
             <ConductAgendaItemsView
                 meetingId={meeting.id}
                 agendaItems={agendaItems}

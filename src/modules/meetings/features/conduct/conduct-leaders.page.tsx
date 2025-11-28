@@ -22,6 +22,9 @@ export default async function ConductLeadersPage({
     const existingLeaders = await getMeetingLeaders(meetingId);
 
     return (
-        <ConductLeadersClient meeting={meeting} existingLeaders={existingLeaders} />
+        <ConductLeadersClient
+            meeting={meeting}
+            existingLeaders={existingLeaders}
+        />
     );
 }

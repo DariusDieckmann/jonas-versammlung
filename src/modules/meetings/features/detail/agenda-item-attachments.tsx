@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import {
+    AlertCircle,
+    Download,
+    File,
+    Loader2,
+    Paperclip,
+    Trash2,
+    Upload,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Upload, File, Trash2, Download, Loader2, AlertCircle, Paperclip } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+    formatFileSize,
+    getAcceptedFileTypes,
+    MAX_FILES_PER_MEETING,
+    validateFile,
+} from "@/lib/file-validation";
 import { deleteAgendaItemAttachment } from "../../shared/agenda-item-attachment.action";
-import { validateFile, getAcceptedFileTypes, formatFileSize, MAX_FILE_SIZE, MAX_FILES_PER_MEETING } from "@/lib/file-validation";
 import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
 
 interface AgendaItemAttachmentsProps {
@@ -37,7 +50,9 @@ export function AgendaItemAttachments({
 
         // Check max files limit
         if (attachments.length >= MAX_FILES_PER_MEETING) {
-            setUploadError(`Maximum ${MAX_FILES_PER_MEETING} Dateien pro TOP erlaubt`);
+            setUploadError(
+                `Maximum ${MAX_FILES_PER_MEETING} Dateien pro TOP erlaubt`,
+            );
             e.target.value = "";
             return;
         }
@@ -49,12 +64,18 @@ export function AgendaItemAttachments({
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await fetch(`/api/agenda-items/${agendaItemId}/attachments`, {
-                method: "POST",
-                body: formData,
-            });
+            const response = await fetch(
+                `/api/agenda-items/${agendaItemId}/attachments`,
+                {
+                    method: "POST",
+                    body: formData,
+                },
+            );
 
-            const result = await response.json() as { success: boolean; error?: string };
+            const result = (await response.json()) as {
+                success: boolean;
+                error?: string;
+            };
 
             if (!result.success) {
                 setUploadError(result.error || "Upload fehlgeschlagen");
@@ -97,7 +118,10 @@ export function AgendaItemAttachments({
                         <Button
                             variant="ghost"
                             size="sm"
-                            disabled={isUploading || attachments.length >= MAX_FILES_PER_MEETING}
+                            disabled={
+                                isUploading ||
+                                attachments.length >= MAX_FILES_PER_MEETING
+                            }
                             asChild
                         >
                             <span className="cursor-pointer">
@@ -117,16 +141,20 @@ export function AgendaItemAttachments({
                     </label>
                 )}
             </div>
-            
+
             <input
                 id={`file-upload-${agendaItemId}`}
                 type="file"
                 className="hidden"
                 onChange={handleFileUpload}
-                disabled={isUploading || attachments.length >= MAX_FILES_PER_MEETING || !canEdit}
+                disabled={
+                    isUploading ||
+                    attachments.length >= MAX_FILES_PER_MEETING ||
+                    !canEdit
+                }
                 accept={getAcceptedFileTypes()}
             />
-            
+
             {uploadError && (
                 <div className="p-2 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
                     <AlertCircle className="h-3 w-3 text-red-600 mt-0.5 flex-shrink-0" />
@@ -173,7 +201,9 @@ export function AgendaItemAttachments({
                                         variant="ghost"
                                         size="sm"
                                         className="h-6 w-6 p-0"
-                                        onClick={() => handleDelete(attachment.id)}
+                                        onClick={() =>
+                                            handleDelete(attachment.id)
+                                        }
                                     >
                                         <Trash2 className="h-3 w-3 text-red-600" />
                                     </Button>

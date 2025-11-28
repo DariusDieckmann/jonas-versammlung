@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and, gte } from "drizzle-orm";
+import { and, eq, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -8,16 +8,16 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    insertMeetingSchema,
-    meetings,
-    updateMeetingSchema,
-    type InsertMeeting,
-    type Meeting,
-    type UpdateMeeting,
-} from "./schemas/meeting.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../meetings.route";
+import {
+    type InsertMeeting,
+    insertMeetingSchema,
+    type Meeting,
+    meetings,
+    type UpdateMeeting,
+    updateMeetingSchema,
+} from "./schemas/meeting.schema";
 
 /**
  * Get all meetings for the user's properties
@@ -42,10 +42,7 @@ export async function getMeetings(): Promise<Meeting[]> {
         try {
             await requireMember(property.organizationId);
             accessibleMeetings.push(meeting);
-        } catch {
-            // User doesn't have access to this property's organization
-            continue;
-        }
+        } catch {}
     }
 
     return accessibleMeetings;
@@ -336,7 +333,10 @@ export async function completeMeeting(
 
         // Check if meeting is in-progress
         if (existing[0].meeting.status !== "in-progress") {
-            return { success: false, error: "Versammlung muss im Status 'In Bearbeitung' sein" };
+            return {
+                success: false,
+                error: "Versammlung muss im Status 'In Bearbeitung' sein",
+            };
         }
 
         await db
@@ -364,12 +364,14 @@ export async function completeMeeting(
 /**
  * Get upcoming open meetings (status: planned, date in the future)
  */
-export async function getUpcomingOpenMeetings(): Promise<(Meeting & { propertyName: string })[]> {
+export async function getUpcomingOpenMeetings(): Promise<
+    (Meeting & { propertyName: string })[]
+> {
     await requireAuth();
     const db = await getDb();
 
     // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
     // Get all meetings with property info
     const result = await db
@@ -379,12 +381,7 @@ export async function getUpcomingOpenMeetings(): Promise<(Meeting & { propertyNa
         })
         .from(meetings)
         .innerJoin(properties, eq(meetings.propertyId, properties.id))
-        .where(
-            and(
-                eq(meetings.status, "planned"),
-                gte(meetings.date, today)
-            )
-        )
+        .where(and(eq(meetings.status, "planned"), gte(meetings.date, today)))
         .orderBy(meetings.date);
 
     // Filter by organization membership and add property name
@@ -396,10 +393,7 @@ export async function getUpcomingOpenMeetings(): Promise<(Meeting & { propertyNa
                 ...meeting,
                 propertyName: property.name,
             });
-        } catch {
-            // User doesn't have access to this property's organization
-            continue;
-        }
+        } catch {}
     }
 
     return accessibleMeetings;

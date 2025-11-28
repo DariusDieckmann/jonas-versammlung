@@ -1,11 +1,9 @@
 "use client";
 
+import { ChevronRight, FileText, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Plus, Trash2, FileText, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     Card,
     CardContent,
@@ -13,8 +11,10 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface AgendaItemFormData {
     title: string;
@@ -113,7 +113,7 @@ export function AgendaItemsFormSection({
                         <div className="flex-1 border rounded-lg overflow-y-auto p-2 space-y-1">
                             {items.map((item, index) => (
                                 <button
-                                    key={index}
+                                    key={`agenda-item-${index}-${item.title}`}
                                     type="button"
                                     onClick={() => setSelectedIndex(index)}
                                     className={`w-full text-left p-2.5 rounded-lg transition-colors ${
@@ -184,7 +184,10 @@ export function AgendaItemsFormSection({
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() =>
-                                                    moveItem(selectedIndex, "up")
+                                                    moveItem(
+                                                        selectedIndex,
+                                                        "up",
+                                                    )
                                                 }
                                                 disabled={selectedIndex === 0}
                                                 className="h-7 w-7 p-0"
@@ -215,7 +218,9 @@ export function AgendaItemsFormSection({
                                         type="button"
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => removeItem(selectedIndex)}
+                                        onClick={() =>
+                                            removeItem(selectedIndex)
+                                        }
                                         disabled={items.length === 1}
                                         className="h-7 w-7 p-0"
                                     >
@@ -225,7 +230,10 @@ export function AgendaItemsFormSection({
 
                                 {/* Title */}
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="agenda-title" className="text-sm">
+                                    <Label
+                                        htmlFor="agenda-title"
+                                        className="text-sm"
+                                    >
                                         Titel
                                     </Label>
                                     <Input
@@ -246,7 +254,10 @@ export function AgendaItemsFormSection({
 
                                 {/* Description */}
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="agenda-description" className="text-sm">
+                                    <Label
+                                        htmlFor="agenda-description"
+                                        className="text-sm"
+                                    >
                                         Beschreibung
                                     </Label>
                                     <Textarea
@@ -269,7 +280,9 @@ export function AgendaItemsFormSection({
                                 <div className="flex items-center space-x-2">
                                     <Checkbox
                                         id="agenda-resolution"
-                                        checked={selectedItem.requiresResolution}
+                                        checked={
+                                            selectedItem.requiresResolution
+                                        }
                                         onCheckedChange={(checked) =>
                                             updateItem(
                                                 selectedIndex,

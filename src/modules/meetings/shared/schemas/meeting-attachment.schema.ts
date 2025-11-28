@@ -18,21 +18,27 @@ export const meetingAttachments = sqliteTable("meeting_attachments", {
 });
 
 // Validation schemas
-export const insertMeetingAttachmentSchema = createInsertSchema(meetingAttachments, {
-    fileName: z.string().min(1, "Dateiname ist erforderlich"),
-    fileSize: z.number().positive("Dateigröße muss positiv sein"),
-    fileType: z.string().min(1, "Dateityp ist erforderlich"),
-    r2Key: z.string().min(1, "R2 Key ist erforderlich"),
-    r2Url: z.string().url("Ungültige URL"),
-    uploadedBy: z.string().min(1, "Uploader ist erforderlich"),
-}).omit({
+export const insertMeetingAttachmentSchema = createInsertSchema(
+    meetingAttachments,
+    {
+        fileName: z.string().min(1, "Dateiname ist erforderlich"),
+        fileSize: z.number().positive("Dateigröße muss positiv sein"),
+        fileType: z.string().min(1, "Dateityp ist erforderlich"),
+        r2Key: z.string().min(1, "R2 Key ist erforderlich"),
+        r2Url: z.string().url("Ungültige URL"),
+        uploadedBy: z.string().min(1, "Uploader ist erforderlich"),
+    },
+).omit({
     id: true,
     createdAt: true,
 });
 
-export const selectMeetingAttachmentSchema = createSelectSchema(meetingAttachments);
+export const selectMeetingAttachmentSchema =
+    createSelectSchema(meetingAttachments);
 
 // Types
 export type MeetingAttachment = typeof meetingAttachments.$inferSelect;
 export type NewMeetingAttachment = typeof meetingAttachments.$inferInsert;
-export type InsertMeetingAttachment = z.infer<typeof insertMeetingAttachmentSchema>;
+export type InsertMeetingAttachment = z.infer<
+    typeof insertMeetingAttachmentSchema
+>;

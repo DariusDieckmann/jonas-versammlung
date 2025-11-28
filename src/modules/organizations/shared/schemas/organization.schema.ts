@@ -59,9 +59,8 @@ export const insertOrganizationMemberSchema = createInsertSchema(
     },
 );
 
-export const selectOrganizationMemberSchema = createSelectSchema(
-    organizationMembers,
-);
+export const selectOrganizationMemberSchema =
+    createSelectSchema(organizationMembers);
 
 export type Organization = typeof organizations.$inferSelect;
 export type NewOrganization = typeof organizations.$inferInsert;

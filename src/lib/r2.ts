@@ -1,5 +1,5 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { validateFile, type FileValidationResult } from "./file-validation";
+import { validateFile } from "./file-validation";
 
 export interface UploadResult {
     success: boolean;
@@ -37,7 +37,7 @@ export async function uploadToR2(
         const result = await env.BUCKET.put(key, arrayBuffer, {
             httpMetadata: {
                 contentType: file.type,
-                contentDisposition: 'attachment', // Force download, prevent execution
+                contentDisposition: "attachment", // Force download, prevent execution
                 cacheControl: "public, max-age=31536000", // 1 year
             },
             customMetadata: {
@@ -55,7 +55,7 @@ export async function uploadToR2(
         }
 
         // Return public URL of R2 (should be using custom domain)
-        const publicUrl = `https://${(env as any).CLOUDFLARE_R2_URL}/${key}`;
+        const publicUrl = `https://${(env as CloudflareEnv).CLOUDFLARE_R2_URL}/${key}`;
 
         return {
             success: true,

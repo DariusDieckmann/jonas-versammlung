@@ -3,8 +3,11 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import {
+    OrganizationRole,
+    type OrganizationRoleType,
+} from "./models/organization.model";
 import { organizationMembers } from "./schemas/organization.schema";
-import { OrganizationRole, type OrganizationRoleType } from "./models/organization.model";
 
 /**
  * Check if the current user is an owner of the organization
@@ -63,7 +66,7 @@ export async function isMember(organizationId: number): Promise<boolean> {
  */
 export async function requireOwner(organizationId: number): Promise<void> {
     const isUserOwner = await isOwner(organizationId);
-    
+
     if (!isUserOwner) {
         throw new Error("Nur Owner haben Zugriff auf diese Funktion");
     }
@@ -75,7 +78,7 @@ export async function requireOwner(organizationId: number): Promise<void> {
  */
 export async function requireMember(organizationId: number): Promise<void> {
     const isUserMember = await isMember(organizationId);
-    
+
     if (!isUserMember) {
         throw new Error("Du bist kein Mitglied dieser Organisation");
     }

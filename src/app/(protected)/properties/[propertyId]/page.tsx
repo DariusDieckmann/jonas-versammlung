@@ -8,5 +8,10 @@ interface PageProps {
 export default async function Page({ params, searchParams }: PageProps) {
     const { propertyId } = await params;
     const search = await searchParams;
-    return <PropertyDetailPage propertyId={parseInt(propertyId, 10)} searchParams={search} />;
+    return (
+        <PropertyDetailPage
+            propertyId={parseInt(propertyId, 10)}
+            searchParams={search}
+        />
+    );
 }

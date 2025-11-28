@@ -23,7 +23,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createOwner, updateOwner } from "../owner.action";
-import { insertOwnerSchema, type InsertOwner, type Owner } from "../schemas/owner.schema";
+import {
+    type InsertOwner,
+    insertOwnerSchema,
+    type Owner,
+} from "../schemas/owner.schema";
 
 interface OwnerDialogProps {
     open: boolean;
@@ -82,7 +86,7 @@ export function OwnerDialog({
     async function onSubmit(data: InsertOwner) {
         setIsSubmitting(true);
         try {
-            let result;
+            let result: { success: boolean; error?: string; ownerId?: number };
             if (owner) {
                 result = await updateOwner(owner.id, data);
             } else {
@@ -93,7 +97,7 @@ export function OwnerDialog({
                 toast.success(
                     owner
                         ? "Eigentümer erfolgreich aktualisiert"
-                        : "Eigentümer erfolgreich erstellt"
+                        : "Eigentümer erfolgreich erstellt",
                 );
                 form.reset();
                 onOpenChange(false);
@@ -114,7 +118,9 @@ export function OwnerDialog({
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
-                        {owner ? "Eigentümer bearbeiten" : "Neuen Eigentümer hinzufügen"}
+                        {owner
+                            ? "Eigentümer bearbeiten"
+                            : "Neuen Eigentümer hinzufügen"}
                     </DialogTitle>
                     <DialogDescription>
                         {owner
@@ -124,7 +130,10 @@ export function OwnerDialog({
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4"
+                    >
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -133,7 +142,10 @@ export function OwnerDialog({
                                     <FormItem>
                                         <FormLabel>Vorname *</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Max" {...field} />
+                                            <Input
+                                                placeholder="Max"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -147,7 +159,10 @@ export function OwnerDialog({
                                     <FormItem>
                                         <FormLabel>Nachname *</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Mustermann" {...field} />
+                                            <Input
+                                                placeholder="Mustermann"
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

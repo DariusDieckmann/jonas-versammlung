@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, ArrowRight } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
     Card,
     CardContent,
@@ -13,6 +11,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -20,10 +20,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { createMeetingLeaders, deleteMeetingLeaders } from "../../shared/meeting-leader.action";
-import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
+import {
+    createMeetingLeaders,
+    deleteMeetingLeaders,
+} from "../../shared/meeting-leader.action";
+import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 
 interface LeaderFormData {
     name: string;
@@ -44,19 +46,25 @@ const LEADER_ROLES = [
     { value: "Sonstiges", label: "Sonstiges" },
 ];
 
-export function ConductLeadersForm({ meetingId, existingLeaders, onSuccess, formRef }: ConductLeadersFormProps) {
+export function ConductLeadersForm({
+    meetingId,
+    existingLeaders,
+    onSuccess,
+    formRef,
+}: ConductLeadersFormProps) {
     const router = useRouter();
-    
+
     // Initialize with existing leaders or default empty leader
-    const initialLeaders: LeaderFormData[] = existingLeaders.length > 0
-        ? existingLeaders.map(leader => ({
-            name: leader.name,
-            role: leader.role || "Versammlungsleiter",
-        }))
-        : [{ name: "", role: "Versammlungsleiter" }];
-    
+    const initialLeaders: LeaderFormData[] =
+        existingLeaders.length > 0
+            ? existingLeaders.map((leader) => ({
+                  name: leader.name,
+                  role: leader.role || "Versammlungsleiter",
+              }))
+            : [{ name: "", role: "Versammlungsleiter" }];
+
     const [leaders, setLeaders] = useState<LeaderFormData[]>(initialLeaders);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [, setIsSubmitting] = useState(false);
 
     const addLeader = () => {
         setLeaders([...leaders, { name: "", role: "Protokollführer" }]);
@@ -129,7 +137,7 @@ export function ConductLeadersForm({ meetingId, existingLeaders, onSuccess, form
                 <CardContent className="space-y-4">
                     {leaders.map((leader, index) => (
                         <div
-                            key={index}
+                            key={`leader-${index}-${leader.name}`}
                             className="p-4 border rounded-lg space-y-3"
                         >
                             <div className="flex items-center justify-between">

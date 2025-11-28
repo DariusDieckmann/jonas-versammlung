@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getMeeting } from "../../shared/meeting.action";
-import { 
+import {
+    createParticipantsFromOwners,
     getMeetingParticipants,
-    createParticipantsFromOwners 
 } from "../../shared/meeting-participant.action";
 import { ConductParticipantsClient } from "./conduct-participants-client";
 
@@ -23,7 +23,7 @@ export default async function ConductParticipantsPage({
 
     // Get or create participants automatically
     let participants = await getMeetingParticipants(meetingId);
-    
+
     // If no participants exist, create them automatically
     if (participants.length === 0) {
         const result = await createParticipantsFromOwners(meetingId);
@@ -38,6 +38,9 @@ export default async function ConductParticipantsPage({
     }
 
     return (
-        <ConductParticipantsClient meeting={meeting} participants={participants} />
+        <ConductParticipantsClient
+            meeting={meeting}
+            participants={participants}
+        />
     );
 }

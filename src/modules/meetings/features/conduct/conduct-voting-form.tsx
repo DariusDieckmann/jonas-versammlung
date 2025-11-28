@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -18,12 +18,11 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { createResolution } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import type { VoteChoice } from "../../shared/schemas/vote.schema";
-import { castVote, calculateResolutionResult } from "../../shared/vote.action";
-import { createResolution } from "../../shared/resolution.action";
+import { calculateResolutionResult, castVote } from "../../shared/vote.action";
 
 interface ConductVotingFormProps {
     agendaItem: AgendaItem;
@@ -48,7 +47,7 @@ export function ConductVotingForm({
             const result = await createResolution(agendaItem.id, {
                 majorityType: "simple",
             });
-            
+
             if (result.success && result.data) {
                 setResolutionId(result.data.id);
             }
@@ -59,12 +58,12 @@ export function ConductVotingForm({
     }, [agendaItem.id]);
 
     const handleVote = (participantId: number, vote: VoteChoice) => {
-        setVotes(prev => new Map(prev).set(participantId, vote));
+        setVotes((prev) => new Map(prev).set(participantId, vote));
     };
 
     const handleSubmit = async () => {
         if (!resolutionId) return;
-        
+
         setIsSubmitting(true);
 
         try {
@@ -88,25 +87,26 @@ export function ConductVotingForm({
 
     // Calculate current totals
     const yesShares = participants
-        .filter(p => votes.get(p.id) === "yes")
-        .reduce((sum, p) => sum + p.shares, 0);
-    
-    const noShares = participants
-        .filter(p => votes.get(p.id) === "no")
-        .reduce((sum, p) => sum + p.shares, 0);
-    
-    const abstainShares = participants
-        .filter(p => votes.get(p.id) === "abstain")
+        .filter((p) => votes.get(p.id) === "yes")
         .reduce((sum, p) => sum + p.shares, 0);
 
-    const totalShares = yesShares + noShares + abstainShares;
+    const noShares = participants
+        .filter((p) => votes.get(p.id) === "no")
+        .reduce((sum, p) => sum + p.shares, 0);
+
+    const abstainShares = participants
+        .filter((p) => votes.get(p.id) === "abstain")
+        .reduce((sum, p) => sum + p.shares, 0);
+
     const votedCount = votes.size;
 
     if (isInitializing) {
         return (
             <Card>
                 <CardContent className="pt-6">
-                    <p className="text-center text-gray-500">Lade Abstimmung...</p>
+                    <p className="text-center text-gray-500">
+                        Lade Abstimmung...
+                    </p>
                 </CardContent>
             </Card>
         );
@@ -129,7 +129,12 @@ export function ConductVotingForm({
                             {yesShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
-                            {participants.filter(p => votes.get(p.id) === "yes").length} Stimmen
+                            {
+                                participants.filter(
+                                    (p) => votes.get(p.id) === "yes",
+                                ).length
+                            }{" "}
+                            Stimmen
                         </div>
                     </div>
                     <div>
@@ -138,16 +143,28 @@ export function ConductVotingForm({
                             {noShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
-                            {participants.filter(p => votes.get(p.id) === "no").length} Stimmen
+                            {
+                                participants.filter(
+                                    (p) => votes.get(p.id) === "no",
+                                ).length
+                            }{" "}
+                            Stimmen
                         </div>
                     </div>
                     <div>
-                        <div className="text-sm text-gray-600 mb-1">Enthaltung</div>
+                        <div className="text-sm text-gray-600 mb-1">
+                            Enthaltung
+                        </div>
                         <div className="text-2xl font-bold text-gray-600">
                             {abstainShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
-                            {participants.filter(p => votes.get(p.id) === "abstain").length} Stimmen
+                            {
+                                participants.filter(
+                                    (p) => votes.get(p.id) === "abstain",
+                                ).length
+                            }{" "}
+                            Stimmen
                         </div>
                     </div>
                 </div>
@@ -161,11 +178,13 @@ export function ConductVotingForm({
                             <TableHead className="text-right">MEA</TableHead>
                             <TableHead className="text-center">Ja</TableHead>
                             <TableHead className="text-center">Nein</TableHead>
-                            <TableHead className="text-center">Enthaltung</TableHead>
+                            <TableHead className="text-center">
+                                Enthaltung
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {participants.map(participant => (
+                        {participants.map((participant) => (
                             <TableRow key={participant.id}>
                                 <TableCell className="font-medium">
                                     {participant.ownerName}
@@ -177,11 +196,18 @@ export function ConductVotingForm({
                                 <TableCell className="text-center">
                                     <Button
                                         size="sm"
-                                        variant={votes.get(participant.id) === "yes" ? "default" : "outline"}
-                                        onClick={() => handleVote(participant.id, "yes")}
+                                        variant={
+                                            votes.get(participant.id) === "yes"
+                                                ? "default"
+                                                : "outline"
+                                        }
+                                        onClick={() =>
+                                            handleVote(participant.id, "yes")
+                                        }
                                         className="w-16"
                                     >
-                                        {votes.get(participant.id) === "yes" && (
+                                        {votes.get(participant.id) ===
+                                            "yes" && (
                                             <Check className="h-4 w-4 mr-1" />
                                         )}
                                         Ja
@@ -190,8 +216,14 @@ export function ConductVotingForm({
                                 <TableCell className="text-center">
                                     <Button
                                         size="sm"
-                                        variant={votes.get(participant.id) === "no" ? "default" : "outline"}
-                                        onClick={() => handleVote(participant.id, "no")}
+                                        variant={
+                                            votes.get(participant.id) === "no"
+                                                ? "default"
+                                                : "outline"
+                                        }
+                                        onClick={() =>
+                                            handleVote(participant.id, "no")
+                                        }
                                         className="w-16"
                                     >
                                         {votes.get(participant.id) === "no" && (
@@ -203,11 +235,22 @@ export function ConductVotingForm({
                                 <TableCell className="text-center">
                                     <Button
                                         size="sm"
-                                        variant={votes.get(participant.id) === "abstain" ? "default" : "outline"}
-                                        onClick={() => handleVote(participant.id, "abstain")}
+                                        variant={
+                                            votes.get(participant.id) ===
+                                            "abstain"
+                                                ? "default"
+                                                : "outline"
+                                        }
+                                        onClick={() =>
+                                            handleVote(
+                                                participant.id,
+                                                "abstain",
+                                            )
+                                        }
                                         className="w-24"
                                     >
-                                        {votes.get(participant.id) === "abstain" && (
+                                        {votes.get(participant.id) ===
+                                            "abstain" && (
                                             <Check className="h-4 w-4 mr-1" />
                                         )}
                                         Enthaltung
@@ -221,14 +264,17 @@ export function ConductVotingForm({
                 {/* Submit Button */}
                 <div className="flex items-center justify-between pt-4 border-t">
                     <div className="text-sm text-gray-600">
-                        {votedCount} von {participants.length} Teilnehmern haben abgestimmt
+                        {votedCount} von {participants.length} Teilnehmern haben
+                        abgestimmt
                     </div>
                     <Button
                         onClick={handleSubmit}
                         disabled={isSubmitting || votedCount === 0}
                         size="lg"
                     >
-                        {isSubmitting ? "Wird gespeichert..." : "Abstimmung speichern"}
+                        {isSubmitting
+                            ? "Wird gespeichert..."
+                            : "Abstimmung speichern"}
                         <Check className="ml-2 h-4 w-4" />
                     </Button>
                 </div>

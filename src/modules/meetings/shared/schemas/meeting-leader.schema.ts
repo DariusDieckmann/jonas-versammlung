@@ -1,4 +1,4 @@
-import { sqliteTable, integer, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { meetings } from "./meeting.schema";
 
@@ -17,7 +17,9 @@ export const meetingLeaders = sqliteTable("meeting_leaders", {
 });
 
 // Zod schemas
-export const insertMeetingLeaderSchema = createInsertSchema(meetingLeaders).omit({
+export const insertMeetingLeaderSchema = createInsertSchema(
+    meetingLeaders,
+).omit({
     id: true,
     createdAt: true,
     updatedAt: true,

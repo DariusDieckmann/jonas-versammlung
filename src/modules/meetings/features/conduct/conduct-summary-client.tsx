@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { CheckCircle2, MinusCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
     Card,
@@ -11,12 +11,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { ConductLayout } from "./conduct-layout";
-import type { Meeting } from "../../shared/schemas/meeting.schema";
-import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
-import type { Resolution } from "../../shared/schemas/resolution.schema";
-import { completeMeeting } from "../../shared/meeting.action";
 import meetingsRoutes from "../../meetings.route";
+import { completeMeeting } from "../../shared/meeting.action";
+import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { Meeting } from "../../shared/schemas/meeting.schema";
+import type { Resolution } from "../../shared/schemas/resolution.schema";
+import { ConductLayout } from "./conduct-layout";
 
 interface ConductSummaryClientProps {
     meeting: Meeting;
@@ -24,15 +24,19 @@ interface ConductSummaryClientProps {
     resolutions: Map<number, Resolution>;
 }
 
-export function ConductSummaryClient({ meeting, agendaItems, resolutions }: ConductSummaryClientProps) {
+export function ConductSummaryClient({
+    meeting,
+    agendaItems,
+    resolutions,
+}: ConductSummaryClientProps) {
     const router = useRouter();
     const [isCompleting, setIsCompleting] = useState(false);
 
     const handleComplete = async () => {
         setIsCompleting(true);
-        
+
         const result = await completeMeeting(meeting.id);
-        
+
         if (result.success) {
             router.push(meetingsRoutes.detail(meeting.id));
         } else {
@@ -42,12 +46,16 @@ export function ConductSummaryClient({ meeting, agendaItems, resolutions }: Cond
     };
 
     return (
-        <ConductLayout 
-            meeting={meeting} 
+        <ConductLayout
+            meeting={meeting}
             currentStep={4}
             maxWidth="5xl"
             onNext={handleComplete}
-            nextLabel={isCompleting ? "Wird abgeschlossen..." : "Versammlung abschließen"}
+            nextLabel={
+                isCompleting
+                    ? "Wird abgeschlossen..."
+                    : "Versammlung abschließen"
+            }
             nextDisabled={isCompleting}
         >
             <div className="space-y-6">
@@ -55,7 +63,8 @@ export function ConductSummaryClient({ meeting, agendaItems, resolutions }: Cond
                     <CardHeader>
                         <CardTitle>Zusammenfassung</CardTitle>
                         <CardDescription>
-                            Überprüfen Sie die Ergebnisse der Versammlung bevor Sie abschließen
+                            Überprüfen Sie die Ergebnisse der Versammlung bevor
+                            Sie abschließen
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -96,75 +105,112 @@ export function ConductSummaryClient({ meeting, agendaItems, resolutions }: Cond
                                         </div>
                                     </div>
                                 </CardHeader>
-                                
+
                                 {item.requiresResolution && (
                                     <CardContent>
                                         <div className="border-t pt-4">
-                                            <h4 className="font-semibold mb-3">Abstimmungsergebnis</h4>
+                                            <h4 className="font-semibold mb-3">
+                                                Abstimmungsergebnis
+                                            </h4>
                                             {resolutions.has(item.id) ? (
                                                 (() => {
-                                                    const resolution = resolutions.get(item.id)!;
-                                                    const totalVotes = resolution.votesYes + resolution.votesNo + resolution.votesAbstain;
-                                                    
+                                                    const resolution =
+                                                        resolutions.get(
+                                                            item.id,
+                                                        );
+
+                                                    if (!resolution) {
+                                                        return null;
+                                                    }
+
                                                     return (
                                                         <div className="space-y-3">
                                                             <div className="grid grid-cols-3 gap-4">
                                                                 <div className="text-center p-3 bg-green-50 rounded-lg">
                                                                     <div className="text-2xl font-bold text-green-600">
-                                                                        {resolution.votesYes}
+                                                                        {
+                                                                            resolution.votesYes
+                                                                        }
                                                                     </div>
-                                                                    <div className="text-xs text-gray-600 mt-1">Ja-Stimmen</div>
+                                                                    <div className="text-xs text-gray-600 mt-1">
+                                                                        Ja-Stimmen
+                                                                    </div>
                                                                     {resolution.yesShares && (
                                                                         <div className="text-sm font-semibold text-green-700 mt-1">
-                                                                            {resolution.yesShares} MEA
+                                                                            {
+                                                                                resolution.yesShares
+                                                                            }{" "}
+                                                                            MEA
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="text-center p-3 bg-red-50 rounded-lg">
                                                                     <div className="text-2xl font-bold text-red-600">
-                                                                        {resolution.votesNo}
+                                                                        {
+                                                                            resolution.votesNo
+                                                                        }
                                                                     </div>
-                                                                    <div className="text-xs text-gray-600 mt-1">Nein-Stimmen</div>
+                                                                    <div className="text-xs text-gray-600 mt-1">
+                                                                        Nein-Stimmen
+                                                                    </div>
                                                                     {resolution.noShares && (
                                                                         <div className="text-sm font-semibold text-red-700 mt-1">
-                                                                            {resolution.noShares} MEA
+                                                                            {
+                                                                                resolution.noShares
+                                                                            }{" "}
+                                                                            MEA
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                                                                     <div className="text-2xl font-bold text-gray-600">
-                                                                        {resolution.votesAbstain}
+                                                                        {
+                                                                            resolution.votesAbstain
+                                                                        }
                                                                     </div>
-                                                                    <div className="text-xs text-gray-600 mt-1">Enthaltungen</div>
+                                                                    <div className="text-xs text-gray-600 mt-1">
+                                                                        Enthaltungen
+                                                                    </div>
                                                                     {resolution.abstainShares && (
                                                                         <div className="text-sm font-semibold text-gray-700 mt-1">
-                                                                            {resolution.abstainShares} MEA
+                                                                            {
+                                                                                resolution.abstainShares
+                                                                            }{" "}
+                                                                            MEA
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             </div>
-                                                            
+
                                                             {resolution.result && (
-                                                                <div className={`flex items-center gap-2 p-3 rounded-lg ${
-                                                                    resolution.result === "accepted" 
-                                                                        ? "bg-green-100 text-green-800" 
-                                                                        : resolution.result === "rejected"
-                                                                            ? "bg-red-100 text-red-800"
-                                                                            : "bg-gray-100 text-gray-800"
-                                                                }`}>
-                                                                    {resolution.result === "accepted" ? (
+                                                                <div
+                                                                    className={`flex items-center gap-2 p-3 rounded-lg ${
+                                                                        resolution.result ===
+                                                                        "accepted"
+                                                                            ? "bg-green-100 text-green-800"
+                                                                            : resolution.result ===
+                                                                                "rejected"
+                                                                              ? "bg-red-100 text-red-800"
+                                                                              : "bg-gray-100 text-gray-800"
+                                                                    }`}
+                                                                >
+                                                                    {resolution.result ===
+                                                                    "accepted" ? (
                                                                         <CheckCircle2 className="h-5 w-5" />
-                                                                    ) : resolution.result === "rejected" ? (
+                                                                    ) : resolution.result ===
+                                                                      "rejected" ? (
                                                                         <XCircle className="h-5 w-5" />
                                                                     ) : (
                                                                         <MinusCircle className="h-5 w-5" />
                                                                     )}
                                                                     <span className="font-semibold">
-                                                                        {resolution.result === "accepted" 
-                                                                            ? "Angenommen" 
-                                                                            : resolution.result === "rejected"
-                                                                                ? "Abgelehnt"
-                                                                                : "Verschoben"}
+                                                                        {resolution.result ===
+                                                                        "accepted"
+                                                                            ? "Angenommen"
+                                                                            : resolution.result ===
+                                                                                "rejected"
+                                                                              ? "Abgelehnt"
+                                                                              : "Verschoben"}
                                                                     </span>
                                                                 </div>
                                                             )}
@@ -173,7 +219,8 @@ export function ConductSummaryClient({ meeting, agendaItems, resolutions }: Cond
                                                 })()
                                             ) : (
                                                 <p className="text-sm text-gray-500">
-                                                    Keine Abstimmung durchgeführt
+                                                    Keine Abstimmung
+                                                    durchgeführt
                                                 </p>
                                             )}
                                         </div>

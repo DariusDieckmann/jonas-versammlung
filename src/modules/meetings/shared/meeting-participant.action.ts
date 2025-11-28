@@ -5,19 +5,18 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    meetingParticipants,
-    insertMeetingParticipantSchema,
-    updateMeetingParticipantSchema,
-    type MeetingParticipant,
-    type InsertMeetingParticipant,
-    type UpdateMeetingParticipant,
-} from "./schemas/meeting-participant.schema";
-import { meetings } from "./schemas/meeting.schema";
-import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { owners } from "@/modules/owners/shared/schemas/owner.schema";
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
 import meetingsRoutes from "../meetings.route";
+import { meetings } from "./schemas/meeting.schema";
+import {
+    insertMeetingParticipantSchema,
+    type MeetingParticipant,
+    meetingParticipants,
+    type UpdateMeetingParticipant,
+    updateMeetingParticipantSchema,
+} from "./schemas/meeting-participant.schema";
 
 /**
  * Get all participants for a meeting
@@ -177,10 +176,7 @@ export async function updateMeetingParticipant(
                 property: properties,
             })
             .from(meetingParticipants)
-            .innerJoin(
-                meetings,
-                eq(meetingParticipants.meetingId, meetings.id),
-            )
+            .innerJoin(meetings, eq(meetingParticipants.meetingId, meetings.id))
             .innerJoin(properties, eq(meetings.propertyId, properties.id))
             .where(eq(meetingParticipants.id, participantId))
             .limit(1);

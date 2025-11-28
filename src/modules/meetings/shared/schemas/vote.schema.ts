@@ -1,8 +1,8 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { resolutions } from "./resolution.schema";
 import { meetingParticipants } from "./meeting-participant.schema";
+import { resolutions } from "./resolution.schema";
 
 export const votes = sqliteTable("votes", {
     id: integer("id").primaryKey({ autoIncrement: true }),

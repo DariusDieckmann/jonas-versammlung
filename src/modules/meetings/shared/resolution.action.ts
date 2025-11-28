@@ -1,18 +1,18 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    resolutions,
-    insertResolutionSchema,
-    type Resolution,
-    type MajorityType,
-} from "./schemas/resolution.schema";
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
-import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import {
+    insertResolutionSchema,
+    type MajorityType,
+    type Resolution,
+    resolutions,
+} from "./schemas/resolution.schema";
 
 /**
  * Create a resolution for an agenda item
@@ -40,7 +40,10 @@ export async function createResolution(
             .limit(1);
 
         if (!agendaItem.length) {
-            return { success: false, error: "Tagesordnungspunkt nicht gefunden" };
+            return {
+                success: false,
+                error: "Tagesordnungspunkt nicht gefunden",
+            };
         }
 
         await requireMember(agendaItem[0].property.organizationId);
@@ -63,11 +66,14 @@ export async function createResolution(
             majorityType: data.majorityType || "simple",
         });
 
-        const result = await db.insert(resolutions).values({
-            ...validatedData,
-            createdAt: now,
-            updatedAt: now,
-        }).returning();
+        const result = await db
+            .insert(resolutions)
+            .values({
+                ...validatedData,
+                createdAt: now,
+                updatedAt: now,
+            })
+            .returning();
 
         return { success: true, data: result[0] };
     } catch (error) {
@@ -82,7 +88,9 @@ export async function createResolution(
 /**
  * Get resolution for an agenda item
  */
-export async function getResolution(agendaItemId: number): Promise<Resolution | null> {
+export async function getResolution(
+    agendaItemId: number,
+): Promise<Resolution | null> {
     await requireAuth();
     const db = await getDb();
 
@@ -99,7 +107,7 @@ export async function getResolution(agendaItemId: number): Promise<Resolution | 
  * Get resolutions for multiple agenda items
  */
 export async function getResolutionsByAgendaItems(
-    agendaItemIds: number[]
+    agendaItemIds: number[],
 ): Promise<Map<number, Resolution>> {
     if (agendaItemIds.length === 0) {
         return new Map();
@@ -111,16 +119,12 @@ export async function getResolutionsByAgendaItems(
     const results = await db
         .select()
         .from(resolutions)
-        .where(eq(resolutions.agendaItemId, agendaItemIds[0])); // TODO: Fix with inArray
+        .where(inArray(resolutions.agendaItemId, agendaItemIds));
 
     const resolutionMap = new Map<number, Resolution>();
-    
-    // Fetch each resolution individually (temporary solution)
-    for (const itemId of agendaItemIds) {
-        const resolution = await getResolution(itemId);
-        if (resolution) {
-            resolutionMap.set(itemId, resolution);
-        }
+
+    for (const res of results) {
+        resolutionMap.set(res.agendaItemId, res);
     }
 
     return resolutionMap;
@@ -131,7 +135,7 @@ export async function getResolutionsByAgendaItems(
  * Creates a resolution without votes to track completion
  */
 export async function markAgendaItemCompleted(
-    agendaItemId: number
+    agendaItemId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         await requireAuth();
@@ -150,7 +154,10 @@ export async function markAgendaItemCompleted(
             .limit(1);
 
         if (!agendaItem.length) {
-            return { success: false, error: "Tagesordnungspunkt nicht gefunden" };
+            return {
+                success: false,
+                error: "Tagesordnungspunkt nicht gefunden",
+            };
         }
 
         await requireMember(agendaItem[0].property.organizationId);
@@ -168,7 +175,7 @@ export async function markAgendaItemCompleted(
 
         // Create a resolution without votes to mark as completed
         const now = new Date().toISOString();
-        
+
         await db.insert(resolutions).values({
             agendaItemId,
             majorityType: "simple", // Default value, not relevant for non-voting items

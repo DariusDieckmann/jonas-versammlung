@@ -1,23 +1,22 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    votes,
-    insertVoteSchema,
-    type Vote,
-    type InsertVote,
-    type VoteChoice,
-} from "./schemas/vote.schema";
-import { resolutions } from "./schemas/resolution.schema";
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import conductRoutes from "../conduct.route";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
-import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { meetingParticipants } from "./schemas/meeting-participant.schema";
-import conductRoutes from "../conduct.route";
+import { resolutions } from "./schemas/resolution.schema";
+import {
+    insertVoteSchema,
+    type Vote,
+    type VoteChoice,
+    votes,
+} from "./schemas/vote.schema";
 
 /**
  * Get all votes for a resolution
@@ -35,10 +34,17 @@ export async function getVotes(
             shares: meetingParticipants.shares,
         })
         .from(votes)
-        .innerJoin(meetingParticipants, eq(votes.participantId, meetingParticipants.id))
+        .innerJoin(
+            meetingParticipants,
+            eq(votes.participantId, meetingParticipants.id),
+        )
         .where(eq(votes.resolutionId, resolutionId));
 
-    return result.map(r => ({ ...r.vote, participantName: r.participantName, shares: r.shares }));
+    return result.map((r) => ({
+        ...r.vote,
+        participantName: r.participantName,
+        shares: r.shares,
+    }));
 }
 
 /**
@@ -61,7 +67,10 @@ export async function castVote(
                 meetingId: meetings.id,
             })
             .from(resolutions)
-            .innerJoin(agendaItems, eq(resolutions.agendaItemId, agendaItems.id))
+            .innerJoin(
+                agendaItems,
+                eq(resolutions.agendaItemId, agendaItems.id),
+            )
             .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
             .innerJoin(properties, eq(meetings.propertyId, properties.id))
             .where(eq(resolutions.id, resolutionId))
@@ -82,8 +91,8 @@ export async function castVote(
             .where(
                 and(
                     eq(votes.resolutionId, resolutionId),
-                    eq(votes.participantId, participantId)
-                )
+                    eq(votes.participantId, participantId),
+                ),
             )
             .limit(1);
 
@@ -150,7 +159,10 @@ export async function calculateResolutionResult(
                 shares: meetingParticipants.shares,
             })
             .from(votes)
-            .innerJoin(meetingParticipants, eq(votes.participantId, meetingParticipants.id))
+            .innerJoin(
+                meetingParticipants,
+                eq(votes.participantId, meetingParticipants.id),
+            )
             .where(eq(votes.resolutionId, resolutionId));
 
         let votesYes = 0;
@@ -182,7 +194,8 @@ export async function calculateResolutionResult(
             result = yesShares > noShares ? "accepted" : "rejected";
         } else if (resolution[0].majorityType === "qualified") {
             // Qualified majority: 2/3 of votes
-            result = yesShares >= (totalShares * 2) / 3 ? "accepted" : "rejected";
+            result =
+                yesShares >= (totalShares * 2) / 3 ? "accepted" : "rejected";
         } else if (resolution[0].majorityType === "unanimous") {
             // Unanimous: all votes yes
             result = votesNo === 0 && votesYes > 0 ? "accepted" : "rejected";

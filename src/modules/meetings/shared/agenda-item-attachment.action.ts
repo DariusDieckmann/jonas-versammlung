@@ -4,21 +4,21 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    agendaItemAttachments,
-    insertAgendaItemAttachmentSchema,
-    type AgendaItemAttachment,
-    type InsertAgendaItemAttachment,
-} from "./schemas/agenda-item-attachment.schema";
-import { agendaItems } from "./schemas/agenda-item.schema";
-import { meetings } from "./schemas/meeting.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import { agendaItems } from "./schemas/agenda-item.schema";
+import {
+    type AgendaItemAttachment,
+    agendaItemAttachments,
+    type InsertAgendaItemAttachment,
+    insertAgendaItemAttachmentSchema,
+} from "./schemas/agenda-item-attachment.schema";
+import { meetings } from "./schemas/meeting.schema";
 
 /**
  * Create an agenda item attachment
  */
 export async function createAgendaItemAttachment(
-    data: InsertAgendaItemAttachment
+    data: InsertAgendaItemAttachment,
 ): Promise<{ success: boolean; error?: string; data?: AgendaItemAttachment }> {
     try {
         const user = await requireAuth();
@@ -37,7 +37,10 @@ export async function createAgendaItemAttachment(
             .limit(1);
 
         if (!agendaItem.length) {
-            return { success: false, error: "Tagesordnungspunkt nicht gefunden" };
+            return {
+                success: false,
+                error: "Tagesordnungspunkt nicht gefunden",
+            };
         }
 
         await requireMember(agendaItem[0].property.organizationId);
@@ -71,7 +74,7 @@ export async function createAgendaItemAttachment(
  * Get all attachments for an agenda item
  */
 export async function getAgendaItemAttachments(
-    agendaItemId: number
+    agendaItemId: number,
 ): Promise<AgendaItemAttachment[]> {
     await requireAuth();
     const db = await getDb();
@@ -89,14 +92,13 @@ export async function getAgendaItemAttachments(
  * Get all attachments for multiple agenda items
  */
 export async function getAgendaItemAttachmentsByItems(
-    agendaItemIds: number[]
+    agendaItemIds: number[],
 ): Promise<Map<number, AgendaItemAttachment[]>> {
     if (agendaItemIds.length === 0) {
         return new Map();
     }
 
     await requireAuth();
-    const db = await getDb();
 
     const attachmentsMap = new Map<number, AgendaItemAttachment[]>();
 
@@ -115,7 +117,7 @@ export async function getAgendaItemAttachmentsByItems(
  * Delete an agenda item attachment
  */
 export async function deleteAgendaItemAttachment(
-    attachmentId: number
+    attachmentId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         await requireAuth();
@@ -128,7 +130,10 @@ export async function deleteAgendaItemAttachment(
                 property: properties,
             })
             .from(agendaItemAttachments)
-            .innerJoin(agendaItems, eq(agendaItemAttachments.agendaItemId, agendaItems.id))
+            .innerJoin(
+                agendaItems,
+                eq(agendaItemAttachments.agendaItemId, agendaItems.id),
+            )
             .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
             .innerJoin(properties, eq(meetings.propertyId, properties.id))
             .where(eq(agendaItemAttachments.id, attachmentId))

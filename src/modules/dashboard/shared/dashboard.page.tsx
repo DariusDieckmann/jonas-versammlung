@@ -1,16 +1,10 @@
 import { Building, Building2, CalendarDays, Clock, MapPin } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getUpcomingOpenMeetings } from "@/modules/meetings/shared/meeting.action";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import meetingsRoutes from "@/modules/meetings/meetings.route";
+import { getUpcomingOpenMeetings } from "@/modules/meetings/shared/meeting.action";
 
 export default async function Dashboard() {
     const upcomingMeetings = await getUpcomingOpenMeetings();
@@ -35,7 +29,8 @@ export default async function Dashboard() {
                     Willkommen
                 </h1>
                 <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Verwalte deine Eigentümerversammlungen professionell und effizient
+                    Verwalte deine Eigentümerversammlungen professionell und
+                    effizient
                 </p>
             </div>
 
@@ -55,7 +50,10 @@ export default async function Dashboard() {
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {upcomingMeetings.slice(0, 6).map((meeting) => (
-                            <Link key={meeting.id} href={meetingsRoutes.detail(meeting.id)}>
+                            <Link
+                                key={meeting.id}
+                                href={meetingsRoutes.detail(meeting.id)}
+                            >
                                 <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                                     <CardContent className="pt-6">
                                         <div className="flex flex-col h-full">
@@ -64,26 +62,45 @@ export default async function Dashboard() {
                                                     <h3 className="text-base font-semibold line-clamp-2 flex-1">
                                                         {meeting.title}
                                                     </h3>
-                                                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 shrink-0">
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="bg-blue-100 text-blue-800 shrink-0"
+                                                    >
                                                         Geplant
                                                     </Badge>
                                                 </div>
                                                 <div className="text-sm text-gray-600 space-y-2">
                                                     <div className="flex items-center gap-2">
                                                         <Building className="h-4 w-4 shrink-0" />
-                                                        <span className="truncate">{meeting.propertyName}</span>
+                                                        <span className="truncate">
+                                                            {
+                                                                meeting.propertyName
+                                                            }
+                                                        </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <CalendarDays className="h-4 w-4 shrink-0" />
-                                                        <span>{formatDate(meeting.date)}</span>
+                                                        <span>
+                                                            {formatDate(
+                                                                meeting.date,
+                                                            )}
+                                                        </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Clock className="h-4 w-4 shrink-0" />
-                                                        <span>{formatTime(meeting.startTime)}</span>
+                                                        <span>
+                                                            {formatTime(
+                                                                meeting.startTime,
+                                                            )}
+                                                        </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <MapPin className="h-4 w-4 shrink-0" />
-                                                        <span className="truncate">{meeting.locationName}</span>
+                                                        <span className="truncate">
+                                                            {
+                                                                meeting.locationName
+                                                            }
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -111,8 +128,9 @@ export default async function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-gray-600">
-                                Verwalte deine Immobilien mit allen Details wie Adresse, Baujahr und Fläche. 
-                                Lege Einheiten an und ordne Eigentümer mit ihren MEA-Anteilen zu.
+                                Verwalte deine Immobilien mit allen Details wie
+                                Adresse, Baujahr und Fläche. Lege Einheiten an
+                                und ordne Eigentümer mit ihren MEA-Anteilen zu.
                             </p>
                         </CardContent>
                     </Card>
@@ -126,8 +144,10 @@ export default async function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-gray-600">
-                                Plane und führe Eigentümerversammlungen durch. Erstelle Tagesordnungen, 
-                                verwalte Teilnehmer und führe Abstimmungen mit automatischer Protokollierung durch.
+                                Plane und führe Eigentümerversammlungen durch.
+                                Erstelle Tagesordnungen, verwalte Teilnehmer und
+                                führe Abstimmungen mit automatischer
+                                Protokollierung durch.
                             </p>
                         </CardContent>
                     </Card>
@@ -141,8 +161,9 @@ export default async function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm text-gray-600">
-                                Verwalte deine Organisation und lade Teammitglieder ein. 
-                                Lege Rollen fest (Owner oder Member) und kontrolliere Zugriffsrechte.
+                                Verwalte deine Organisation und lade
+                                Teammitglieder ein. Lege Rollen fest (Owner oder
+                                Member) und kontrolliere Zugriffsrechte.
                             </p>
                         </CardContent>
                     </Card>

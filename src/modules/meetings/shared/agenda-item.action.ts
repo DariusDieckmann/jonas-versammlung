@@ -1,28 +1,26 @@
 "use server";
 
-import { eq, and, asc } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    agendaItems,
-    insertAgendaItemSchema,
-    updateAgendaItemSchema,
-    type AgendaItem,
-    type InsertAgendaItem,
-    type UpdateAgendaItem,
-} from "./schemas/agenda-item.schema";
-import { meetings } from "./schemas/meeting.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../meetings.route";
+import {
+    type AgendaItem,
+    agendaItems,
+    type InsertAgendaItem,
+    insertAgendaItemSchema,
+    type UpdateAgendaItem,
+    updateAgendaItemSchema,
+} from "./schemas/agenda-item.schema";
+import { meetings } from "./schemas/meeting.schema";
 
 /**
  * Get all agenda items for a meeting
  */
-export async function getAgendaItems(
-    meetingId: number,
-): Promise<AgendaItem[]> {
+export async function getAgendaItems(meetingId: number): Promise<AgendaItem[]> {
     await requireAuth();
     const db = await getDb();
 
@@ -242,9 +240,7 @@ export async function updateAgendaItem(
             })
             .where(eq(agendaItems.id, agendaItemId));
 
-        revalidatePath(
-            meetingsRoutes.detail(existing[0].agendaItem.meetingId),
-        );
+        revalidatePath(meetingsRoutes.detail(existing[0].agendaItem.meetingId));
 
         return { success: true };
     } catch (error) {
@@ -293,9 +289,7 @@ export async function deleteAgendaItem(
 
         await db.delete(agendaItems).where(eq(agendaItems.id, agendaItemId));
 
-        revalidatePath(
-            meetingsRoutes.detail(existing[0].agendaItem.meetingId),
-        );
+        revalidatePath(meetingsRoutes.detail(existing[0].agendaItem.meetingId));
         return { success: true };
     } catch (error) {
         console.error("Error deleting agenda item:", error);

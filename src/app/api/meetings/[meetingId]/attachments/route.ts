@@ -1,23 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { type NextRequest, NextResponse } from "next/server";
+import { MAX_FILES_PER_MEETING, validateFile } from "@/lib/file-validation";
 import { uploadToR2 } from "@/lib/r2";
-import { validateFile, MAX_FILE_SIZE, formatFileSize } from "@/lib/file-validation";
-import { createMeetingAttachment, getMeetingAttachments } from "@/modules/meetings/shared/meeting-attachment.action";
-import { MAX_FILES_PER_MEETING } from "@/lib/file-validation";
+import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import {
+    createMeetingAttachment,
+    getMeetingAttachments,
+} from "@/modules/meetings/shared/meeting-attachment.action";
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: Promise<{ meetingId: string }> }
+    { params }: { params: Promise<{ meetingId: string }> },
 ) {
     try {
         await requireAuth();
         const { meetingId } = await params;
-        const meetingIdNum = Number.parseInt(meetingId);
+        const meetingIdNum = Number.parseInt(meetingId, 10);
 
         if (Number.isNaN(meetingIdNum)) {
             return NextResponse.json(
                 { error: "Ungültige Versammlungs-ID" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -25,8 +27,10 @@ export async function POST(
         const existingAttachments = await getMeetingAttachments(meetingIdNum);
         if (existingAttachments.length >= MAX_FILES_PER_MEETING) {
             return NextResponse.json(
-                { error: `Maximum ${MAX_FILES_PER_MEETING} Dateien pro Versammlung erlaubt` },
-                { status: 400 }
+                {
+                    error: `Maximum ${MAX_FILES_PER_MEETING} Dateien pro Versammlung erlaubt`,
+                },
+                { status: 400 },
             );
         }
 
@@ -36,7 +40,7 @@ export async function POST(
         if (!file) {
             return NextResponse.json(
                 { error: "Keine Datei hochgeladen" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -45,7 +49,7 @@ export async function POST(
         if (!validation.valid) {
             return NextResponse.json(
                 { error: validation.error },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -55,7 +59,7 @@ export async function POST(
         if (!uploadResult.success || !uploadResult.key || !uploadResult.url) {
             return NextResponse.json(
                 { error: uploadResult.error || "Upload fehlgeschlagen" },
-                { status: 500 }
+                { status: 500 },
             );
         }
 
@@ -73,7 +77,7 @@ export async function POST(
         if (!result.success) {
             return NextResponse.json(
                 { error: result.error || "Fehler beim Speichern" },
-                { status: 500 }
+                { status: 500 },
             );
         }
 
@@ -85,7 +89,7 @@ export async function POST(
         console.error("Error uploading file:", error);
         return NextResponse.json(
             { error: "Fehler beim Hochladen der Datei" },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }

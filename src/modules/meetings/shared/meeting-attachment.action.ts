@@ -4,20 +4,20 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
+import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import { meetings } from "./schemas/meeting.schema";
 import {
-    meetingAttachments,
+    type InsertMeetingAttachment,
     insertMeetingAttachmentSchema,
     type MeetingAttachment,
-    type InsertMeetingAttachment,
+    meetingAttachments,
 } from "./schemas/meeting-attachment.schema";
-import { meetings } from "./schemas/meeting.schema";
-import { properties } from "@/modules/properties/shared/schemas/property.schema";
 
 /**
  * Create a meeting attachment
  */
 export async function createMeetingAttachment(
-    data: InsertMeetingAttachment
+    data: InsertMeetingAttachment,
 ): Promise<{ success: boolean; error?: string; data?: MeetingAttachment }> {
     try {
         const user = await requireAuth();
@@ -69,7 +69,7 @@ export async function createMeetingAttachment(
  * Get all attachments for a meeting
  */
 export async function getMeetingAttachments(
-    meetingId: number
+    meetingId: number,
 ): Promise<MeetingAttachment[]> {
     await requireAuth();
     const db = await getDb();
@@ -87,7 +87,7 @@ export async function getMeetingAttachments(
  * Delete a meeting attachment
  */
 export async function deleteMeetingAttachment(
-    attachmentId: number
+    attachmentId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         await requireAuth();

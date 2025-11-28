@@ -1,8 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CalendarDays, MapPin, Clock, Plus } from "lucide-react";
+import {
+    CalendarDays,
+    Clock,
+    LayoutGrid,
+    MapPin,
+    Plus,
+    Table as TableIcon,
+} from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -19,10 +27,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
 import meetingsRoutes from "../../meetings.route";
+import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface MeetingsListProps {
     meetings: Meeting[];
@@ -98,6 +105,28 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
 
     return (
         <div className="space-y-4">
+            {/* View Toggle */}
+            <div className="flex justify-end">
+                <div className="inline-flex rounded-lg border p-1 bg-muted/50">
+                    <Button
+                        variant={viewMode === "cards" ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => handleViewModeChange("cards")}
+                        className="gap-2"
+                    >
+                        <LayoutGrid className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant={viewMode === "table" ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => handleViewModeChange("table")}
+                        className="gap-2"
+                    >
+                        <TableIcon className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+
             {/* Cards View */}
             {viewMode === "cards" && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -125,26 +154,33 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
                                             </Badge>
                                         </div>
                                         <CardDescription>
-                                            {property?.name || "Unbekannte Liegenschaft"}
+                                            {property?.name ||
+                                                "Unbekannte Liegenschaft"}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-2 text-sm text-gray-600">
                                             <div className="flex items-center gap-2">
                                                 <CalendarDays className="h-4 w-4" />
-                                                <span>{formatDate(meeting.date)}</span>
+                                                <span>
+                                                    {formatDate(meeting.date)}
+                                                </span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Clock className="h-4 w-4" />
                                                 <span>
-                                                    {formatTime(meeting.startTime)}
+                                                    {formatTime(
+                                                        meeting.startTime,
+                                                    )}
                                                     {meeting.endTime &&
                                                         ` - ${formatTime(meeting.endTime)}`}
                                                 </span>
                                             </div>
                                             <div className="flex items-start gap-2">
                                                 <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                                                <span>{meeting.locationName}</span>
+                                                <span>
+                                                    {meeting.locationName}
+                                                </span>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -178,12 +214,12 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
                                     <TableRow
                                         key={meeting.id}
                                         className="cursor-pointer hover:bg-muted/50"
-                                        onClick={() =>
-                                            (window.location.href =
+                                        onClick={() => {
+                                            window.location.href =
                                                 meetingsRoutes.detail(
                                                     meeting.id,
-                                                ))
-                                        }
+                                                );
+                                        }}
                                     >
                                         <TableCell className="font-medium">
                                             <div className="flex items-center gap-2">

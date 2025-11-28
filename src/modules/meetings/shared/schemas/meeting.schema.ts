@@ -48,9 +48,7 @@ export const insertMeetingSchema = createInsertSchema(meetings, {
         .max(500, "Adresse darf maximal 500 Zeichen lang sein")
         .optional()
         .nullable(),
-    invitationDeadline: z
-        .string()
-        .min(1, "Einladungsfrist ist erforderlich"),
+    invitationDeadline: z.string().min(1, "Einladungsfrist ist erforderlich"),
     status: z.enum(["planned", "in-progress", "completed"]),
 }).omit({
     id: true,

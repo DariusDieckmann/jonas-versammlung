@@ -1,16 +1,28 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MeetingForm } from "../../shared/components/meeting-form";
-import { AgendaItemsFormSection, type AgendaItemFormData } from "../../shared/components/agenda-items-form-section";
-import type { Property } from "@/modules/properties/shared/schemas/property.schema";
-import type { Meeting } from "../../shared/schemas/meeting.schema";
-import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import { useState } from "react";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { createMeeting, updateMeeting } from "../meeting.action";
-import { createAgendaItems, updateAgendaItem, deleteAgendaItem, createAgendaItem } from "../agenda-item.action";
 import meetingsRoutes from "@/modules/meetings/meetings.route";
+import type { Property } from "@/modules/properties/shared/schemas/property.schema";
+import {
+    type AgendaItemFormData,
+    AgendaItemsFormSection,
+} from "../../shared/components/agenda-items-form-section";
+import { MeetingForm } from "../../shared/components/meeting-form";
+import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type {
+    insertMeetingSchema,
+    Meeting,
+} from "../../shared/schemas/meeting.schema";
+import {
+    createAgendaItem,
+    createAgendaItems,
+    deleteAgendaItem,
+    updateAgendaItem,
+} from "../agenda-item.action";
+import { createMeeting, updateMeeting } from "../meeting.action";
 
 interface MeetingFormWithAgendaProps {
     properties: Property[];
@@ -35,12 +47,12 @@ export function MeetingFormWithAgenda({
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [initialAgendaItemsIds] = useState<number[]>(
-        initialAgendaItems.map((item) => item.id)
+        initialAgendaItems.map((item) => item.id),
     );
 
     const isEditing = !!initialData;
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: z.infer<typeof insertMeetingSchema>) => {
         setIsSubmitting(true);
 
         try {
@@ -54,7 +66,7 @@ export function MeetingFormWithAgenda({
 
                 // Update agenda items
                 const validAgendaItems = agendaItems.filter(
-                    (item) => item.title.trim() !== ""
+                    (item) => item.title.trim() !== "",
                 );
 
                 // Update or create each agenda item

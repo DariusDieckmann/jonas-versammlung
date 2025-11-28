@@ -1,12 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import {
+    AlertCircle,
+    Download,
+    File,
+    Loader2,
+    Trash2,
+    Upload,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Upload, File, Trash2, Download, Loader2, AlertCircle } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    formatFileSize,
+    getAcceptedFileTypes,
+    MAX_FILE_SIZE,
+    MAX_FILES_PER_MEETING,
+    validateFile,
+} from "@/lib/file-validation";
 import { deleteMeetingAttachment } from "../../shared/meeting-attachment.action";
-import { validateFile, getAcceptedFileTypes, formatFileSize, MAX_FILE_SIZE, MAX_FILES_PER_MEETING } from "@/lib/file-validation";
 import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
 
 interface MeetingAttachmentsProps {
@@ -38,7 +57,9 @@ export function MeetingAttachments({
 
         // Check max files limit
         if (attachments.length >= MAX_FILES_PER_MEETING) {
-            setUploadError(`Maximum ${MAX_FILES_PER_MEETING} Dateien pro Versammlung erlaubt`);
+            setUploadError(
+                `Maximum ${MAX_FILES_PER_MEETING} Dateien pro Versammlung erlaubt`,
+            );
             e.target.value = "";
             return;
         }
@@ -50,12 +71,18 @@ export function MeetingAttachments({
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await fetch(`/api/meetings/${meetingId}/attachments`, {
-                method: "POST",
-                body: formData,
-            });
+            const response = await fetch(
+                `/api/meetings/${meetingId}/attachments`,
+                {
+                    method: "POST",
+                    body: formData,
+                },
+            );
 
-            const result = await response.json() as { success: boolean; error?: string };
+            const result = (await response.json()) as {
+                success: boolean;
+                error?: string;
+            };
 
             if (!result.success) {
                 setUploadError(result.error || "Upload fehlgeschlagen");
@@ -95,7 +122,9 @@ export function MeetingAttachments({
                     Einladungen, Protokolle und weitere Dokumente
                     <br />
                     <span className="text-xs text-gray-500">
-                        Erlaubte Formate: PDF, Word, Excel, PowerPoint, Bilder, TXT, CSV • Max. {formatFileSize(MAX_FILE_SIZE)} • Max. {MAX_FILES_PER_MEETING} Dateien
+                        Erlaubte Formate: PDF, Word, Excel, PowerPoint, Bilder,
+                        TXT, CSV • Max. {formatFileSize(MAX_FILE_SIZE)} • Max.{" "}
+                        {MAX_FILES_PER_MEETING} Dateien
                     </span>
                 </CardDescription>
             </CardHeader>
@@ -106,7 +135,10 @@ export function MeetingAttachments({
                             <Button
                                 variant="outline"
                                 className="w-full"
-                                disabled={isUploading || attachments.length >= MAX_FILES_PER_MEETING}
+                                disabled={
+                                    isUploading ||
+                                    attachments.length >= MAX_FILES_PER_MEETING
+                                }
                                 asChild
                             >
                                 <span className="cursor-pointer">
@@ -115,10 +147,12 @@ export function MeetingAttachments({
                                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                             Wird hochgeladen...
                                         </>
-                                    ) : attachments.length >= MAX_FILES_PER_MEETING ? (
+                                    ) : attachments.length >=
+                                      MAX_FILES_PER_MEETING ? (
                                         <>
                                             <AlertCircle className="h-4 w-4 mr-2" />
-                                            Maximum erreicht ({MAX_FILES_PER_MEETING} Dateien)
+                                            Maximum erreicht (
+                                            {MAX_FILES_PER_MEETING} Dateien)
                                         </>
                                     ) : (
                                         <>
@@ -134,13 +168,18 @@ export function MeetingAttachments({
                             type="file"
                             className="hidden"
                             onChange={handleFileUpload}
-                            disabled={isUploading || attachments.length >= MAX_FILES_PER_MEETING}
+                            disabled={
+                                isUploading ||
+                                attachments.length >= MAX_FILES_PER_MEETING
+                            }
                             accept={getAcceptedFileTypes()}
                         />
                         {uploadError && (
                             <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
                                 <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
-                                <p className="text-sm text-red-600">{uploadError}</p>
+                                <p className="text-sm text-red-600">
+                                    {uploadError}
+                                </p>
                             </div>
                         )}
                     </div>
@@ -164,16 +203,14 @@ export function MeetingAttachments({
                                             {attachment.fileName}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            {formatFileSize(attachment.fileSize)}
+                                            {formatFileSize(
+                                                attachment.fileSize,
+                                            )}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        asChild
-                                    >
+                                    <Button variant="ghost" size="sm" asChild>
                                         <a
                                             href={attachment.r2Url}
                                             target="_blank"
@@ -187,7 +224,9 @@ export function MeetingAttachments({
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            onClick={() => handleDelete(attachment.id)}
+                                            onClick={() =>
+                                                handleDelete(attachment.id)
+                                            }
                                         >
                                             <Trash2 className="h-4 w-4 text-red-600" />
                                         </Button>

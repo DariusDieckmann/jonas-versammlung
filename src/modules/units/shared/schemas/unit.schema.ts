@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text, real } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
@@ -57,7 +57,9 @@ export const insertUnitSchema = createInsertSchema(units, {
     updatedAt: true,
 });
 
-export const updateUnitSchema = insertUnitSchema.partial().omit({ propertyId: true });
+export const updateUnitSchema = insertUnitSchema
+    .partial()
+    .omit({ propertyId: true });
 
 export const selectUnitSchema = createSelectSchema(units);
 

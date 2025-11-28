@@ -2,9 +2,9 @@ import { CalendarDays, Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { getMeetings } from "../../shared/meeting.action";
 import { getProperties } from "@/modules/properties/shared/property.action";
 import meetingsRoutes from "../../meetings.route";
+import { getMeetings } from "../../shared/meeting.action";
 import { MeetingsList } from "./meetings-list";
 
 export default async function MeetingsListPage() {

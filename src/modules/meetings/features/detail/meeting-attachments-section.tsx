@@ -1,7 +1,7 @@
 "use client";
 
-import { MeetingAttachments } from "./meeting-attachments";
 import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
+import { MeetingAttachments } from "./meeting-attachments";
 
 interface MeetingAttachmentsSectionProps {
     meetingId: number;

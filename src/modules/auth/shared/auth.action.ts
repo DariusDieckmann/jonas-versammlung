@@ -20,7 +20,7 @@ export const signOut = async (): Promise<AuthResponse> => {
         };
     } catch (error) {
         console.error("Sign out error:", error);
-        
+
         return {
             success: false,
             message: "Failed to sign out. Please try again.",
