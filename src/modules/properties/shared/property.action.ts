@@ -4,20 +4,20 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import {
-    insertPropertySchema,
-    properties,
-    updatePropertySchema,
-    type InsertProperty,
-    type Property,
-    type UpdateProperty,
-} from "./schemas/property.schema";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import propertiesRoutes from "../properties.route";
+import {
+    type InsertProperty,
+    insertPropertySchema,
+    type Property,
+    properties,
+    type UpdateProperty,
+    updatePropertySchema,
+} from "./schemas/property.schema";
 
 /**
  * Get all properties for the user's organization

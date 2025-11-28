@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import {
@@ -16,7 +15,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { removeOrganizationMember } from "../../shared/organization.action";
-import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 
 interface LeaveOrganizationButtonProps {
     organizationId: number;
@@ -29,7 +27,6 @@ export function LeaveOrganizationButton({
     organizationName,
     onSuccess,
 }: LeaveOrganizationButtonProps) {
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [open, setOpen] = useState(false);
 
@@ -44,7 +41,10 @@ export function LeaveOrganizationButton({
             );
 
             if (!result.success) {
-                toast.error(result.error || "Organisation konnte nicht verlassen werden");
+                toast.error(
+                    result.error ||
+                        "Organisation konnte nicht verlassen werden",
+                );
                 setIsLoading(false);
                 return;
             }
@@ -68,15 +68,18 @@ export function LeaveOrganizationButton({
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Bist du dir absolut sicher?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                        Bist du dir absolut sicher?
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                        Du bist dabei, <strong>{organizationName}</strong> zu verlassen.
+                        Du bist dabei, <strong>{organizationName}</strong> zu
+                        verlassen.
                         <br />
                         <br />
-                        Diese Aktion kann nicht rückgängig gemacht werden. Du verlierst den
-                        Zugriff auf alle Daten in dieser Organisation. Wenn
-                        du das letzte Mitglied bist, wird die Organisation und alle ihre
-                        Daten gelöscht.
+                        Diese Aktion kann nicht rückgängig gemacht werden. Du
+                        verlierst den Zugriff auf alle Daten in dieser
+                        Organisation. Wenn du das letzte Mitglied bist, wird die
+                        Organisation und alle ihre Daten gelöscht.
                         <br />
                         <br />
                         Du kannst danach eine neue Organisation erstellen.

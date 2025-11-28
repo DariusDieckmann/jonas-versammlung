@@ -1,18 +1,8 @@
 "use client";
 
+import { Building2, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Edit, Trash2, Building2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -23,10 +13,20 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { UnitDialog } from "./unit-dialog";
-import { deleteUnit } from "../unit.action";
-import type { Unit } from "../schemas/unit.schema";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import type { Owner } from "@/modules/owners/shared/schemas/owner.schema";
+import type { Unit } from "../schemas/unit.schema";
+import { deleteUnit } from "../unit.action";
+import { UnitDialog } from "./unit-dialog";
 
 interface UnitWithOwners extends Unit {
     owners: Owner[];
@@ -41,7 +41,9 @@ export function PropertyUnitsList({
     propertyId,
     initialUnitsWithOwners,
 }: PropertyUnitsListProps) {
-    const [units, setUnits] = useState<UnitWithOwners[]>(initialUnitsWithOwners);
+    const [units, setUnits] = useState<UnitWithOwners[]>(
+        initialUnitsWithOwners,
+    );
     const [isUnitDialogOpen, setIsUnitDialogOpen] = useState(false);
     const [editingUnit, setEditingUnit] = useState<Unit | undefined>(undefined);
     const [deletingUnitId, setDeletingUnitId] = useState<number | null>(null);
@@ -87,7 +89,8 @@ export function PropertyUnitsList({
         <>
             <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-muted-foreground">
-                    {units.length} {units.length === 1 ? "Einheit" : "Einheiten"}
+                    {units.length}{" "}
+                    {units.length === 1 ? "Einheit" : "Einheiten"}
                 </p>
                 <Button size="sm" onClick={handleAddUnitClick}>
                     Einheit hinzufügen
@@ -98,7 +101,11 @@ export function PropertyUnitsList({
                 <div className="text-center py-12 text-muted-foreground border rounded-lg border-dashed">
                     <Building2 className="mx-auto h-12 w-12 mb-4 opacity-50" />
                     <p className="mb-4">Keine Einheiten erfasst</p>
-                    <Button size="sm" variant="outline" onClick={handleAddUnitClick}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleAddUnitClick}
+                    >
                         Erste Einheit hinzufügen
                     </Button>
                 </div>
@@ -114,14 +121,20 @@ export function PropertyUnitsList({
                                     <div className="flex flex-col">
                                         <span>MEA</span>
                                         <span className="text-xs font-normal text-muted-foreground">
-                                            ({units.reduce((sum, unit) => {
-                                                return sum + unit.ownershipShares;
-                                            }, 0)}/1000)
+                                            (
+                                            {units.reduce((sum, unit) => {
+                                                return (
+                                                    sum + unit.ownershipShares
+                                                );
+                                            }, 0)}
+                                            /1000)
                                         </span>
                                     </div>
                                 </TableHead>
                                 <TableHead>Eigentümer</TableHead>
-                                <TableHead className="text-right">Aktionen</TableHead>
+                                <TableHead className="text-right">
+                                    Aktionen
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -141,14 +154,13 @@ export function PropertyUnitsList({
                                             {unit.ownershipShares}
                                         </Badge>
                                     </TableCell>
-                                        <TableCell>
+                                    <TableCell>
                                         {unit.owners.length === 0 ? (
-                                            <span className="text-sm">
-                                                -
-                                            </span>
+                                            <span className="text-sm">-</span>
                                         ) : (
                                             <div className="text-sm">
-                                                {unit.owners[0].firstName} {unit.owners[0].lastName}
+                                                {unit.owners[0].firstName}{" "}
+                                                {unit.owners[0].lastName}
                                             </div>
                                         )}
                                     </TableCell>
@@ -157,7 +169,9 @@ export function PropertyUnitsList({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => handleEditUnitClick(unit)}
+                                                onClick={() =>
+                                                    handleEditUnitClick(unit)
+                                                }
                                                 title="Einheit bearbeiten"
                                             >
                                                 <Edit className="h-4 w-4" />
@@ -165,7 +179,11 @@ export function PropertyUnitsList({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                onClick={() => handleDeleteUnitClick(unit.id)}
+                                                onClick={() =>
+                                                    handleDeleteUnitClick(
+                                                        unit.id,
+                                                    )
+                                                }
                                                 title="Einheit löschen"
                                             >
                                                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -195,9 +213,10 @@ export function PropertyUnitsList({
                     <AlertDialogHeader>
                         <AlertDialogTitle>Einheit löschen?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Bist du sicher, dass du diese Einheit löschen möchtest?
-                            Alle zugehörigen Eigentümer werden ebenfalls gelöscht.
-                            Diese Aktion kann nicht rückgängig gemacht werden.
+                            Bist du sicher, dass du diese Einheit löschen
+                            möchtest? Alle zugehörigen Eigentümer werden
+                            ebenfalls gelöscht. Diese Aktion kann nicht
+                            rückgängig gemacht werden.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

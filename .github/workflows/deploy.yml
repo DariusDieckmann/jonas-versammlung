@@ -17,7 +17,7 @@ jobs:
   # Deploy preview for pull requests and feature branches
   deploy-preview:
     name: Deploy Preview
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/')
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/')
     runs-on: ubuntu-latest
     environment: preview
     steps:

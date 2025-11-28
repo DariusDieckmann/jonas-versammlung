@@ -1,8 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -32,8 +31,9 @@ interface CreateOrganizationFormProps {
     onSuccess?: () => void;
 }
 
-export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProps) {
-    const router = useRouter();
+export function CreateOrganizationForm({
+    onSuccess,
+}: CreateOrganizationFormProps) {
     const [isPending, startTransition] = useTransition();
 
     const form = useForm<CreateOrganizationFormData>({
@@ -49,7 +49,10 @@ export function CreateOrganizationForm({ onSuccess }: CreateOrganizationFormProp
                 const result = await createOrganization(data);
 
                 if (!result.success) {
-                    toast.error(result.error || "Organisation konnte nicht erstellt werden");
+                    toast.error(
+                        result.error ||
+                            "Organisation konnte nicht erstellt werden",
+                    );
                     return;
                 }
 

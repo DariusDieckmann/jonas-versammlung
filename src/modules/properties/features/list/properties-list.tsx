@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Building2, MapPin, Users, LayoutGrid, Table as TableIcon } from "lucide-react";
+import {
+    Building2,
+    LayoutGrid,
+    MapPin,
+    Table as TableIcon,
+    Users,
+} from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -19,8 +25,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import type { Property } from "../../shared/schemas/property.schema";
 import propertiesRoutes from "../../properties.route";
+import type { Property } from "../../shared/schemas/property.schema";
 
 interface PropertiesListProps {
     properties: Property[];
@@ -106,9 +112,11 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                     <CardDescription className="flex items-start gap-2">
                                         <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                         <span>
-                                            {property.street} {property.houseNumber}
+                                            {property.street}{" "}
+                                            {property.houseNumber}
                                             <br />
-                                            {property.postalCode} {property.city}
+                                            {property.postalCode}{" "}
+                                            {property.city}
                                         </span>
                                     </CardDescription>
                                 </CardHeader>
@@ -126,7 +134,8 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                             <div className="flex items-center gap-1">
                                                 <Users className="h-4 w-4" />
                                                 <span>
-                                                    {property.numberOfUnits} Einheiten
+                                                    {property.numberOfUnits}{" "}
+                                                    Einheiten
                                                 </span>
                                             </div>
                                         )}
@@ -166,7 +175,12 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                 <TableRow
                                     key={property.id}
                                     className="cursor-pointer hover:bg-muted/50"
-                                    onClick={() => window.location.href = propertiesRoutes.detail(property.id)}
+                                    onClick={() => {
+                                        window.location.href =
+                                            propertiesRoutes.detail(
+                                                property.id,
+                                            );
+                                    }}
                                 >
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-2">

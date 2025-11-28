@@ -29,7 +29,7 @@ export async function sendEmail({
 
     try {
         const { env } = await getCloudflareContext();
-        
+
         if (!env.RESEND_API_KEY) {
             throw new Error("RESEND_API_KEY is not configured");
         }
@@ -50,7 +50,9 @@ export async function sendEmail({
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Failed to send email: ${response.status} ${errorText}`);
+            throw new Error(
+                `Failed to send email: ${response.status} ${errorText}`,
+            );
         }
 
         const data = await response.json();

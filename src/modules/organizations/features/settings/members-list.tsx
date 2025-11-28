@@ -1,15 +1,8 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Trash2 } from "lucide-react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,8 +15,18 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { updateMemberRole, removeOrganizationMember } from "../../shared/organization.action";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import type { OrganizationMemberWithUser } from "../../shared/models/organization.model";
+import {
+    removeOrganizationMember,
+    updateMemberRole,
+} from "../../shared/organization.action";
 
 interface MembersListProps {
     members: OrganizationMemberWithUser[];
@@ -60,7 +63,9 @@ export function MembersList({
             );
 
             if (!result.success) {
-                toast.error(result.error || "Rolle konnte nicht geändert werden");
+                toast.error(
+                    result.error || "Rolle konnte nicht geändert werden",
+                );
                 return;
             }
 
@@ -89,7 +94,9 @@ export function MembersList({
             );
 
             if (!result.success) {
-                toast.error(result.error || "Mitglied konnte nicht entfernt werden");
+                toast.error(
+                    result.error || "Mitglied konnte nicht entfernt werden",
+                );
                 return;
             }
 
@@ -117,7 +124,9 @@ export function MembersList({
                         className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
                     >
                         <div className="flex-1">
-                            <div className="font-medium">{member.user.name}</div>
+                            <div className="font-medium">
+                                {member.user.name}
+                            </div>
                             <div className="text-sm text-gray-600">
                                 {member.user.email}
                             </div>
@@ -135,14 +144,20 @@ export function MembersList({
                                                 value as "owner" | "member",
                                             )
                                         }
-                                        disabled={updatingMemberId === member.id}
+                                        disabled={
+                                            updatingMemberId === member.id
+                                        }
                                     >
                                         <SelectTrigger className="w-[120px]">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="owner">Eigentümer</SelectItem>
-                                            <SelectItem value="member">Mitglied</SelectItem>
+                                            <SelectItem value="owner">
+                                                Eigentümer
+                                            </SelectItem>
+                                            <SelectItem value="member">
+                                                Mitglied
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <AlertDialog>
@@ -151,7 +166,10 @@ export function MembersList({
                                                 variant="ghost"
                                                 size="icon"
                                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                disabled={removingMemberId === member.id}
+                                                disabled={
+                                                    removingMemberId ===
+                                                    member.id
+                                                }
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -162,13 +180,20 @@ export function MembersList({
                                                     Mitglied entfernen?
                                                 </AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    Möchtest du <strong>{member.user.name}</strong> wirklich
-                                                    aus der Organisation entfernen? Diese Aktion kann nicht
+                                                    Möchtest du{" "}
+                                                    <strong>
+                                                        {member.user.name}
+                                                    </strong>{" "}
+                                                    wirklich aus der
+                                                    Organisation entfernen?
+                                                    Diese Aktion kann nicht
                                                     rückgängig gemacht werden.
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
-                                                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                                                <AlertDialogCancel>
+                                                    Abbrechen
+                                                </AlertDialogCancel>
                                                 <AlertDialogAction
                                                     onClick={() =>
                                                         handleRemoveMember(
@@ -187,7 +212,9 @@ export function MembersList({
                                 </>
                             ) : (
                                 <span className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
-                                    {member.role === "owner" ? "Eigentümer" : "Mitglied"}
+                                    {member.role === "owner"
+                                        ? "Eigentümer"
+                                        : "Mitglied"}
                                     {isCurrentUser && " (Du)"}
                                 </span>
                             )}

@@ -6,7 +6,12 @@ import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
 import { getDb } from "@/db";
 import type { AuthUser } from "@/modules/auth/shared/models/user.model";
-import { user, session, account, verification } from "@/modules/auth/shared/schemas/auth.schema";
+import {
+    account,
+    session,
+    user,
+    verification,
+} from "@/modules/auth/shared/schemas/auth.schema";
 
 /**
  * Cached auth instance singleton so we don't create a new instance every time
@@ -26,11 +31,12 @@ async function getAuth() {
     const db = await getDb();
 
     let baseURL: string;
-    
+
     if (process.env.NODE_ENV === "development") {
         baseURL = "http://localhost:3000";
     } else if (env.NEXTJS_ENV === "preview") {
-        baseURL = "https://jonas-versammlung-app-preview.dari-darox.workers.dev";
+        baseURL =
+            "https://jonas-versammlung-app-preview.dari-darox.workers.dev";
     } else {
         baseURL = "https://triple-d.ninja";
     }

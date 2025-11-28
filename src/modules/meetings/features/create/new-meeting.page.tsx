@@ -1,0 +1,27 @@
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { getProperties } from "@/modules/properties/shared/property.action";
+import meetingsRoutes from "../../meetings.route";
+import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
+
+export default async function NewMeetingPage() {
+    await requireAuth();
+    const properties = await getProperties();
+
+    return (
+        <div className="container mx-auto py-8 px-4 max-w-6xl">
+            <div className="mb-4">
+                <Link href={meetingsRoutes.list}>
+                    <Button variant="ghost">
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Zurück zur Übersicht
+                    </Button>
+                </Link>
+            </div>
+
+            <MeetingFormWithAgenda properties={properties} />
+        </div>
+    );
+}

@@ -2,7 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -11,27 +11,34 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { getUserOrganizations, getOrganizationMembers } from "../../shared/organization.action";
-import type { OrganizationWithMemberCount } from "../../shared/models/organization.model";
-import type { OrganizationMemberWithUser } from "../../shared/models/organization.model";
+import { authClient } from "@/modules/auth/shared/utils/auth-client";
+import type {
+    OrganizationMemberWithUser,
+    OrganizationWithMemberCount,
+} from "../../shared/models/organization.model";
+import {
+    getOrganizationMembers,
+    getUserOrganizations,
+} from "../../shared/organization.action";
+import { AddMemberDialog } from "./add-member-dialog";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
-import { AddMemberDialog } from "./add-member-dialog";
-import { authClient } from "@/modules/auth/shared/utils/auth-client";
 
 export default function OrganizationSettingsPage() {
-    const [organizations, setOrganizations] = useState<OrganizationWithMemberCount[]>([]);
+    const [organizations, setOrganizations] = useState<
+        OrganizationWithMemberCount[]
+    >([]);
     const [members, setMembers] = useState<OrganizationMemberWithUser[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    const loadOrganizations = async () => {
+    const loadOrganizations = useCallback(async () => {
         setIsLoading(true);
         const orgs = await getUserOrganizations();
         setOrganizations(orgs);
-        
+
         // Load current user
         const session = await authClient.getSession();
         const userId = session?.data?.user?.id;
@@ -43,20 +50,22 @@ export default function OrganizationSettingsPage() {
         if (orgs.length > 0) {
             const orgMembers = await getOrganizationMembers(orgs[0].id);
             setMembers(orgMembers);
-            
+
             // Check if current user is owner
             if (userId) {
-                const currentMember = orgMembers.find(m => m.userId === userId);
+                const currentMember = orgMembers.find(
+                    (m) => m.userId === userId,
+                );
                 setIsCurrentUserOwner(currentMember?.role === "owner");
             }
         }
-        
+
         setIsLoading(false);
-    };
+    }, []);
 
     useEffect(() => {
         loadOrganizations();
-    }, []);
+    }, [loadOrganizations]);
 
     if (isLoading) {
         return (
@@ -89,7 +98,8 @@ export default function OrganizationSettingsPage() {
                     <CardHeader>
                         <CardTitle>Organisation erstellen</CardTitle>
                         <CardDescription>
-                            Erstelle eine Organisation, um mit anderen zusammenzuarbeiten.
+                            Erstelle eine Organisation, um mit anderen
+                            zusammenzuarbeiten.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -112,7 +122,9 @@ export default function OrganizationSettingsPage() {
                         Zurück zum Dashboard
                     </Button>
                 </Link>
-                <h1 className="text-3xl font-bold">Organisationseinstellungen</h1>
+                <h1 className="text-3xl font-bold">
+                    Organisationseinstellungen
+                </h1>
             </div>
 
             <Card>
@@ -141,23 +153,27 @@ export default function OrganizationSettingsPage() {
                         />
                     </div>
 
-                    {isCurrentUserOwner && members.length > 0 && currentUserId && (
-                        <div className="pt-4 border-t">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold">Mitglieder</h3>
-                                <AddMemberDialog
-                                    organizationId={organization.id}
-                                    onSuccess={loadOrganizations}
+                    {isCurrentUserOwner &&
+                        members.length > 0 &&
+                        currentUserId && (
+                            <div className="pt-4 border-t">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold">
+                                        Mitglieder
+                                    </h3>
+                                    <AddMemberDialog
+                                        organizationId={organization.id}
+                                        onSuccess={loadOrganizations}
+                                    />
+                                </div>
+                                <MembersList
+                                    members={members}
+                                    currentUserId={currentUserId}
+                                    isCurrentUserOwner={isCurrentUserOwner}
+                                    onRoleChange={loadOrganizations}
                                 />
                             </div>
-                            <MembersList
-                                members={members}
-                                currentUserId={currentUserId}
-                                isCurrentUserOwner={isCurrentUserOwner}
-                                onRoleChange={loadOrganizations}
-                            />
-                        </div>
-                    )}
+                        )}
                 </CardContent>
             </Card>
         </div>

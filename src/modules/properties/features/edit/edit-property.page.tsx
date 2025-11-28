@@ -3,9 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { getProperty } from "../../shared/property.action";
-import { PropertyForm } from "../../shared/components/property-form";
 import propertiesRoutes from "../../properties.route";
+import { PropertyForm } from "../../shared/components/property-form";
+import { getProperty } from "../../shared/property.action";
 
 interface EditPropertyPageProps {
     propertyId: number;

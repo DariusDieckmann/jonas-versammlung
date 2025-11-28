@@ -1,76 +1,132 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "6",
-      "when": 1757850562913,
-      "tag": "0000_initial_schemas_migration",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1757850562914,
-      "tag": "0001_remove_password_auth_tables",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1757850562915,
-      "tag": "0002_add_organizations",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1757850562916,
-      "tag": "0003_remove_organization_description",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1757850562917,
-      "tag": "0004_readd_verification_table",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1757850562918,
-      "tag": "0005_remove_todo_tables",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1763930347603,
-      "tag": "0006_add_properties",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "6",
-      "when": 1763932306333,
-      "tag": "0007_cheerful_bishop",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "6",
-      "when": 1763978636807,
-      "tag": "0008_soft_hemingway",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "6",
-      "when": 1764054472488,
-      "tag": "0009_romantic_betty_ross",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "sqlite",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "6",
+            "when": 1757850562913,
+            "tag": "0000_initial_schemas_migration",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "6",
+            "when": 1757850562914,
+            "tag": "0001_remove_password_auth_tables",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "6",
+            "when": 1757850562915,
+            "tag": "0002_add_organizations",
+            "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "6",
+            "when": 1757850562916,
+            "tag": "0003_remove_organization_description",
+            "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "6",
+            "when": 1757850562917,
+            "tag": "0004_readd_verification_table",
+            "breakpoints": true
+        },
+        {
+            "idx": 5,
+            "version": "6",
+            "when": 1757850562918,
+            "tag": "0005_remove_todo_tables",
+            "breakpoints": true
+        },
+        {
+            "idx": 6,
+            "version": "6",
+            "when": 1763930347603,
+            "tag": "0006_add_properties",
+            "breakpoints": true
+        },
+        {
+            "idx": 7,
+            "version": "6",
+            "when": 1763932306333,
+            "tag": "0007_cheerful_bishop",
+            "breakpoints": true
+        },
+        {
+            "idx": 8,
+            "version": "6",
+            "when": 1763978636807,
+            "tag": "0008_soft_hemingway",
+            "breakpoints": true
+        },
+        {
+            "idx": 9,
+            "version": "6",
+            "when": 1764054472488,
+            "tag": "0009_romantic_betty_ross",
+            "breakpoints": true
+        },
+        {
+            "idx": 10,
+            "version": "6",
+            "when": 1764145960018,
+            "tag": "0010_wise_zarek",
+            "breakpoints": true
+        },
+        {
+            "idx": 11,
+            "version": "6",
+            "when": 1764149186404,
+            "tag": "0011_empty_karma",
+            "breakpoints": true
+        },
+        {
+            "idx": 12,
+            "version": "6",
+            "when": 1764161461045,
+            "tag": "0012_pink_sphinx",
+            "breakpoints": true
+        },
+        {
+            "idx": 13,
+            "version": "6",
+            "when": 1764163318298,
+            "tag": "0013_breezy_quasar",
+            "breakpoints": true
+        },
+        {
+            "idx": 14,
+            "version": "6",
+            "when": 1764166342477,
+            "tag": "0014_greedy_hydra",
+            "breakpoints": true
+        },
+        {
+            "idx": 15,
+            "version": "6",
+            "when": 1764168073257,
+            "tag": "0015_freezing_shockwave",
+            "breakpoints": true
+        },
+        {
+            "idx": 16,
+            "version": "6",
+            "when": 1764182941111,
+            "tag": "0016_dazzling_miracleman",
+            "breakpoints": true
+        },
+        {
+            "idx": 17,
+            "version": "6",
+            "when": 1764183940110,
+            "tag": "0017_smart_sway",
+            "breakpoints": true
+        }
+    ]
 }

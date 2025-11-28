@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Navigation } from "@/components/navigation";
-import { getSession } from "@/modules/auth/shared/utils/auth-utils";
 import authRoutes from "@/modules/auth/shared/auth.route";
+import { getSession } from "@/modules/auth/shared/utils/auth-utils";
 
 export default async function ProtectedLayout({
     children,

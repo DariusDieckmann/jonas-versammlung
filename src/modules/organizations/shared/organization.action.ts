@@ -1,26 +1,29 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
-import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import {
-    type NewOrganization,
-    type NewOrganizationMember,
-    insertOrganizationMemberSchema,
-    insertOrganizationSchema,
-    organizationMembers,
-    organizations,
-    updateOrganizationSchema,
-} from "./schemas/organization.schema";
 import { user } from "@/modules/auth/shared/schemas/auth.schema";
+import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import type {
     OrganizationMemberWithUser,
     OrganizationWithMemberCount,
 } from "./models/organization.model";
-import { requireOwner, requireMember } from "./organization-permissions.action";
-import { OrganizationRole, type OrganizationRoleType } from "./models/organization.model";
-import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import {
+    OrganizationRole,
+    type OrganizationRoleType,
+} from "./models/organization.model";
+import { requireMember, requireOwner } from "./organization-permissions.action";
+import {
+    insertOrganizationMemberSchema,
+    insertOrganizationSchema,
+    type NewOrganization,
+    type NewOrganizationMember,
+    organizationMembers,
+    organizations,
+    updateOrganizationSchema,
+} from "./schemas/organization.schema";
 import settingsRoutes from "./settings.route";
 
 /**
@@ -251,9 +254,9 @@ export async function addOrganizationMember(
 
         if (!userToAdd.length) {
             // Don't reveal if user exists or not - return success
-            return { 
+            return {
                 success: true,
-                error: undefined 
+                error: undefined,
             };
         }
 
@@ -313,7 +316,8 @@ export async function removeOrganizationMember(
         const db = await getDb();
 
         // If userId is "current-user", use the current user's ID
-        const targetUserId = userId === "current-user" ? currentUser.id : userId;
+        const targetUserId =
+            userId === "current-user" ? currentUser.id : userId;
 
         // If user is leaving themselves, skip owner check
         const isSelfLeaving = targetUserId === currentUser.id;

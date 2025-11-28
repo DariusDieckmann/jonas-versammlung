@@ -1,4 +1,4 @@
-import { Building, Building2, Home } from "lucide-react";
+import { Building, Building2, CalendarDays, Home } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "../modules/auth/features/logout/logout-button";
@@ -13,13 +13,13 @@ export function Navigation() {
                             href="/"
                             className="text-xl font-bold text-gray-900"
                         >
-                            App
+                            Triple-D
                         </Link>
                         <div className="items-center space-x-4 hidden md:flex">
                             <Link href="/">
                                 <Button variant="ghost" size="sm">
                                     <Home className="mr-2 h-4 w-4" />
-                                    Home
+                                    Startseite
                                 </Button>
                             </Link>
                             <Link href="/properties">
@@ -28,10 +28,16 @@ export function Navigation() {
                                     Liegenschaften
                                 </Button>
                             </Link>
+                            <Link href="/meetings">
+                                <Button variant="ghost" size="sm">
+                                    <CalendarDays className="mr-2 h-4 w-4" />
+                                    Versammlungen
+                                </Button>
+                            </Link>
                             <Link href="/settings/organization">
                                 <Button variant="ghost" size="sm">
                                     <Building2 className="mr-2 h-4 w-4" />
-                                    Organization
+                                    Eigene Organisation
                                 </Button>
                             </Link>
                         </div>

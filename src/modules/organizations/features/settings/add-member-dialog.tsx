@@ -1,10 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserPlus } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import toast from "react-hot-toast";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -23,6 +24,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -30,9 +32,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { addOrganizationMember } from "../../shared/organization.action";
-import { UserPlus } from "lucide-react";
 
 const addMemberSchema = z.object({
     email: z.string().email("Gültige E-Mail-Adresse erforderlich"),
@@ -71,7 +71,10 @@ export function AddMemberDialog({
                 );
 
                 if (!result.success) {
-                    toast.error(result.error || "Mitglied konnte nicht hinzugefügt werden");
+                    toast.error(
+                        result.error ||
+                            "Mitglied konnte nicht hinzugefügt werden",
+                    );
                     return;
                 }
 
@@ -100,8 +103,9 @@ export function AddMemberDialog({
                 <DialogHeader>
                     <DialogTitle>Mitglied hinzufügen</DialogTitle>
                     <DialogDescription>
-                        Füge ein neues Mitglied zur Organisation hinzu. Die Person
-                        wird automatisch benachrichtigt, wenn sie registriert ist.
+                        Füge ein neues Mitglied zur Organisation hinzu. Die
+                        Person wird automatisch benachrichtigt, wenn sie
+                        registriert ist.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -172,7 +176,9 @@ export function AddMemberDialog({
                                 Abbrechen
                             </Button>
                             <Button type="submit" disabled={isPending}>
-                                {isPending ? "Wird hinzugefügt..." : "Hinzufügen"}
+                                {isPending
+                                    ? "Wird hinzugefügt..."
+                                    : "Hinzufügen"}
                             </Button>
                         </div>
                     </form>
