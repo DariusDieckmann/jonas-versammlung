@@ -112,12 +112,11 @@ export async function deleteMeetingAttachment(
 
         await requireMember(attachment[0].property.organizationId);
 
-        // Delete from R2 bucket
-        await deleteFromR2(attachment[0].attachment.r2Key);
-
         await db
             .delete(meetingAttachments)
             .where(eq(meetingAttachments.id, attachmentId));
+
+        await deleteFromR2(attachment[0].attachment.r2Key);
 
         return { success: true };
     } catch (error) {

@@ -13,6 +13,7 @@ import {
     insertAgendaItemAttachmentSchema,
 } from "./schemas/agenda-item-attachment.schema";
 import { meetings } from "./schemas/meeting.schema";
+import { deleteFromR2 } from "@/lib/r2";
 
 /**
  * Create an agenda item attachment
@@ -145,12 +146,11 @@ export async function deleteAgendaItemAttachment(
 
         await requireMember(attachment[0].property.organizationId);
 
-        // TODO: Delete from R2 bucket
-        // await deleteFromR2(attachment[0].attachment.r2Key);
-
         await db
             .delete(agendaItemAttachments)
             .where(eq(agendaItemAttachments.id, attachmentId));
+
+        await deleteFromR2(attachment[0].attachment.r2Key);
 
         return { success: true };
     } catch (error) {
