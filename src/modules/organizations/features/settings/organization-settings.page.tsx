@@ -2,6 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,7 +81,7 @@ export default function OrganizationSettingsPage() {
         return (
             <div className="container max-w-2xl mx-auto py-8">
                 <div className="mb-8">
-                    <Link href="/dashboard">
+                    <Link href={dashboardRoutes.dashboard}>
                         <Button variant="ghost" className="mb-4">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Zurück zum Dashboard
@@ -116,7 +117,7 @@ export default function OrganizationSettingsPage() {
     return (
         <div className="container max-w-2xl mx-auto py-8">
             <div className="mb-8">
-                <Link href="/dashboard">
+                <Link href={dashboardRoutes.dashboard}>
                     <Button variant="ghost" className="mb-4">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Zurück zum Dashboard

@@ -232,9 +232,6 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                                 }
                                             />
                                         </FormControl>
-                                        <FormDescription>
-                                            Wohnungen/Gewerbe
-                                        </FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
