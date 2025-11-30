@@ -9,8 +9,7 @@ export const properties = sqliteTable("properties", {
         .notNull()
         .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    street: text("street").notNull(),
-    houseNumber: text("house_number").notNull(),
+    address: text("address").notNull(),
     postalCode: text("postal_code").notNull(),
     city: text("city").notNull(),
     yearBuilt: integer("year_built"),
@@ -27,14 +26,10 @@ export const insertPropertySchema = createInsertSchema(properties, {
         .string()
         .min(2, "Name muss mindestens 2 Zeichen lang sein")
         .max(200, "Name darf maximal 200 Zeichen lang sein"),
-    street: z
+    address: z
         .string()
-        .min(2, "Straße muss mindestens 2 Zeichen lang sein")
-        .max(200, "Straße darf maximal 200 Zeichen lang sein"),
-    houseNumber: z
-        .string()
-        .min(1, "Hausnummer ist erforderlich")
-        .max(10, "Hausnummer darf maximal 10 Zeichen lang sein"),
+        .min(3, "Adresse muss mindestens 3 Zeichen lang sein")
+        .max(250, "Adresse darf maximal 250 Zeichen lang sein"),
     postalCode: z
         .string()
         .min(5, "PLZ muss mindestens 5 Zeichen lang sein")

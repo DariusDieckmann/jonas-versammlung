@@ -178,8 +178,7 @@ export default async function MeetingDetailPage({
                                     <p className="flex items-center gap-2">
                                         <Building2 className="h-4 w-4" />
                                         <span>
-                                            {property.name}, {property.street}{" "}
-                                            {property.houseNumber},{" "}
+                                            {property.name}, {property.address},{" "}
                                             {property.postalCode}{" "}
                                             {property.city}
                                         </span>

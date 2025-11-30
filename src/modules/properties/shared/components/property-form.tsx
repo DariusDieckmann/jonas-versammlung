@@ -46,8 +46,7 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
         resolver: zodResolver(insertPropertySchema),
         defaultValues: {
             name: initialData?.name || "",
-            street: initialData?.street || "",
-            houseNumber: initialData?.houseNumber || "",
+            address: initialData?.address || "",
             postalCode: initialData?.postalCode || "",
             city: initialData?.city || "",
             yearBuilt: initialData?.yearBuilt || undefined,
@@ -125,41 +124,22 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                         />
 
                         {/* Adresse */}
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="street"
-                                render={({ field }) => (
-                                    <FormItem className="md:col-span-2">
-                                        <FormLabel>Straße *</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Musterstraße"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="houseNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Hausnummer *</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="42a"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Adresse (Straße und Hausnummer) *</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="z.B. Musterstraße 42a"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <FormField

@@ -112,8 +112,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                     <CardDescription className="flex items-start gap-2">
                                         <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                         <span>
-                                            {property.street}{" "}
-                                            {property.houseNumber}
+                                            {property.address}
                                             <br />
                                             {property.postalCode}{" "}
                                             {property.city}
@@ -189,7 +188,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        {property.street} {property.houseNumber}
+                                        {property.address}
                                     </TableCell>
                                     <TableCell>
                                         {property.postalCode} {property.city}

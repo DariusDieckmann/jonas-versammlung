@@ -82,8 +82,8 @@ export default async function PropertyDetailPage({
                         </h1>
                         <p className="text-gray-600 mt-2 flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
-                            {property.street} {property.houseNumber},{" "}
-                            {property.postalCode} {property.city}
+                            {property.address}, {property.postalCode}{" "}
+                            {property.city}
                         </p>
                     </div>
 
