@@ -18,6 +18,7 @@ declare namespace Cloudflare {
 		BUCKET: R2Bucket;
 		DB: D1Database;
 		AI: Ai;
+		BROWSER: Fetcher;
 		ASSETS: Fetcher;
 	}
 }

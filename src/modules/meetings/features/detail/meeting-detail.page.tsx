@@ -5,6 +5,7 @@ import {
     CalendarDays,
     CheckCircle2,
     Clock,
+    Download,
     Edit,
     FileText,
     MapPin,
@@ -228,6 +229,15 @@ export default async function MeetingDetailPage({
                                         Fortsetzen
                                     </Button>
                                 </Link>
+                                <a
+                                    href={meetingsRoutes.exportPdf(meeting.id)}
+                                    download
+                                >
+                                    <Button variant="outline" size="sm">
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Entwurf exportieren
+                                    </Button>
+                                </a>
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
                                     <Button variant="outline" size="sm">
                                         <Edit className="mr-2 h-4 w-4" />
@@ -237,13 +247,24 @@ export default async function MeetingDetailPage({
                             </>
                         )}
                         {meeting.status === "completed" && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-green-100 text-green-800 px-4 py-2"
-                            >
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                Versammlung abgeschlossen
-                            </Badge>
+                            <>
+                                <a
+                                    href={meetingsRoutes.exportPdf(meeting.id)}
+                                    download
+                                >
+                                    <Button variant="default" size="sm">
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Als PDF exportieren
+                                    </Button>
+                                </a>
+                                <Badge
+                                    variant="secondary"
+                                    className="bg-green-100 text-green-800 px-4 py-2"
+                                >
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    Versammlung abgeschlossen
+                                </Badge>
+                            </>
                         )}
                     </div>
                 </div>

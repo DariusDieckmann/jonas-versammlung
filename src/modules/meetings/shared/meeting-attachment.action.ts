@@ -74,6 +74,22 @@ export async function getMeetingAttachments(
     await requireAuth();
     const db = await getDb();
 
+    // Check access
+    const meeting = await db
+        .select({
+            property: properties,
+        })
+        .from(meetings)
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(eq(meetings.id, meetingId))
+        .limit(1);
+
+    if (!meeting.length) {
+        return [];
+    }
+
+    await requireMember(meeting[0].property.organizationId);
+
     const result = await db
         .select()
         .from(meetingAttachments)

@@ -30,6 +30,7 @@
         "lint": "npx biome format --write"
     },
     "dependencies": {
+        "@cloudflare/puppeteer": "^1.0.4",
         "@hookform/resolvers": "5.2.2",
         "@opennextjs/cloudflare": "1.14.0",
         "@radix-ui/react-alert-dialog": "1.1.15",

@@ -37,6 +37,9 @@
     "ai": {
         "binding": "AI"
     },
+    "browser": {
+        "binding": "BROWSER"
+    },
     "env": {
         "preview": {
             "name": "jonas-versammlung-app-preview",
@@ -59,6 +62,9 @@
             ],
             "ai": {
                 "binding": "AI"
+            },
+            "browser": {
+                "binding": "BROWSER"
             }
         }
     }
