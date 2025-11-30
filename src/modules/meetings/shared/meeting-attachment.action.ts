@@ -5,6 +5,7 @@ import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
+import { deleteFromR2 } from "@/lib/r2";
 import { meetings } from "./schemas/meeting.schema";
 import {
     type InsertMeetingAttachment,
@@ -111,12 +112,11 @@ export async function deleteMeetingAttachment(
 
         await requireMember(attachment[0].property.organizationId);
 
-        // TODO: Delete from R2 bucket
-        // await deleteFromR2(attachment[0].attachment.r2Key);
-
         await db
             .delete(meetingAttachments)
             .where(eq(meetingAttachments.id, attachmentId));
+
+        await deleteFromR2(attachment[0].attachment.r2Key);
 
         return { success: true };
     } catch (error) {

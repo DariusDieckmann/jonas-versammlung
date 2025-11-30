@@ -23,7 +23,7 @@ export async function POST(
             );
         }
 
-        // Check if max files limit reached
+        // Check if max files limit reached, we also chck here if the user is allowed to access data for this meeting
         const existingAttachments = await getMeetingAttachments(meetingIdNum);
         if (existingAttachments.length >= MAX_FILES_PER_MEETING) {
             return NextResponse.json(

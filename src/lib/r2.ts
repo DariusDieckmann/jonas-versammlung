@@ -81,4 +81,15 @@ export async function getFromR2(key: string): Promise<R2Object | null> {
     }
 }
 
+export async function deleteFromR2(key: string): Promise<boolean> {
+    try {
+        const { env } = await getCloudflareContext();
+        await env.BUCKET.delete(key);
+        return true;
+    } catch (error) {
+        console.error("Error deleting file from R2:", error);
+        return false;
+    }
+}
+
 export async function listR2Files() {}
