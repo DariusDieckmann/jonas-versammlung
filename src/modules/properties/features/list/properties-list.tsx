@@ -144,7 +144,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                                 <span className="font-medium">
                                                     Fläche:
                                                 </span>{" "}
-                                                {property.totalArea.toLocaleString()}{" "}
+                                                {property.totalArea}{" "}
                                                 m²
                                             </div>
                                         )}
@@ -209,7 +209,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                     </TableCell>
                                     <TableCell>
                                         {property.totalArea
-                                            ? `${property.totalArea.toLocaleString()} m²`
+                                            ? `${property.totalArea} m²`
                                             : "-"}
                                     </TableCell>
                                 </TableRow>
