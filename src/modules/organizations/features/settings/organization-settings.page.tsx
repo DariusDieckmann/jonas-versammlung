@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import settingsRoutes from "../../shared/settings.route";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -152,6 +153,16 @@ export default function OrganizationSettingsPage() {
                             organizationName={organization.name}
                             onSuccess={loadOrganizations}
                         />
+                    </div>
+
+                    {/* TOP-Vorlagen Link */}
+                    <div className="pt-4 border-t">
+                        <Link href={settingsRoutes.templates}>
+                            <Button variant="outline" className="w-full">
+                                <FileText className="mr-2 h-4 w-4" />
+                                TOP-Vorlagen verwalten
+                            </Button>
+                        </Link>
                     </div>
 
                     {isCurrentUserOwner &&

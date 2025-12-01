@@ -12,6 +12,7 @@ import {
 } from "../../shared/components/agenda-items-form-section";
 import { MeetingForm } from "../../shared/components/meeting-form";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { AgendaItemTemplate } from "../../shared/schemas/agenda-item-template.schema";
 import type {
     insertMeetingSchema,
     Meeting,
@@ -28,12 +29,14 @@ interface MeetingFormWithAgendaProps {
     properties: Property[];
     initialData?: Meeting;
     initialAgendaItems?: AgendaItem[];
+    templates?: AgendaItemTemplate[];
 }
 
 export function MeetingFormWithAgenda({
     properties,
     initialData,
     initialAgendaItems = [],
+    templates = [],
 }: MeetingFormWithAgendaProps) {
     const router = useRouter();
     const [agendaItems, setAgendaItems] = useState<AgendaItemFormData[]>(
@@ -154,6 +157,7 @@ export function MeetingFormWithAgenda({
             <AgendaItemsFormSection
                 value={agendaItems}
                 onChange={setAgendaItems}
+                templates={templates}
             />
 
             {/* Action Buttons - Below all cards */}

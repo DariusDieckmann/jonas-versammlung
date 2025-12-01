@@ -5,6 +5,7 @@ export {
 } from "@/modules/auth/shared/schemas/auth.schema";
 export { agendaItems } from "@/modules/meetings/shared/schemas/agenda-item.schema";
 export { agendaItemAttachments } from "@/modules/meetings/shared/schemas/agenda-item-attachment.schema";
+export { agendaItemTemplates } from "@/modules/meetings/shared/schemas/agenda-item-template.schema";
 export { meetings } from "@/modules/meetings/shared/schemas/meeting.schema";
 export { meetingAttachments } from "@/modules/meetings/shared/schemas/meeting-attachment.schema";
 export { meetingLeaders } from "@/modules/meetings/shared/schemas/meeting-leader.schema";
