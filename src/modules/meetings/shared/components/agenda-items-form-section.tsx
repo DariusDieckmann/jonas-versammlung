@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRight, FileText, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PlaceholderPicker } from "@/components/ui/placeholder-picker";
 
 export interface AgendaItemFormData {
     title: string;
@@ -37,6 +38,7 @@ export function AgendaItemsFormSection({
             : [{ title: "", description: "", requiresResolution: false }],
     );
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
+    const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     const updateItems = (newItems: AgendaItemFormData[]) => {
         setItems(newItems);
@@ -91,6 +93,28 @@ export function AgendaItemsFormSection({
         ];
         updateItems(newItems);
         setSelectedIndex(targetIndex); // Follow the moved item
+    };
+
+    const insertPlaceholderInDescription = (placeholder: string) => {
+        if (descriptionTextareaRef.current) {
+            const textarea = descriptionTextareaRef.current;
+            const start = textarea.selectionStart || 0;
+            const end = textarea.selectionEnd || 0;
+            const currentValue = items[selectedIndex].description;
+            const newValue =
+                currentValue.substring(0, start) +
+                placeholder +
+                currentValue.substring(end);
+            updateItem(selectedIndex, "description", newValue);
+            // Set focus back and move cursor
+            setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(
+                    start + placeholder.length,
+                    start + placeholder.length,
+                );
+            }, 0);
+        }
     };
 
     const selectedItem = items[selectedIndex];
@@ -260,20 +284,28 @@ export function AgendaItemsFormSection({
                                     >
                                         Beschreibung
                                     </Label>
-                                    <Textarea
-                                        id="agenda-description"
-                                        placeholder="Zusätzliche Details oder Kontext..."
-                                        value={selectedItem.description}
-                                        onChange={(e) =>
-                                            updateItem(
-                                                selectedIndex,
-                                                "description",
-                                                e.target.value,
-                                            )
-                                        }
-                                        rows={6}
-                                        className="text-sm"
-                                    />
+                                    <div className="space-y-2">
+                                        <Textarea
+                                            id="agenda-description"
+                                            ref={descriptionTextareaRef}
+                                            placeholder="Zusätzliche Details oder Kontext..."
+                                            value={selectedItem.description}
+                                            onChange={(e) =>
+                                                updateItem(
+                                                    selectedIndex,
+                                                    "description",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={6}
+                                            className="text-sm"
+                                        />
+                                        <PlaceholderPicker
+                                            onSelect={
+                                                insertPlaceholderInDescription
+                                            }
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Requires Resolution */}
