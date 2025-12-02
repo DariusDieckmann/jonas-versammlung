@@ -43,7 +43,7 @@ export function PlaceholderPicker({ onSelect }: PlaceholderPickerProps) {
             <div className="flex items-center gap-2 text-xs text-gray-500">
                 <Info className="h-3.5 w-3.5" />
                 <span>
-                    Platzhalter werden automatisch mit Meeting-Daten ersetzt
+                    Platzhalter werden später automatisch mit Meeting-Daten ersetzt
                 </span>
             </div>
 
@@ -54,7 +54,9 @@ export function PlaceholderPicker({ onSelect }: PlaceholderPickerProps) {
                 <SelectContent>
                     {categories.map((category) => (
                         <SelectGroup key={category}>
-                            <SelectLabel>{category}</SelectLabel>
+                            <SelectLabel className="text-sm font-semibold text-gray-900 py-2 px-2 bg-blue-50 border-b border-blue-200">
+                                {category}
+                            </SelectLabel>
                             {getPlaceholdersByCategory(category).map(
                                 (placeholder) => (
                                     <SelectItem
