@@ -3,7 +3,6 @@
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
-import settingsRoutes from "../../shared/settings.route";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {

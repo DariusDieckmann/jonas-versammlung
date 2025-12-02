@@ -9,6 +9,7 @@ import {
     insertAgendaItemTemplateSchema,
     type UpdateAgendaItemTemplate,
 } from "./schemas/agenda-item-template.schema";
+import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 
 /**
  * Get all agenda item templates for an organization
@@ -17,11 +18,14 @@ export async function getAgendaItemTemplates(organizationId: number) {
     await requireAuth();
     const db = await getDb();
 
+    await requireMember(organizationId);
+
     const templates = await db
         .select()
         .from(agendaItemTemplates)
         .where(eq(agendaItemTemplates.organizationId, organizationId))
         .orderBy(agendaItemTemplates.title);
+
 
     return templates;
 }
@@ -39,7 +43,12 @@ export async function getAgendaItemTemplate(templateId: number) {
         .where(eq(agendaItemTemplates.id, templateId))
         .limit(1);
 
-    return template[0] || null;
+    if (!template.length) {
+        return null;
+    }
+    
+    await requireMember(template[0].organizationId);
+    return template[0];
 }
 
 /**
@@ -51,6 +60,7 @@ export async function createAgendaItemTemplate(
     try {
         await requireAuth();
         const db = await getDb();
+        await requireMember(data.organizationId);
 
         const now = new Date().toISOString();
 
@@ -83,6 +93,18 @@ export async function updateAgendaItemTemplate(
         await requireAuth();
         const db = await getDb();
 
+        const existing = await db
+            .select()
+            .from(agendaItemTemplates)
+            .where(eq(agendaItemTemplates.id, templateId))
+            .limit(1);
+        
+        if (!existing.length) {
+            return { success: false, error: "Vorlage nicht gefunden" };
+        }
+        
+        await requireMember(existing[0].organizationId);
+
         const now = new Date().toISOString();
 
         await db
@@ -112,6 +134,18 @@ export async function deleteAgendaItemTemplate(
     try {
         await requireAuth();
         const db = await getDb();
+
+        const existing = await db
+            .select()
+            .from(agendaItemTemplates)
+            .where(eq(agendaItemTemplates.id, templateId))
+            .limit(1);
+        
+        if (!existing.length) {
+            return { success: false, error: "Vorlage nicht gefunden" };
+        }
+        
+        await requireMember(existing[0].organizationId);
 
         await db
             .delete(agendaItemTemplates)

@@ -10,6 +10,7 @@ import type { OrganizationWithMemberCount } from "@/modules/organizations/shared
 import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";
 import type { AgendaItemTemplate } from "@/modules/meetings/shared/schemas/agenda-item-template.schema";
 import { AgendaItemTemplatesManager } from "@/modules/meetings/shared/components/agenda-item-templates-manager";
+import toast from "react-hot-toast";
 
 export default function AgendaItemTemplatesPage() {
     const [organization, setOrganization] =
@@ -18,20 +19,21 @@ export default function AgendaItemTemplatesPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     const loadData = useCallback(async () => {
-        setIsLoading(true);
-
-        // Load organization
+    setIsLoading(true);
+    try {
         const orgs = await getUserOrganizations();
         if (orgs.length > 0) {
             setOrganization(orgs[0]);
-
-            // Load templates
             const templateList = await getAgendaItemTemplates(orgs[0].id);
             setTemplates(templateList);
         }
-
+    } catch (error) {
+        console.error("Error loading templates:", error);
+        toast.error("Fehler beim Laden der Vorlagen");
+    } finally {
         setIsLoading(false);
-    }, []);
+    }
+}, []);
 
     useEffect(() => {
         loadData();
