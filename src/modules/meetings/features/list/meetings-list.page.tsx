@@ -1,8 +1,9 @@
-import { CalendarDays, Plus } from "lucide-react";
+import { CalendarDays, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getProperties } from "@/modules/properties/shared/property.action";
+import settingsRoutes from "@/modules/organizations/shared/settings.route";
 import meetingsRoutes from "../../meetings.route";
 import { getMeetings } from "../../shared/meeting.action";
 import { MeetingsList } from "./meetings-list";
@@ -24,14 +25,22 @@ export default async function MeetingsListPage() {
                         Verwalte Eigentümerversammlungen
                     </p>
                 </div>
-                {meetings.length > 0 && (
-                    <Link href={meetingsRoutes.new}>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Neue Versammlung
+                <div className="flex gap-2">
+                    <Link href={settingsRoutes.templates}>
+                        <Button variant="outline">
+                            <FileText className="mr-2 h-4 w-4" />
+                            TOP-Vorlagen
                         </Button>
                     </Link>
-                )}
+                    {meetings.length > 0 && (
+                        <Link href={meetingsRoutes.new}>
+                            <Button>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Neue Versammlung
+                            </Button>
+                        </Link>
+                    )}
+                </div>
             </div>
 
             <MeetingsList meetings={meetings} properties={properties} />

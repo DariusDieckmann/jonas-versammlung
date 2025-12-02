@@ -155,16 +155,6 @@ export default function OrganizationSettingsPage() {
                         />
                     </div>
 
-                    {/* TOP-Vorlagen Link */}
-                    <div className="pt-4 border-t">
-                        <Link href={settingsRoutes.templates}>
-                            <Button variant="outline" className="w-full">
-                                <FileText className="mr-2 h-4 w-4" />
-                                TOP-Vorlagen verwalten
-                            </Button>
-                        </Link>
-                    </div>
-
                     {isCurrentUserOwner &&
                         members.length > 0 &&
                         currentUserId && (

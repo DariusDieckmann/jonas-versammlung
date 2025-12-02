@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import settingsRoutes from "@/modules/organizations/shared/settings.route";
+import meetingsRoutes from "@/modules/meetings/meetings.route";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import type { OrganizationWithMemberCount } from "@/modules/organizations/shared/models/organization.model";
 import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";
@@ -59,10 +59,10 @@ export default function AgendaItemTemplatesPage() {
     return (
         <div className="container max-w-4xl mx-auto py-8">
             <div className="mb-8">
-                <Link href={settingsRoutes.organization}>
+                <Link href={meetingsRoutes.list}>
                     <Button variant="ghost" className="mb-4">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Zurück zu Einstellungen
+                        Zurück zu Versammlungen
                     </Button>
                 </Link>
                 <h1 className="text-3xl font-bold">TOP-Vorlagen</h1>
