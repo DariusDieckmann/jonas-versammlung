@@ -42,6 +42,7 @@ import { getMeetingParticipants } from "../../shared/meeting-participant.action"
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
+import { replacePlaceholders } from "@/lib/placeholder-utils";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -354,7 +355,10 @@ export default async function MeetingDetailPage({
                                             </div>
                                             {item.description && (
                                                 <p className="text-gray-600 text-sm whitespace-pre-wrap ml-[3.75rem] mb-3">
-                                                    {item.description}
+                                                    {replacePlaceholders(
+                                                        item.description,
+                                                        meeting,
+                                                    )}
                                                 </p>
                                             )}
 

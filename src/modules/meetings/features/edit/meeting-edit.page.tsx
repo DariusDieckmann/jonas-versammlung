@@ -4,8 +4,11 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getProperties } from "@/modules/properties/shared/property.action";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import meetingsRoutes from "../../meetings.route";
 import { getAgendaItems } from "../../shared/agenda-item.action";
+import { getAgendaItemTemplates } from "../../shared/agenda-item-template.action";
+import type { AgendaItemTemplate } from "../../shared/schemas/agenda-item-template.schema";
 import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 import { getMeeting } from "../../shared/meeting.action";
 
@@ -26,6 +29,13 @@ export default async function MeetingEditPage({
 
     const agendaItems = await getAgendaItems(meetingId);
 
+    // Load templates for organization
+    let templates: AgendaItemTemplate[] = [];
+    const organizations = await getUserOrganizations();
+    if (organizations.length > 0) {
+        templates = await getAgendaItemTemplates(organizations[0].id);
+    }
+
     return (
         <div className="container mx-auto py-8 px-4 max-w-6xl">
             <div className="mb-4">
@@ -41,6 +51,7 @@ export default async function MeetingEditPage({
                 properties={properties}
                 initialData={meeting}
                 initialAgendaItems={agendaItems}
+                templates={templates}
             />
         </div>
     );
