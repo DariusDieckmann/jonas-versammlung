@@ -219,7 +219,10 @@ export function AgendaItemsFormSection({
                             </Button>
 
                             {templates.length > 0 && (
-                                <Select onValueChange={addItemFromTemplate}>
+                                <Select
+                                    value=""
+                                    onValueChange={addItemFromTemplate}
+                                >
                                     <SelectTrigger className="w-full h-9">
                                         <SelectValue placeholder="Aus Vorlage hinzufügen..." />
                                     </SelectTrigger>
