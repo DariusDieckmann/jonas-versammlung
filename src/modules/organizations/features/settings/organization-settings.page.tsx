@@ -69,27 +69,31 @@ export default function OrganizationSettingsPage() {
             setCurrentUserId(userId);
         }
 
-        // If no organization, load pending invitations for current user
+        // Always load pending invitations for current user
+        const pendingInvites = await getMyPendingInvitations();
+        setMyPendingInvitations(pendingInvites);
+
+        // If no organization, only show invitations
         if (orgs.length === 0) {
-            const pendingInvites = await getMyPendingInvitations();
-            setMyPendingInvitations(pendingInvites);
-        } else {
-            // Load members if organization exists
-            const orgMembers = await getOrganizationMembers(orgs[0].id);
-            setMembers(orgMembers);
+            setIsLoading(false);
+            return;
+        }
 
-            // Load invitations if user is owner
-            if (userId) {
-                const currentMember = orgMembers.find(
-                    (m) => m.userId === userId,
-                );
-                const isOwner = currentMember?.role === "owner";
-                setIsCurrentUserOwner(isOwner);
+        // Load members if organization exists
+        const orgMembers = await getOrganizationMembers(orgs[0].id);
+        setMembers(orgMembers);
 
-                if (isOwner) {
-                    const orgInvitations = await getOrganizationInvitations();
-                    setInvitations(orgInvitations);
-                }
+        // Load invitations if user is owner
+        if (userId) {
+            const currentMember = orgMembers.find(
+                (m) => m.userId === userId,
+            );
+            const isOwner = currentMember?.role === "owner";
+            setIsCurrentUserOwner(isOwner);
+
+            if (isOwner) {
+                const orgInvitations = await getOrganizationInvitations();
+                setInvitations(orgInvitations);
             }
         }
 
@@ -173,11 +177,31 @@ export default function OrganizationSettingsPage() {
                 </h1>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{organization.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
+            <div className="space-y-6">
+                {/* Show pending invitations if any exist */}
+                {myPendingInvitations.length > 0 && (
+                    <div>
+                        <h2 className="text-xl font-semibold mb-4">
+                            Neue Einladungen
+                        </h2>
+                        <PendingInvitationsList
+                            invitations={myPendingInvitations}
+                            onInvitationChange={loadOrganizations}
+                            showLeaveWarning={true}
+                        />
+                        <p className="text-sm text-amber-600 mt-2 p-3 bg-amber-50 rounded-lg">
+                            ⚠️ Hinweis: Um eine andere Organisation beizutreten,
+                            müssen Sie zuerst Ihre aktuelle Organisation
+                            verlassen.
+                        </p>
+                    </div>
+                )}
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{organization.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
                     <div className="flex items-center justify-between text-sm text-gray-600">
                         <div className="flex items-center gap-4">
                             <span>
@@ -230,9 +254,10 @@ export default function OrganizationSettingsPage() {
                                     />
                                 </div>
                             </>
-                        )}
-                </CardContent>
-            </Card>
-        </div>
-    );
-}
+                                        )}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                );
+            }

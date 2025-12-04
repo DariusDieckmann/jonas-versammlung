@@ -33,16 +33,25 @@ interface PendingInvitation {
 interface PendingInvitationsListProps {
     invitations: PendingInvitation[];
     onInvitationChange: () => void;
+    showLeaveWarning?: boolean; // If true, user must leave current org first
 }
 
 export function PendingInvitationsList({
     invitations,
     onInvitationChange,
+    showLeaveWarning = false,
 }: PendingInvitationsListProps) {
     const router = useRouter();
     const [processingId, setProcessingId] = useState<number | null>(null);
 
     const handleAccept = async (invitationCode: string, id: number) => {
+        if (showLeaveWarning) {
+            toast.error(
+                "Sie müssen zuerst Ihre aktuelle Organisation verlassen",
+            );
+            return;
+        }
+
         setProcessingId(id);
         const result = await acceptOrganizationInvitation(invitationCode);
 
@@ -183,11 +192,16 @@ export function PendingInvitationsList({
                                             invitation.id,
                                         )
                                     }
-                                    disabled={processingId === invitation.id}
+                                    disabled={
+                                        processingId === invitation.id ||
+                                        showLeaveWarning
+                                    }
                                     className="flex-1"
                                 >
                                     <CheckCircle className="mr-2 h-4 w-4" />
-                                    Annehmen
+                                    {showLeaveWarning
+                                        ? "Erst Organisation verlassen"
+                                        : "Annehmen"}
                                 </Button>
                                 <Button
                                     variant="outline"
