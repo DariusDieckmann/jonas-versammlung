@@ -21,13 +21,17 @@ import {
     getOrganizationMembers,
     getUserOrganizations,
 } from "../../shared/organization.action";
-import { getOrganizationInvitations } from "../../shared/invitation.action";
+import {
+    getOrganizationInvitations,
+    getMyPendingInvitations,
+} from "../../shared/invitation.action";
 import type { OrganizationInvitation } from "../../shared/schemas/invitation.schema";
 import { AddMemberDialog } from "./add-member-dialog";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
 import { OrganizationInvitationsList } from "../../shared/components/organization-invitations-list";
+import { PendingInvitationsList } from "../../shared/components/pending-invitations-list";
 
 export default function OrganizationSettingsPage() {
     const [organizations, setOrganizations] = useState<
@@ -37,6 +41,18 @@ export default function OrganizationSettingsPage() {
     const [invitations, setInvitations] = useState<OrganizationInvitation[]>(
         [],
     );
+    const [myPendingInvitations, setMyPendingInvitations] = useState<
+        Array<{
+            id: number;
+            invitationCode: string;
+            organizationName: string;
+            inviterName: string;
+            inviterEmail: string;
+            role: string;
+            invitedAt: string;
+            expiresAt: string;
+        }>
+    >([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -53,8 +69,12 @@ export default function OrganizationSettingsPage() {
             setCurrentUserId(userId);
         }
 
-        // Load members if organization exists
-        if (orgs.length > 0) {
+        // If no organization, load pending invitations for current user
+        if (orgs.length === 0) {
+            const pendingInvites = await getMyPendingInvitations();
+            setMyPendingInvitations(pendingInvites);
+        } else {
+            // Load members if organization exists
             const orgMembers = await getOrganizationMembers(orgs[0].id);
             setMembers(orgMembers);
 
@@ -103,22 +123,35 @@ export default function OrganizationSettingsPage() {
                         Organisationseinstellungen
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        Erstelle deine Organisation, um loszulegen
+                        {myPendingInvitations.length > 0
+                            ? "Nehmen Sie eine Einladung an oder erstellen Sie eine neue Organisation"
+                            : "Erstelle deine Organisation, um loszulegen"}
                     </p>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Organisation erstellen</CardTitle>
-                        <CardDescription>
-                            Erstelle eine Organisation, um mit anderen
-                            zusammenzuarbeiten.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <CreateOrganizationForm onSuccess={loadOrganizations} />
-                    </CardContent>
-                </Card>
+                <div className="space-y-6">
+                    {myPendingInvitations.length > 0 && (
+                        <PendingInvitationsList
+                            invitations={myPendingInvitations}
+                            onInvitationChange={loadOrganizations}
+                        />
+                    )}
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Organisation erstellen</CardTitle>
+                            <CardDescription>
+                                Erstelle eine Organisation, um mit anderen
+                                zusammenzuarbeiten.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <CreateOrganizationForm
+                                onSuccess={loadOrganizations}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         );
     }

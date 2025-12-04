@@ -390,27 +390,77 @@ export async function getOrganizationInvitations() {
 }
 
 /**
+ * Get all pending invitations for the current user
+ */
+export async function getMyPendingInvitations(): Promise<
+    Array<{
+        id: number;
+        invitationCode: string;
+        organizationName: string;
+        inviterName: string;
+        inviterEmail: string;
+        role: string;
+        invitedAt: string;
+        expiresAt: string;
+    }>
+> {
+    try {
+        const currentUser = await requireAuth();
+        const db = await getDb();
+
+        const now = new Date().toISOString();
+
+        // Get all pending invitations for current user's email
+        const results = await db
+            .select({
+                invitation: organizationInvitations,
+                organization: organizations,
+                inviter: user,
+            })
+            .from(organizationInvitations)
+            .innerJoin(
+                organizations,
+                eq(organizationInvitations.organizationId, organizations.id),
+            )
+            .innerJoin(user, eq(organizationInvitations.invitedBy, user.id))
+            .where(
+                and(
+                    eq(organizationInvitations.email, currentUser.email),
+                    gt(organizationInvitations.expiresAt, now),
+                    isNull(organizationInvitations.acceptedAt),
+                ),
+            )
+            .orderBy(organizationInvitations.invitedAt);
+
+        return results.map(({ invitation, organization, inviter }) => ({
+            id: invitation.id,
+            invitationCode: invitation.invitationCode,
+            organizationName: organization.name,
+            inviterName: inviter.name || inviter.email,
+            inviterEmail: inviter.email,
+            role: invitation.role,
+            invitedAt: invitation.invitedAt,
+            expiresAt: invitation.expiresAt,
+        }));
+    } catch (error) {
+        console.error("Error getting pending invitations:", error);
+        return [];
+    }
+}
+
+/**
  * Cancel/delete an invitation
+ * Can be called by: 1) Organization owner (to cancel sent invitations)
+ *                   2) Invited user (to decline received invitations)
  */
 export async function cancelOrganizationInvitation(
     invitationId: number,
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        const currentUser = await requireAuth();
         const db = await getDb();
 
-        // Get user's organization
-        const userOrgs = await getUserOrganizations();
-        if (userOrgs.length === 0) {
-            return {
-                success: false,
-                error: "Sie gehören zu keiner Organisation",
-            };
-        }
-
-        const organizationId = userOrgs[0].id;
-        await requireOwner(organizationId);
-
-        // Verify invitation belongs to this organization
+        // Get the invitation
         const invitation = await db
             .select()
             .from(organizationInvitations)
@@ -424,7 +474,29 @@ export async function cancelOrganizationInvitation(
             };
         }
 
-        if (invitation[0].organizationId !== organizationId) {
+        const inv = invitation[0];
+
+        // Check if user is either the invited person or an owner of the organization
+        const isInvitedUser = inv.email === currentUser.email;
+        let isOwner = false;
+
+        if (!isInvitedUser) {
+            // Check if user is owner of the organization
+            const userOrgs = await getUserOrganizations();
+            if (
+                userOrgs.length > 0 &&
+                userOrgs[0].id === inv.organizationId
+            ) {
+                try {
+                    await requireOwner(inv.organizationId);
+                    isOwner = true;
+                } catch {
+                    isOwner = false;
+                }
+            }
+        }
+
+        if (!isInvitedUser && !isOwner) {
             return {
                 success: false,
                 error: "Keine Berechtigung",
