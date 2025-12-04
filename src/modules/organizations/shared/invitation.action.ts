@@ -160,6 +160,96 @@ export async function inviteOrganizationMember(
 }
 
 /**
+ * Get invitation details by code (for display before accepting)
+ */
+export async function getInvitationDetails(invitationCode: string): Promise<{
+    success: boolean;
+    error?: string;
+    invitation?: {
+        organizationName: string;
+        inviterName: string;
+        inviterEmail: string;
+        role: string;
+        expiresAt: string;
+    };
+}> {
+    try {
+        const currentUser = await requireAuth();
+        const db = await getDb();
+
+        // Find the invitation with organization and inviter details
+        const now = new Date().toISOString();
+        const result = await db
+            .select({
+                invitation: organizationInvitations,
+                organization: organizations,
+                inviter: user,
+            })
+            .from(organizationInvitations)
+            .innerJoin(
+                organizations,
+                eq(organizationInvitations.organizationId, organizations.id),
+            )
+            .innerJoin(
+                user,
+                eq(organizationInvitations.invitedBy, user.id),
+            )
+            .where(eq(organizationInvitations.invitationCode, invitationCode))
+            .limit(1);
+
+        if (!result.length) {
+            return {
+                success: false,
+                error: "Einladung nicht gefunden",
+            };
+        }
+
+        const { invitation, organization, inviter } = result[0];
+
+        // Check if invitation is for the current user's email
+        if (invitation.email !== currentUser.email) {
+            return {
+                success: false,
+                error: "Diese Einladung ist für eine andere E-Mail-Adresse bestimmt",
+            };
+        }
+
+        // Check if expired
+        if (invitation.expiresAt < now) {
+            return {
+                success: false,
+                error: "Diese Einladung ist abgelaufen",
+            };
+        }
+
+        // Check if already accepted
+        if (invitation.acceptedAt) {
+            return {
+                success: false,
+                error: "Diese Einladung wurde bereits verwendet",
+            };
+        }
+
+        return {
+            success: true,
+            invitation: {
+                organizationName: organization.name,
+                inviterName: inviter.name || inviter.email,
+                inviterEmail: inviter.email,
+                role: invitation.role,
+                expiresAt: invitation.expiresAt,
+            },
+        };
+    } catch (error) {
+        console.error("Error getting invitation details:", error);
+        return {
+            success: false,
+            error: "Fehler beim Laden der Einladungsdetails",
+        };
+    }
+}
+
+/**
  * Accept an organization invitation
  */
 export async function acceptOrganizationInvitation(
