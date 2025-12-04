@@ -259,6 +259,15 @@ export async function acceptOrganizationInvitation(
         const currentUser = await requireAuth();
         const db = await getDb();
 
+        // Check if user is already in an organization
+        const existingOrgs = await getUserOrganizations();
+        if (existingOrgs.length > 0) {
+            return {
+                success: false,
+                error: "Sie sind bereits Mitglied einer Organisation. Bitte verlassen Sie zuerst Ihre aktuelle Organisation.",
+            };
+        }
+
         // Find the invitation
         const now = new Date().toISOString();
         const invitation = await db

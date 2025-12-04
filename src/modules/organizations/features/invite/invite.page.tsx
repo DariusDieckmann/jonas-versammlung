@@ -16,7 +16,9 @@ import {
     acceptOrganizationInvitation,
     getInvitationDetails,
 } from "@/modules/organizations/shared/invitation.action";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import settingsRoutes from "@/modules/organizations/shared/settings.route";
 
 interface InvitePageProps {
     invitationCode: string;
@@ -36,9 +38,15 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
         role: string;
         expiresAt: string;
     } | null>(null);
+    const [hasExistingOrganization, setHasExistingOrganization] =
+        useState(false);
 
     useEffect(() => {
         const loadDetails = async () => {
+            // Check if user already has an organization
+            const orgs = await getUserOrganizations();
+            setHasExistingOrganization(orgs.length > 0);
+
             const result = await getInvitationDetails(invitationCode);
 
             if (result.success && result.invitation) {
@@ -56,6 +64,12 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
     }, [invitationCode]);
 
     const handleAccept = async () => {
+        if (hasExistingOrganization) {
+            // Redirect to settings page where they can manage invitations
+            router.push(settingsRoutes.organization);
+            return;
+        }
+
         setState("loading");
         const result = await acceptOrganizationInvitation(invitationCode);
 
@@ -216,8 +230,28 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                         </div>
                     )}
 
-                    <Button onClick={handleAccept} className="w-full">
-                        Einladung annehmen
+                    {hasExistingOrganization && (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-sm text-amber-800 font-medium mb-2">
+                                ⚠️ Sie sind bereits Mitglied einer Organisation
+                            </p>
+                            <p className="text-sm text-amber-700">
+                                Um diese Einladung anzunehmen, müssen Sie zuerst
+                                Ihre aktuelle Organisation verlassen. Klicken Sie
+                                auf "Weiter zur Organisationseinstellung", um zu den Einstellungen zu
+                                gelangen.
+                            </p>
+                        </div>
+                    )}
+
+                    <Button
+                        onClick={handleAccept}
+                        className="w-full"
+                        variant={hasExistingOrganization ? "outline" : "default"}
+                    >
+                        {hasExistingOrganization
+                            ? "Weiter zur Organisationseinstellung"
+                            : "Einladung annehmen"}
                     </Button>
                 </CardContent>
             </Card>
