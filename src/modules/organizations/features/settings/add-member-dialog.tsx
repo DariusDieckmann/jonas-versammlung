@@ -42,12 +42,10 @@ const addMemberSchema = z.object({
 type AddMemberFormData = z.infer<typeof addMemberSchema>;
 
 interface AddMemberDialogProps {
-    organizationId: number;
     onSuccess?: () => void;
 }
 
 export function AddMemberDialog({
-    organizationId,
     onSuccess,
 }: AddMemberDialogProps) {
     const [open, setOpen] = useState(false);
@@ -65,7 +63,6 @@ export function AddMemberDialog({
         startTransition(async () => {
             try {
                 const result = await addOrganizationMember(
-                    organizationId,
                     data.email,
                     data.role,
                 );

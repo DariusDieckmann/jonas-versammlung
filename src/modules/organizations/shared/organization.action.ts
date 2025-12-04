@@ -237,13 +237,24 @@ export async function getOrganizationMembers(
  * Add a member to an organization by email
  */
 export async function addOrganizationMember(
-    organizationId: number,
     email: string,
     role: OrganizationRoleType = OrganizationRole.MEMBER,
 ): Promise<{ success: boolean; error?: string }> {
     try {
-        await requireOwner(organizationId);
+        const currentUser = await requireAuth();
         const db = await getDb();
+
+        // Get user's organization
+        const userOrgs = await getUserOrganizations();
+        if (userOrgs.length === 0) {
+            return {
+                success: false,
+                error: "Sie gehören zu keiner Organisation",
+            };
+        }
+
+        const organizationId = userOrgs[0].id;
+        await requireOwner(organizationId);
 
         // Find user by email (silently fail if not found for security)
         const userToAdd = await db
