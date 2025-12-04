@@ -21,16 +21,22 @@ import {
     getOrganizationMembers,
     getUserOrganizations,
 } from "../../shared/organization.action";
+import { getOrganizationInvitations } from "../../shared/invitation.action";
+import type { OrganizationInvitation } from "../../shared/schemas/invitation.schema";
 import { AddMemberDialog } from "./add-member-dialog";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
+import { OrganizationInvitationsList } from "../../shared/components/organization-invitations-list";
 
 export default function OrganizationSettingsPage() {
     const [organizations, setOrganizations] = useState<
         OrganizationWithMemberCount[]
     >([]);
     const [members, setMembers] = useState<OrganizationMemberWithUser[]>([]);
+    const [invitations, setInvitations] = useState<OrganizationInvitation[]>(
+        [],
+    );
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -52,12 +58,18 @@ export default function OrganizationSettingsPage() {
             const orgMembers = await getOrganizationMembers(orgs[0].id);
             setMembers(orgMembers);
 
-            // Check if current user is owner
+            // Load invitations if user is owner
             if (userId) {
                 const currentMember = orgMembers.find(
                     (m) => m.userId === userId,
                 );
-                setIsCurrentUserOwner(currentMember?.role === "owner");
+                const isOwner = currentMember?.role === "owner";
+                setIsCurrentUserOwner(isOwner);
+
+                if (isOwner) {
+                    const orgInvitations = await getOrganizationInvitations();
+                    setInvitations(orgInvitations);
+                }
             }
         }
 
@@ -157,23 +169,34 @@ export default function OrganizationSettingsPage() {
                     {isCurrentUserOwner &&
                         members.length > 0 &&
                         currentUserId && (
-                            <div className="pt-4 border-t">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-semibold">
-                                        Mitglieder
-                                    </h3>
-                                    <AddMemberDialog
-                                        organizationId={organization.id}
-                                        onSuccess={loadOrganizations}
+                            <>
+                                <div className="pt-4 border-t">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-semibold">
+                                            Mitglieder einladen
+                                        </h3>
+                                        <AddMemberDialog
+                                            onSuccess={loadOrganizations}
+                                        />
+                                    </div>
+                                    <OrganizationInvitationsList
+                                        invitations={invitations}
+                                        onInvitationsChange={loadOrganizations}
                                     />
                                 </div>
-                                <MembersList
-                                    members={members}
-                                    currentUserId={currentUserId}
-                                    isCurrentUserOwner={isCurrentUserOwner}
-                                    onRoleChange={loadOrganizations}
-                                />
-                            </div>
+
+                                <div className="pt-4 border-t">
+                                    <h3 className="text-lg font-semibold mb-4">
+                                        Mitglieder
+                                    </h3>
+                                    <MembersList
+                                        members={members}
+                                        currentUserId={currentUserId}
+                                        isCurrentUserOwner={isCurrentUserOwner}
+                                        onRoleChange={loadOrganizations}
+                                    />
+                                </div>
+                            </>
                         )}
                 </CardContent>
             </Card>

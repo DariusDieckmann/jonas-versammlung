@@ -70,12 +70,12 @@ export function AddMemberDialog({
                 if (!result.success) {
                     toast.error(
                         result.error ||
-                            "Mitglied konnte nicht hinzugefügt werden",
+                            "Einladung konnte nicht versendet werden",
                     );
                     return;
                 }
 
-                toast.success("Mitglied erfolgreich hinzugefügt!");
+                toast.success("Einladung wurde versendet!");
                 form.reset();
                 setOpen(false);
                 if (onSuccess) {
@@ -93,16 +93,15 @@ export function AddMemberDialog({
             <DialogTrigger asChild>
                 <Button>
                     <UserPlus className="mr-2 h-4 w-4" />
-                    Mitglied hinzufügen
+                    Mitglied einladen
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Mitglied hinzufügen</DialogTitle>
+                    <DialogTitle>Mitglied einladen</DialogTitle>
                     <DialogDescription>
-                        Füge ein neues Mitglied zur Organisation hinzu. Die
-                        Person wird automatisch benachrichtigt, wenn sie
-                        registriert ist.
+                        Senden Sie eine Einladung per E-Mail. Der Empfänger
+                        erhält einen Link, der 24 Stunden gültig ist.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -124,7 +123,7 @@ export function AddMemberDialog({
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        E-Mail-Adresse des Benutzers
+                                        E-Mail-Adresse für die Einladung
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -174,8 +173,8 @@ export function AddMemberDialog({
                             </Button>
                             <Button type="submit" disabled={isPending}>
                                 {isPending
-                                    ? "Wird hinzugefügt..."
-                                    : "Hinzufügen"}
+                                    ? "Wird gesendet..."
+                                    : "Einladung senden"}
                             </Button>
                         </div>
                     </form>
