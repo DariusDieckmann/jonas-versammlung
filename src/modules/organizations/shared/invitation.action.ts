@@ -1,3 +1,5 @@
+"use server";
+
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
