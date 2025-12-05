@@ -1,8 +1,7 @@
-"use server";
-
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
+import { getAppUrl } from "@/lib/app-url";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { sendEmail } from "@/services/email.service";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
@@ -124,7 +123,7 @@ export async function inviteOrganizationMember(
             .values(validatedData as NewOrganizationInvitation);
 
         // Send invitation email
-        const invitationUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/invite/${invitationCode}`;
+        const invitationUrl = `${await getAppUrl()}/invite/${invitationCode}`;
         
         await sendEmail({
             to: email,
