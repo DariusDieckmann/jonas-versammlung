@@ -104,7 +104,7 @@ export function LandingFooter() {
                             <ul className="space-y-3 text-sm">
                                 <li>
                                     <Link
-                                        href="#"
+                                        href="/hilfe-center"
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Hilfe-Center
@@ -112,7 +112,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="#"
+                                        href="/dokumentation"
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Dokumentation
@@ -128,7 +128,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="#"
+                                        href="/faq"
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         FAQ
@@ -173,14 +173,6 @@ export function LandingFooter() {
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         AGB
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link
-                                        href="#"
-                                        className="hover:text-blue-400 transition-colors"
-                                    >
-                                        Cookie-Einstellungen
                                     </Link>
                                 </li>
                             </ul>
