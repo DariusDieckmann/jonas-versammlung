@@ -16,6 +16,7 @@ export {
     organizationMembers,
     organizations,
 } from "@/modules/organizations/shared/schemas/organization.schema";
+export { organizationInvitations } from "@/modules/organizations/shared/schemas/invitation.schema";
 export { owners } from "@/modules/owners/shared/schemas/owner.schema";
 export { properties } from "@/modules/properties/shared/schemas/property.schema";
 export { units } from "@/modules/units/shared/schemas/unit.schema";

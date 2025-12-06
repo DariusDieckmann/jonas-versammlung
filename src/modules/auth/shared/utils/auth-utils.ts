@@ -5,6 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
 import { getDb } from "@/db";
+import { getAppUrl } from "@/lib/app-url";
 import type { AuthUser } from "@/modules/auth/shared/models/user.model";
 import {
     account,
@@ -29,17 +30,7 @@ async function getAuth() {
 
     const { env } = await getCloudflareContext();
     const db = await getDb();
-
-    let baseURL: string;
-
-    if (process.env.NODE_ENV === "development") {
-        baseURL = "http://localhost:3000";
-    } else if (env.NEXTJS_ENV === "preview") {
-        baseURL =
-            "https://jonas-versammlung-app-preview.dari-darox.workers.dev";
-    } else {
-        baseURL = "https://triple-d.ninja";
-    }
+    const baseURL = await getAppUrl();
 
     cachedAuth = betterAuth({
         baseURL,
