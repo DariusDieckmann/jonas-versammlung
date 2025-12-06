@@ -30,7 +30,6 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
         "loading" | "success" | "error" | "ready" | "loadingDetails"
     >("loadingDetails");
     const [message, setMessage] = useState("");
-    const [organizationName, setOrganizationName] = useState("");
     const [invitationDetails, setInvitationDetails] = useState<{
         organizationName: string;
         inviterName: string;
@@ -75,7 +74,6 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
 
         if (result.success) {
             setState("success");
-            setOrganizationName(result.organizationName || "");
             setMessage(
                 `Sie sind nun Mitglied der Organisation "${result.organizationName}"`,
             );

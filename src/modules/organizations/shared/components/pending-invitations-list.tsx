@@ -99,6 +99,12 @@ export function PendingInvitationsList({
         const now = new Date();
         const expires = new Date(expiresAt);
         const diffMs = expires.getTime() - now.getTime();
+        
+        // Handle expired invitations
+        if (diffMs <= 0) {
+            return "Abgelaufen";
+        }
+        
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         const diffMinutes = Math.floor(
             (diffMs % (1000 * 60 * 60)) / (1000 * 60),
