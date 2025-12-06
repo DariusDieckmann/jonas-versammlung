@@ -3,7 +3,7 @@ import { HeroSection } from "@/components/landing/hero-section";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { BenefitsSection } from "@/components/landing/benefits-section";
 import { CTASection } from "@/components/landing/cta-section";
-import { Footer } from "@/components/landing/footer";
+import { LandingFooter } from "@/components/landing/footer";
 
 export default async function HomePage() {
     const jsonLd = {
@@ -38,7 +38,7 @@ export default async function HomePage() {
                 <FeaturesSection />
                 <BenefitsSection />
                 <CTASection />
-                <Footer />
+                <LandingFooter />
             </div>
         </>
     );
