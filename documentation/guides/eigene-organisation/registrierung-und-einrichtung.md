@@ -1,9 +1,9 @@
 ---
 title: "Registrierung und Einrichtung"
-category: "erste-schritte"
+category: "eigene-organisation"
 order: 1
 description: "Melden Sie sich an und legen Sie los"
-lastUpdated: "2024-12-07"
+lastUpdated: "2025-12-07"
 icon: "PlayCircle"
 ---
 

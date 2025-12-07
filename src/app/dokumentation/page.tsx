@@ -21,19 +21,15 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const categoryTitles: Record<string, string> = {
-    "erste-schritte": "Erste Schritte",
-    versammlungen: "Versammlungen verwalten",
-    protokolle: "Protokolle & Dokumente",
-    benutzerverwaltung: "Benutzerverwaltung",
-    einstellungen: "Einstellungen",
+    "eigene-organisation": "Eigene Organisation",
+    liegenschaften: "Liegenschaften",
+    versammlungen: "Versammlungen",
 };
 
 const categoryDescriptions: Record<string, string> = {
-    "erste-schritte": "Lernen Sie die Grundlagen und starten Sie in wenigen Minuten",
-    versammlungen: "Alles zur Planung und Durchführung von Versammlungen",
-    protokolle: "Rechtssichere Dokumentation erstellen und verwalten",
-    benutzerverwaltung: "Benutzer und Rollen effektiv verwalten",
-    einstellungen: "Passen Sie die Plattform an Ihre Bedürfnisse an",
+    "eigene-organisation": "Verwalten Sie Ihre Organisation, Mitglieder und Einstellungen",
+    liegenschaften: "Legen Sie Liegenschaften, Einheiten und Eigentümer an",
+    versammlungen: "Erstellen und führen Sie Versammlungen durch",
 };
 
 export default function DokumentationPage() {
@@ -86,49 +82,49 @@ export default function DokumentationPage() {
                     {/* Documentation Sections */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                         {categories.map((category, index) => {
-                            const Icon =
-                                iconMap[
-                                    category.docs[0]?.frontmatter.icon || "FileText"
-                                ] || FileText;
-                            const title =
-                                categoryTitles[category.slug] || category.name;
-                            const description =
-                                categoryDescriptions[category.slug] || "";
+                                const Icon =
+                                    iconMap[
+                                        category.docs[0]?.frontmatter.icon || "FileText"
+                                    ] || FileText;
+                                const title =
+                                    categoryTitles[category.slug] || category.name;
+                                const description =
+                                    categoryDescriptions[category.slug] || "";
 
-                            return (
-                                <Card
-                                    key={category.slug}
-                                    className="hover:shadow-lg transition-shadow duration-300"
-                                >
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                <Icon className="h-5 w-5 text-blue-600" />
+                                return (
+                                    <Card
+                                        key={category.slug}
+                                        className="hover:shadow-lg transition-shadow duration-300"
+                                    >
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                    <Icon className="h-5 w-5 text-blue-600" />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-gray-900">
+                                                    {title}
+                                                </h3>
                                             </div>
-                                            <h3 className="text-xl font-bold text-gray-900">
-                                                {title}
-                                            </h3>
-                                        </div>
-                                        <p className="text-gray-600 text-sm mb-4">
-                                            {description}
-                                        </p>
-                                        <ul className="space-y-2">
-                                            {category.docs.map((doc) => (
-                                                <li key={doc.slug}>
-                                                    <Link
-                                                        href={`/dokumentation/${category.slug}/${doc.slug}`}
-                                                        className="text-sm text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"
-                                                    >
-                                                        <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                                                        {doc.frontmatter.title}
-                                                    </Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </CardContent>
-                                </Card>
-                            );
-                        })}
+                                            <p className="text-gray-600 text-sm mb-4">
+                                                {description}
+                                            </p>
+                                            <ul className="space-y-2">
+                                                {category.docs.map((doc) => (
+                                                    <li key={doc.slug}>
+                                                        <Link
+                                                            href={`/dokumentation/${category.slug}/${doc.slug}`}
+                                                            className="text-sm text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                                                            {doc.frontmatter.title}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                     </div>
 
                     {/* Help CTA */}

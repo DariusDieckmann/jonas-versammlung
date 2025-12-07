@@ -1,6 +1,6 @@
 ---
 title: "Organisation erstellen"
-category: "erste-schritte"
+category: "eigene-organisation"
 order: 2
 description: "Legen Sie Ihre erste Organisation an und verwalten Sie Ihre Verwaltung"
 lastUpdated: "2024-12-07"

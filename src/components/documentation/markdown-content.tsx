@@ -7,26 +7,46 @@ interface MarkdownContentProps {
     className?: string;
 }
 
+// Helper function to generate ID from text
+function generateId(text: string): string {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+}
+
 export function MarkdownContent({ content, className }: MarkdownContentProps) {
     return (
         <div className={`markdown-content ${className || ""}`}>
             <ReactMarkdown
                 components={{
-                    h1: ({ children }) => (
-                        <h1 className="text-4xl font-bold text-gray-900 mb-4 mt-8">
-                            {children}
-                        </h1>
-                    ),
-                    h2: ({ children }) => (
-                        <h2 className="text-3xl font-bold text-gray-900 mb-3 mt-6">
-                            {children}
-                        </h2>
-                    ),
-                    h3: ({ children }) => (
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-2 mt-4">
-                            {children}
-                        </h3>
-                    ),
+                    h1: ({ children }) => {
+                        const text = String(children);
+                        const id = generateId(text);
+                        return (
+                            <h1 id={id} className="text-4xl font-bold text-gray-900 mb-4 mt-8">
+                                {children}
+                            </h1>
+                        );
+                    },
+                    h2: ({ children }) => {
+                        const text = String(children);
+                        const id = generateId(text);
+                        return (
+                            <h2 id={id} className="text-3xl font-bold text-gray-900 mb-3 mt-6">
+                                {children}
+                            </h2>
+                        );
+                    },
+                    h3: ({ children }) => {
+                        const text = String(children);
+                        const id = generateId(text);
+                        return (
+                            <h3 id={id} className="text-2xl font-semibold text-gray-900 mb-2 mt-4">
+                                {children}
+                            </h3>
+                        );
+                    },
                     p: ({ children }) => (
                         <p className="text-gray-700 leading-relaxed mb-4">
                             {children}

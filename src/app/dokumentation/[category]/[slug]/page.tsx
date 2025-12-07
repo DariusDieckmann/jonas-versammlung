@@ -74,16 +74,6 @@ export default async function DocPage({ params }: DocPageProps) {
                             <ArrowLeft className="h-4 w-4" />
                             Zurück zur Übersicht
                         </Link>
-                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                            <Link
-                                href="/dokumentation"
-                                className="hover:text-blue-600 transition-colors"
-                            >
-                                Dokumentation
-                            </Link>
-                            <span>/</span>
-                            <span>{categoryName}</span>
-                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-[1fr_250px] gap-12">
