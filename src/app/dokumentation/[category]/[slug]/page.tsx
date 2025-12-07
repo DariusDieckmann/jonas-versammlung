@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { PublicPageLayout } from "@/components/layouts/public-page-layout";
+import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import { MarkdownContent } from "@/components/documentation/markdown-content";
 import { TableOfContents } from "@/components/documentation/table-of-contents";
 import { DocNavigation } from "@/components/documentation/doc-navigation";
@@ -62,7 +62,7 @@ export default async function DocPage({ params }: DocPageProps) {
         .join(" ");
 
     return (
-        <PublicPageLayout>
+        <HybridPageLayout>
             <div className="bg-gradient-to-b from-blue-50 to-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     {/* Breadcrumb */}
@@ -116,6 +116,6 @@ export default async function DocPage({ params }: DocPageProps) {
                     </div>
                 </div>
             </div>
-        </PublicPageLayout>
+        </HybridPageLayout>
     );
 }

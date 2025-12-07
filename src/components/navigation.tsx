@@ -1,4 +1,4 @@
-import { Building, Building2, CalendarDays, Home } from "lucide-react";
+import { Building, Building2, CalendarDays, Home, BookOpen, HelpCircle, LifeBuoy } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "../modules/auth/features/logout/logout-button";
@@ -39,6 +39,18 @@ export function Navigation() {
                                 <Button variant="ghost" size="sm">
                                     <Building2 className="mr-2 h-4 w-4" />
                                     Eigene Organisation
+                                </Button>
+                            </Link>
+                            <Link href="/dokumentation">
+                                <Button variant="ghost" size="sm">
+                                    <BookOpen className="mr-2 h-4 w-4" />
+                                    Dokumentation
+                                </Button>
+                            </Link>
+                            <Link href="/hilfe-center">
+                                <Button variant="ghost" size="sm">
+                                    <LifeBuoy className="mr-2 h-4 w-4" />
+                                    Hilfe
                                 </Button>
                             </Link>
                         </div>

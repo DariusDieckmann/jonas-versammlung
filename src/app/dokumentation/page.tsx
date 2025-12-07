@@ -1,4 +1,4 @@
-import { PublicPageLayout } from "@/components/layouts/public-page-layout";
+import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import {
     Book,
@@ -35,7 +35,7 @@ const categoryDescriptions: Record<string, string> = {
 export default function DokumentationPage() {
     const categories = getAllDocs();
     return (
-        <PublicPageLayout>
+        <HybridPageLayout>
             <div className="bg-gradient-to-b from-blue-50 to-white py-16">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
@@ -155,6 +155,6 @@ export default function DokumentationPage() {
                     </Card>
                 </div>
             </div>
-        </PublicPageLayout>
+        </HybridPageLayout>
     );
 }
