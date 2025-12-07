@@ -22,7 +22,7 @@ export function Navigation() {
                             Triple-D
                         </Link>
                         {/* Desktop Navigation */}
-                        <div className="items-center space-x-4 hidden md:flex">
+                        <div className="items-center space-x-4 hidden xl:flex">
                             <Link href={dashboardRoutes.dashboard}>
                                 <Button variant="ghost" size="sm">
                                     <Home className="mr-2 h-4 w-4" />
@@ -66,7 +66,7 @@ export function Navigation() {
                         {/* Mobile Menu Button */}
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            className="xl:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
                             aria-label="Menu"
                         >
                             <Menu className="h-6 w-6 text-gray-600" />
@@ -78,7 +78,7 @@ export function Navigation() {
 
                 {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="md:hidden border-t border-gray-200 py-4 mt-3">
+                    <div className="xl:hidden border-t border-gray-200 py-4 mt-3">
                         <div className="flex flex-col gap-2">
                             <Link href={dashboardRoutes.dashboard} onClick={() => setIsOpen(false)}>
                                 <Button variant="ghost" size="sm" className="w-full justify-start">
