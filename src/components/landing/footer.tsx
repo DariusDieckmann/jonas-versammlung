@@ -6,9 +6,9 @@ import { Building2, Mail, FileText, HelpCircle, Shield } from "lucide-react";
 
 export function LandingFooter() {
     return (
-        <footer className="bg-gray-900 text-gray-300 py-16">
+        <footer className="bg-gray-900 text-gray-300 py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {/* Company Info */}
                     <div className="lg:col-span-1">
                         <motion.div
@@ -19,11 +19,11 @@ export function LandingFooter() {
                         >
                             <div className="flex items-center gap-2 mb-4">
                                 <Building2 className="h-8 w-8 text-blue-500" />
-                                <span className="text-2xl font-bold text-white">
+                               
                                     Eigentümerversammlungen
-                                </span>
+                            
                             </div>
-                            <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+                            <p className="text-gray-400 mb-4 text-sm leading-relaxed">
                                 Moderne Digitalisierung für Hausverwaltungen und
                                 Eigentümerversammlungen. Effizient, transparent und
                                 rechtssicher.
@@ -48,25 +48,17 @@ export function LandingFooter() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: 0.1 }}
                         >
-                            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                                 <FileText className="h-4 w-4" />
                                 Produkt
                             </h3>
-                            <ul className="space-y-3 text-sm">
+                            <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
-                                        href="#features"
+                                        href="/#features"
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Funktionen
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link
-                                        href="#"
-                                        className="hover:text-blue-400 transition-colors"
-                                    >
-                                        Preise
                                     </Link>
                                 </li>
                                 <li>
@@ -79,7 +71,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/login"
+                                        href="/kostenlos-testen"
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Kostenlos testen
@@ -97,11 +89,11 @@ export function LandingFooter() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: 0.2 }}
                         >
-                            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                                 <HelpCircle className="h-4 w-4" />
                                 Support
                             </h3>
-                            <ul className="space-y-3 text-sm">
+                            <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
                                         href="/hilfe-center"
@@ -146,11 +138,11 @@ export function LandingFooter() {
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: 0.3 }}
                         >
-                            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                                 <Shield className="h-4 w-4" />
                                 Rechtliches
                             </h3>
-                            <ul className="space-y-3 text-sm">
+                            <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
                                         href="/impressum"
@@ -186,9 +178,9 @@ export function LandingFooter() {
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="border-t border-gray-800 pt-8"
+                    className="border-t border-gray-800 pt-6"
                 >
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-3">
                         <p className="text-sm text-gray-400">
                             © {new Date().getFullYear()} Eigentümerversammlungen. Alle
                             Rechte vorbehalten.

@@ -22,7 +22,7 @@ export default function HilfeCenterPage() {
                     </div>
 
                     {/* Support Options */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-12">
                         {/* E-Mail Support */}
                         <Card className="hover:shadow-lg transition-shadow duration-300">
                             <CardContent className="p-8">
@@ -51,38 +51,7 @@ export default function HilfeCenterPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Live Chat */}
-                        <Card className="hover:shadow-lg transition-shadow duration-300 opacity-60">
-                            <CardContent className="p-8">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                        <MessageCircle className="h-6 w-6 text-gray-400" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-gray-900">
-                                            Live Chat
-                                        </h3>
-                                        <span className="text-xs text-gray-500">
-                                            Demnächst verfügbar
-                                        </span>
-                                    </div>
-                                </div>
-                                <p className="text-gray-600 mb-4">
-                                    Chatten Sie direkt mit unserem Support-Team und
-                                    erhalten Sie sofortige Hilfe.
-                                </p>
-                                <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                                    <Clock className="h-4 w-4" />
-                                    <span>Mo-Fr: 9:00 - 17:00 Uhr</span>
-                                </div>
-                                <button
-                                    disabled
-                                    className="inline-flex items-center justify-center w-full px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-medium"
-                                >
-                                    Demnächst verfügbar
-                                </button>
-                            </CardContent>
-                        </Card>
+                        
                     </div>
 
                     {/* Quick Links */}
@@ -91,7 +60,7 @@ export default function HilfeCenterPage() {
                             <h3 className="text-2xl font-bold text-gray-900 mb-6">
                                 Häufige Hilfe-Themen
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <a
                                     href="/faq"
                                     className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
@@ -131,20 +100,6 @@ export default function HilfeCenterPage() {
                                         </h4>
                                         <p className="text-sm text-gray-600">
                                             Schnellstart-Anleitung für neue Nutzer
-                                        </p>
-                                    </div>
-                                </a>
-                                <a
-                                    href="#"
-                                    className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
-                                >
-                                    <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900 mb-1">
-                                            Account & Abrechnung
-                                        </h4>
-                                        <p className="text-sm text-gray-600">
-                                            Hilfe zu Account-Einstellungen und Zahlungen
                                         </p>
                                     </div>
                                 </a>
