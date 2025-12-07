@@ -29,7 +29,7 @@ export function Navigation() {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-8">
                         <Link
-                            href="#features"
+                            href="/#features"
                             className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                         >
                             Funktionen
@@ -65,7 +65,7 @@ export function Navigation() {
                     >
                         <div className="flex flex-col gap-4">
                             <Link
-                                href="#features"
+                                href="/#features"
                                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                                 onClick={() => setIsOpen(false)}
                             >

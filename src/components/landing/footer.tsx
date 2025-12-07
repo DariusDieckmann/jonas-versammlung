@@ -31,10 +31,10 @@ export function LandingFooter() {
                             <div className="flex items-center gap-2 text-sm">
                                 <Mail className="h-4 w-4 text-blue-500" />
                                 <a
-                                    href="mailto:info@versammlung.de"
+                                    href="mailto:info@triple-d.ninja"
                                     className="hover:text-blue-400 transition-colors"
                                 >
-                                    info@versammlung.de
+                                    info@triple-d.ninja
                                 </a>
                             </div>
                         </motion.div>
@@ -112,7 +112,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <a
-                                        href="mailto:support@versammlung.de"
+                                        href="mailto:support@triple-d.ninja"
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Support kontaktieren

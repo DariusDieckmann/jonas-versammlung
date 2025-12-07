@@ -64,10 +64,10 @@ export default function ImpressumPage() {
                                 <div className="flex items-center gap-3">
                                     <Mail className="h-5 w-5 text-blue-600 flex-shrink-0" />
                                     <a
-                                        href="mailto:info@versammlung.de"
+                                        href="mailto:info@triple-d.ninja"
                                         className="hover:text-blue-600 transition-colors"
                                     >
-                                        info@versammlung.de
+                                        info@triple-d.ninja
                                     </a>
                                 </div>
                             </div>

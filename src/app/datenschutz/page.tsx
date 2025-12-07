@@ -162,10 +162,10 @@ export default function DatenschutzPage() {
                                 <p className="text-gray-700 mt-3 flex items-center gap-2">
                                     <Mail className="h-4 w-4 text-blue-600" />
                                     <a
-                                        href="mailto:datenschutz@versammlung.de"
+                                        href="mailto:datenschutz@triple-d.ninja"
                                         className="text-blue-600 hover:underline"
                                     >
-                                        datenschutz@versammlung.de
+                                        datenschutz@triple-d.ninja
                                     </a>
                                 </p>
                             </div>
@@ -237,10 +237,10 @@ export default function DatenschutzPage() {
                                 uns wenden:
                             </p>
                             <a
-                                href="mailto:datenschutz@versammlung.de"
+                                href="mailto:datenschutz@triple-d.ninja"
                                 className="text-blue-600 hover:underline font-medium"
                             >
-                                datenschutz@versammlung.de
+                                datenschutz@triple-d.ninja
                             </a>
                         </section>
                     </div>

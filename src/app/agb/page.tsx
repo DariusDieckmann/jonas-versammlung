@@ -257,10 +257,10 @@ export default function AGBPage() {
                             <p className="text-sm text-gray-600">
                                 Bei Fragen zu den AGB kontaktieren Sie uns unter:{" "}
                                 <a
-                                    href="mailto:info@versammlung.de"
+                                    href="mailto:info@triple-d.ninja"
                                     className="text-blue-600 hover:underline"
                                 >
-                                    info@versammlung.de
+                                    info@triple-d.ninja
                                 </a>
                             </p>
                         </section>

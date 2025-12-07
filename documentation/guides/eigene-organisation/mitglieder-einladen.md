@@ -101,4 +101,4 @@ Ja, ein Owner kann die Rolle eines Members jederzeit zu Owner ändern.
 ## Support
 
 Bei Fragen:
-- **E-Mail**: support@versammlung.de
+- **E-Mail**: support@triple-d.ninja

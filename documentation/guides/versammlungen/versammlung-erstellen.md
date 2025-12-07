@@ -99,4 +99,4 @@ Ja, Sie können Tagesordnungspunkte jederzeit hinzufügen, bearbeiten oder lösc
 ## Support
 
 Bei Fragen:
-- **E-Mail**: support@versammlung.de
+- **E-Mail**: support@triple-d.ninja

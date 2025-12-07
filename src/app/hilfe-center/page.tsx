@@ -43,10 +43,10 @@ export default function HilfeCenterPage() {
                                     <span>Antwortzeit: ca. 24 Stunden</span>
                                 </div>
                                 <a
-                                    href="mailto:support@versammlung.de"
+                                    href="mailto:support@triple-d.ninja"
                                     className="inline-flex items-center justify-center w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                                 >
-                                    support@versammlung.de
+                                    support@triple-d.ninja
                                 </a>
                             </CardContent>
                         </Card>
@@ -90,7 +90,7 @@ export default function HilfeCenterPage() {
                                     </div>
                                 </a>
                                 <a
-                                    href="#"
+                                    href="/dokumentation/eigene-organisation/erste-schritte"
                                     className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -122,10 +122,10 @@ export default function HilfeCenterPage() {
                                     <div>
                                         <span className="font-medium">Allgemeine Anfragen:</span>
                                         <a
-                                            href="mailto:info@versammlung.de"
+                                            href="mailto:info@triple-d.ninja"
                                             className="ml-2 text-blue-600 hover:underline"
                                         >
-                                            info@versammlung.de
+                                            info@triple-d.ninja
                                         </a>
                                     </div>
                                 </div>
@@ -136,10 +136,10 @@ export default function HilfeCenterPage() {
                                             Technischer Support:
                                         </span>
                                         <a
-                                            href="mailto:support@versammlung.de"
+                                            href="mailto:support@triple-d.ninja"
                                             className="ml-2 text-blue-600 hover:underline"
                                         >
-                                            support@versammlung.de
+                                            support@triple-d.ninja
                                         </a>
                                     </div>
                                 </div>

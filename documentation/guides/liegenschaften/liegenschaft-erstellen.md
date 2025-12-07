@@ -83,4 +83,4 @@ Ja, in der Detailansicht können Sie die Liegenschaft löschen. Beachten Sie, da
 ## Support
 
 Bei Fragen:
-- **E-Mail**: support@versammlung.de
+- **E-Mail**: support@triple-d.ninja

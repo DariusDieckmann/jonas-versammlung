@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     openGraph: {
         type: "website",
         locale: "de_DE",
-        url: "https://versammlung.de",
+        url: "https://triple-d.ninja",
         title: "Versammlung - Digitale Hausverwaltung & Eigentümerversammlungen",
         description:
             "Moderne Software für Hausverwaltungen und WEG-Verwalter. Digitalisieren Sie Eigentümerversammlungen effizient und rechtssicher.",
@@ -70,7 +70,7 @@ export default async function RootLayout({
     return (
         <html lang="de">
             <head>
-                <link rel="canonical" href="https://versammlung.de" />
+                <link rel="canonical" href="https://triple-d.ninja" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </head>
             <body

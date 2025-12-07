@@ -212,7 +212,7 @@ export default function KostenlosTesterPage() {
                                             Jetzt kostenlos testen
                                         </Button>
                                     </Link>
-                                    <a href="mailto:info@versammlung.de">
+                                    <a href="mailto:info@triple-d.ninja">
                                         <Button
                                             size="lg"
                                             variant="outline"
@@ -246,7 +246,7 @@ export default function KostenlosTesterPage() {
                             </Link>
                             <span className="text-gray-400">•</span>
                             <a
-                                href="mailto:support@versammlung.de"
+                                href="mailto:support@triple-d.ninja"
                                 className="text-blue-600 hover:underline font-medium"
                             >
                                 Support kontaktieren

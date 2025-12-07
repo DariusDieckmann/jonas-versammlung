@@ -109,4 +109,4 @@ Nein, E-Mail und Telefon sind optional. Vorname und Nachname sind Pflicht.
 ## Support
 
 Bei Fragen:
-- **E-Mail**: support@versammlung.de
+- **E-Mail**: support@triple-d.ninja

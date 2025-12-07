@@ -99,4 +99,4 @@ Ja, alle Daten werden während der Versammlung automatisch gespeichert.
 ## Support
 
 Bei Fragen:
-- **E-Mail**: support@versammlung.de
+- **E-Mail**: support@triple-d.ninja

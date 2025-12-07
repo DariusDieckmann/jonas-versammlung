@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: "/",
             disallow: ["/dashboard", "/settings", "/api", "/meetings"],
         },
-        sitemap: "https://versammlung.de/sitemap.xml",
+        sitemap: "https://triple-d.ninja/sitemap.xml",
     };
 }

@@ -117,4 +117,4 @@ Nein, abgeschlossene Versammlungen sind endgültig und können nicht mehr geänd
 ## Support
 
 Bei Fragen:
-- **E-Mail**: support@versammlung.de
+- **E-Mail**: support@triple-d.ninja
