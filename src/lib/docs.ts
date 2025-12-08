@@ -1,6 +1,7 @@
+import matter from "gray-matter";
+import { DOCS_DATA } from "./docs-static";
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
 
 const docsDirectory = path.join(process.cwd(), "documentation/guides");
 
@@ -20,54 +21,10 @@ export interface Doc {
     content: string;
 }
 
-export interface DocCategory {
-    name: string;
-    slug: string;
-    docs: Doc[];
-}
-
-/**
- * Get all documentation categories with their docs
- */
-export function getAllDocs(): DocCategory[] {
-    const categories = fs.readdirSync(docsDirectory);
-
-    return categories
-        .filter((category) => {
-            const categoryPath = path.join(docsDirectory, category);
-            return fs.statSync(categoryPath).isDirectory();
-        })
-        .map((category) => {
-            const categoryPath = path.join(docsDirectory, category);
-            const files = fs.readdirSync(categoryPath);
-
-            const docs = files
-                .filter((file) => file.endsWith(".md"))
-                .map((file) => {
-                    const slug = file.replace(/\.md$/, "");
-                    const fullPath = path.join(categoryPath, file);
-                    const fileContents = fs.readFileSync(fullPath, "utf8");
-                    const { data, content } = matter(fileContents);
-
-                    return {
-                        slug,
-                        category,
-                        frontmatter: data as DocFrontmatter,
-                        content,
-                    };
-                })
-                .sort((a, b) => a.frontmatter.order - b.frontmatter.order);
-
-            return {
-                name: category,
-                slug: category,
-                docs,
-            };
-        });
-}
-
 /**
  * Get a specific documentation by category and slug
+ * This function reads from the filesystem at build time
+ * When deployed to Cloudflare Workers, pages using this must be statically generated
  */
 export function getDocBySlug(
     category: string,
@@ -85,99 +42,45 @@ export function getDocBySlug(
             content,
         };
     } catch (error) {
+        console.error(`Error loading doc ${category}/${slug}:`, error);
         return undefined;
     }
 }
 
 /**
- * Get all docs from a specific category
- */
-export function getDocsByCategory(category: string): Doc[] {
-    try {
-        const categoryPath = path.join(docsDirectory, category);
-        const files = fs.readdirSync(categoryPath);
-
-        return files
-            .filter((file) => file.endsWith(".md"))
-            .map((file) => {
-                const slug = file.replace(/\.md$/, "");
-                const fullPath = path.join(categoryPath, file);
-                const fileContents = fs.readFileSync(fullPath, "utf8");
-                const { data, content } = matter(fileContents);
-
-                return {
-                    slug,
-                    category,
-                    frontmatter: data as DocFrontmatter,
-                    content,
-                };
-            })
-            .sort((a, b) => a.frontmatter.order - b.frontmatter.order);
-    } catch (error) {
-        return [];
-    }
-}
-
-/**
- * Get all available category slugs
- */
-export function getAllCategorySlugs(): string[] {
-    const categories = fs.readdirSync(docsDirectory);
-    return categories.filter((category) => {
-        const categoryPath = path.join(docsDirectory, category);
-        return fs.statSync(categoryPath).isDirectory();
-    });
-}
-
-/**
- * Get all doc slugs for static generation
- */
-export function getAllDocSlugs(): Array<{ category: string; slug: string }> {
-    const categories = getAllCategorySlugs();
-    const slugs: Array<{ category: string; slug: string }> = [];
-
-    for (const category of categories) {
-        const docs = getDocsByCategory(category);
-        for (const doc of docs) {
-            slugs.push({
-                category,
-                slug: doc.slug,
-            });
-        }
-    }
-
-    return slugs;
-}
-
-/**
- * Get navigation data for a doc (prev/next)
+ * Get navigation information for a specific doc
  */
 export function getDocNavigation(category: string, slug: string) {
-    const docs = getDocsByCategory(category);
-    const currentIndex = docs.findIndex((doc) => doc.slug === slug);
+    const categoryDocs = DOCS_DATA[category as keyof typeof DOCS_DATA];
+    
+    if (!categoryDocs) {
+        return { prev: null, next: null };
+    }
 
-    return {
-        prev: currentIndex > 0 ? docs[currentIndex - 1] : null,
-        next: currentIndex < docs.length - 1 ? docs[currentIndex + 1] : null,
-    };
-}
+    const sortedDocs = [...categoryDocs].sort((a, b) => a.order - b.order);
+    const currentIndex = sortedDocs.findIndex((doc) => doc.slug === slug);
 
-/**
- * Search docs by query
- */
-export function searchDocs(query: string): Doc[] {
-    const allCategories = getAllDocs();
-    const allDocs = allCategories.flatMap((cat) => cat.docs);
+    if (currentIndex === -1) {
+        return { prev: null, next: null };
+    }
 
-    const lowerQuery = query.toLowerCase();
+    const prev = currentIndex > 0 ? {
+        slug: sortedDocs[currentIndex - 1].slug,
+        category,
+        frontmatter: {
+            title: sortedDocs[currentIndex - 1].title,
+            description: sortedDocs[currentIndex - 1].description,
+        },
+    } : null;
 
-    return allDocs.filter((doc) => {
-        const titleMatch = doc.frontmatter.title.toLowerCase().includes(lowerQuery);
-        const descriptionMatch = doc.frontmatter.description
-            .toLowerCase()
-            .includes(lowerQuery);
-        const contentMatch = doc.content.toLowerCase().includes(lowerQuery);
+    const next = currentIndex < sortedDocs.length - 1 ? {
+        slug: sortedDocs[currentIndex + 1].slug,
+        category,
+        frontmatter: {
+            title: sortedDocs[currentIndex + 1].title,
+            description: sortedDocs[currentIndex + 1].description,
+        },
+    } : null;
 
-        return titleMatch || descriptionMatch || contentMatch;
-    });
+    return { prev, next };
 }

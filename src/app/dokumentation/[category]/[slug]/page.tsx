@@ -3,11 +3,8 @@ import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import { MarkdownContent } from "@/modules/documentation/markdown-content";
 import { TableOfContents } from "@/modules/documentation/table-of-contents";
 import { DocNavigation } from "@/modules/documentation/doc-navigation";
-import {
-    getDocBySlug,
-    getAllDocSlugs,
-    getDocNavigation,
-} from "@/lib/docs";
+import { DOCS_DATA } from "@/lib/docs-static";
+import { getDocBySlug, getDocNavigation } from "@/lib/docs";
 import { Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -20,11 +17,15 @@ interface DocPageProps {
 }
 
 export async function generateStaticParams() {
-    const slugs = getAllDocSlugs();
-    return slugs.map(({ category, slug }) => ({
-        category,
-        slug,
-    }));
+    const slugs: Array<{ category: string; slug: string }> = [];
+    
+    for (const [category, docs] of Object.entries(DOCS_DATA)) {
+        for (const doc of docs) {
+            slugs.push({ category, slug: doc.slug });
+        }
+    }
+    
+    return slugs;
 }
 
 export async function generateMetadata({
@@ -55,15 +56,9 @@ export default async function DocPage({ params }: DocPageProps) {
 
     const navigation = getDocNavigation(category, slug);
 
-    // Format category name for display
-    const categoryName = category
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-
     return (
         <HybridPageLayout>
-            <div className="bg-gradient-to-b from-blue-50 to-white">
+            <div className="bg-gradient-to-b from-blue-50 to-white pt-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     {/* Breadcrumb */}
                     <div className="mb-8">

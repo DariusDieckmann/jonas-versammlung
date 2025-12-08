@@ -8,8 +8,9 @@ import {
     Calendar,
     Settings,
     CheckCircle,
+    Building2,
 } from "lucide-react";
-import { getAllDocs } from "@/lib/docs";
+import { DOCS_DATA, CATEGORY_INFO } from "@/lib/docs-static";
 import Link from "next/link";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -18,25 +19,21 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     FileText,
     Users,
     Settings,
-};
-
-const categoryTitles: Record<string, string> = {
-    "eigene-organisation": "Eigene Organisation",
-    liegenschaften: "Liegenschaften",
-    versammlungen: "Versammlungen",
-};
-
-const categoryDescriptions: Record<string, string> = {
-    "eigene-organisation": "Verwalten Sie Ihre Organisation, Mitglieder und Einstellungen",
-    liegenschaften: "Legen Sie Liegenschaften, Einheiten und Eigentümer an",
-    versammlungen: "Erstellen und führen Sie Versammlungen durch",
+    Building2,
 };
 
 export default function DokumentationPage() {
-    const categories = getAllDocs();
+    const categories = Object.entries(DOCS_DATA).map(([slug, docs]) => ({
+        slug,
+        name: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].title,
+        description: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].description,
+        icon: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].icon,
+        docs: [...docs].sort((a, b) => a.order - b.order),
+    }));
+
     return (
         <HybridPageLayout>
-            <div className="bg-gradient-to-b from-blue-50 to-white py-16">
+            <div className="bg-gradient-to-b from-blue-50 to-white py-22">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="text-center mb-12">
@@ -81,46 +78,39 @@ export default function DokumentationPage() {
 
                     {/* Documentation Sections */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                        {categories.map((category, index) => {
-                                const Icon =
-                                    iconMap[
-                                        category.docs[0]?.frontmatter.icon || "FileText"
-                                    ] || FileText;
-                                const title =
-                                    categoryTitles[category.slug] || category.name;
-                                const description =
-                                    categoryDescriptions[category.slug] || "";
+                        {categories.map((category) => {
+                            const Icon = iconMap[category.icon] || FileText;
 
-                                return (
-                                    <Card
-                                        key={category.slug}
-                                        className="hover:shadow-lg transition-shadow duration-300"
-                                    >
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                    <Icon className="h-5 w-5 text-blue-600" />
-                                                </div>
-                                                <h3 className="text-xl font-bold text-gray-900">
-                                                    {title}
-                                                </h3>
+                            return (
+                                <Card
+                                    key={category.slug}
+                                    className="hover:shadow-lg transition-shadow duration-300"
+                                >
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <Icon className="h-5 w-5 text-blue-600" />
                                             </div>
-                                            <p className="text-gray-600 text-sm mb-4">
-                                                {description}
-                                            </p>
-                                            <ul className="space-y-2">
-                                                {category.docs.map((doc) => (
-                                                    <li key={doc.slug}>
-                                                        <Link
-                                                            href={`/dokumentation/${category.slug}/${doc.slug}`}
-                                                            className="text-sm text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"
-                                                        >
-                                                            <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                                                            {doc.frontmatter.title}
-                                                        </Link>
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            <h3 className="text-xl font-bold text-gray-900">
+                                                {category.name}
+                                            </h3>
+                                        </div>
+                                        <p className="text-gray-600 text-sm mb-4">
+                                            {category.description}
+                                        </p>
+                                        <ul className="space-y-2">
+                                            {category.docs.map((doc) => (
+                                                <li key={doc.slug}>
+                                                    <Link
+                                                        href={`/dokumentation/${category.slug}/${doc.slug}`}
+                                                        className="text-sm text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"
+                                                    >
+                                                        <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                                                        {doc.title}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
                                         </CardContent>
                                     </Card>
                                 );

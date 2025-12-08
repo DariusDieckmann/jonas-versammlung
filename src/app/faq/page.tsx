@@ -111,7 +111,7 @@ const faqCategories = [
 export default function FAQPage() {
     return (
         <HybridPageLayout>
-            <div className="bg-gradient-to-b from-blue-50 to-white py-16">
+            <div className="bg-gradient-to-b from-blue-50 to-white py-22">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="text-center mb-12">
