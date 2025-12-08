@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { DOCS_DATA } from "@/lib/docs-static";
+import { DOCS_CONTENT } from "@/lib/docs-content";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = "https://triple-d.ninja";
@@ -65,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Documentation pages
     const docPages: MetadataRoute.Sitemap = [];
     
-    for (const [category, docs] of Object.entries(DOCS_DATA)) {
+    for (const [category, docs] of Object.entries(DOCS_CONTENT)) {
         for (const doc of docs) {
             docPages.push({
                 url: `${baseUrl}/dokumentation/${category}/${doc.slug}`,

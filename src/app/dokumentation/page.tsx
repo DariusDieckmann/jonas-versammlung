@@ -10,7 +10,7 @@ import {
     CheckCircle,
     Building2,
 } from "lucide-react";
-import { DOCS_DATA, CATEGORY_INFO } from "@/lib/docs-static";
+import { DOCS_CONTENT, CATEGORY_INFO } from "@/lib/docs-content";
 import Link from "next/link";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -23,7 +23,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function DokumentationPage() {
-    const categories = Object.entries(DOCS_DATA).map(([slug, docs]) => ({
+    const categories = Object.entries(DOCS_CONTENT).map(([slug, docs]) => ({
         slug,
         name: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].title,
         description: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].description,

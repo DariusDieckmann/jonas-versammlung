@@ -3,7 +3,7 @@ import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import { MarkdownContent } from "@/modules/documentation/markdown-content";
 import { TableOfContents } from "@/modules/documentation/table-of-contents";
 import { DocNavigation } from "@/modules/documentation/doc-navigation";
-import { DOCS_DATA } from "@/lib/docs-static";
+import { DOCS_CONTENT } from "@/lib/docs-content";
 import { getDocBySlug, getDocNavigation } from "@/lib/docs";
 import { Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -19,7 +19,7 @@ interface DocPageProps {
 export async function generateStaticParams() {
     const slugs: Array<{ category: string; slug: string }> = [];
     
-    for (const [category, docs] of Object.entries(DOCS_DATA)) {
+    for (const [category, docs] of Object.entries(DOCS_CONTENT)) {
         for (const doc of docs) {
             slugs.push({ category, slug: doc.slug });
         }

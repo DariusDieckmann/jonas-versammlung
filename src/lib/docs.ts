@@ -1,9 +1,5 @@
 import matter from "gray-matter";
-import { DOCS_DATA } from "./docs-static";
-import fs from "fs";
-import path from "path";
-
-const docsDirectory = path.join(process.cwd(), "documentation/guides");
+import { DOCS_CONTENT, CATEGORY_INFO } from "./docs-content";
 
 export interface DocFrontmatter {
     title: string;
@@ -23,23 +19,39 @@ export interface Doc {
 
 /**
  * Get a specific documentation by category and slug
- * This function reads from the filesystem at build time
- * When deployed to Cloudflare Workers, pages using this must be statically generated
+ * Uses pre-generated static content (no filesystem access)
  */
 export function getDocBySlug(
     category: string,
     slug: string,
 ): Doc | undefined {
     try {
-        const fullPath = path.join(docsDirectory, category, `${slug}.md`);
-        const fileContents = fs.readFileSync(fullPath, "utf8");
-        const { data, content } = matter(fileContents);
+        const categoryDocs = DOCS_CONTENT[category as keyof typeof DOCS_CONTENT];
+        
+        if (!categoryDocs) {
+            console.error(`Category not found: ${category}`);
+            return undefined;
+        }
+
+        const doc = categoryDocs.find((d) => d.slug === slug);
+        
+        if (!doc) {
+            console.error(`Doc not found: ${category}/${slug}`);
+            return undefined;
+        }
 
         return {
-            slug,
+            slug: doc.slug,
             category,
-            frontmatter: data as DocFrontmatter,
-            content,
+            frontmatter: {
+                title: doc.title,
+                category,
+                order: doc.order,
+                description: doc.description,
+                lastUpdated: doc.lastUpdated,
+                icon: CATEGORY_INFO[category as keyof typeof CATEGORY_INFO]?.icon,
+            },
+            content: doc.content,
         };
     } catch (error) {
         console.error(`Error loading doc ${category}/${slug}:`, error);
@@ -51,7 +63,7 @@ export function getDocBySlug(
  * Get navigation information for a specific doc
  */
 export function getDocNavigation(category: string, slug: string) {
-    const categoryDocs = DOCS_DATA[category as keyof typeof DOCS_DATA];
+    const categoryDocs = DOCS_CONTENT[category as keyof typeof DOCS_CONTENT];
     
     if (!categoryDocs) {
         return { prev: null, next: null };
