@@ -9,7 +9,7 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import propertiesRoutes from "../properties.route";
+import propertiesRoutes from "./properties.route";
 import {
     type InsertProperty,
     insertPropertySchema,

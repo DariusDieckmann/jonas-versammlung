@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import { getSession } from "./utils/auth-utils";
 
 export default async function AuthLayout({
@@ -10,7 +11,7 @@ export default async function AuthLayout({
 
     // If already logged in, redirect to dashboard
     if (session) {
-        redirect("/dashboard");
+        redirect(dashboardRoutes.dashboard);
     }
 
     return <div>{children}</div>;

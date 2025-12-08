@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertMeetingLeaderSchema,

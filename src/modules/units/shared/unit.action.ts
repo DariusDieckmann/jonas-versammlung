@@ -13,7 +13,7 @@ import {
     type Owner,
     owners,
 } from "@/modules/owners/shared/schemas/owner.schema";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import {
     type InsertUnit,

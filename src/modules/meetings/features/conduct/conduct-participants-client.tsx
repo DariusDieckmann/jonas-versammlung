@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import conductRoutes from "../../conduct.route";
+import conductRoutes from "../../shared/conduct.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductLayout } from "./conduct-layout";

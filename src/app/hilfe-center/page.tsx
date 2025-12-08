@@ -1,6 +1,7 @@
 import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { LifeBuoy, Mail, MessageCircle, Clock, CheckCircle } from "lucide-react";
+import publicRoutes from "@/lib/public.route";
 
 export default function HilfeCenterPage() {
     return (
@@ -62,7 +63,7 @@ export default function HilfeCenterPage() {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <a
-                                    href="/faq"
+                                    href={publicRoutes.faq}
                                     className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -76,7 +77,7 @@ export default function HilfeCenterPage() {
                                     </div>
                                 </a>
                                 <a
-                                    href="/dokumentation"
+                                    href={publicRoutes.dokumentation.index}
                                     className="flex items-start gap-3 p-4 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />

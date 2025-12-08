@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import { getUpcomingOpenMeetings } from "@/modules/meetings/shared/meeting.action";
 
 export default async function Dashboard() {

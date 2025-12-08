@@ -5,9 +5,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/modules/auth/features/logout/logout-button";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
-import propertiesRoutes from "@/modules/properties/properties.route";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
+import publicRoutes from "@/lib/public.route";
 import { useState } from "react";
 
 export function Navigation() {
@@ -47,13 +48,13 @@ export function Navigation() {
                                     Eigene Organisation
                                 </Button>
                             </Link>
-                            <Link href="/dokumentation">
+                            <Link href={publicRoutes.dokumentation.index}>
                                 <Button variant="ghost" size="sm">
                                     <BookOpen className="mr-2 h-4 w-4" />
                                     Dokumentation
                                 </Button>
                             </Link>
-                            <Link href="/hilfe-center">
+                            <Link href={publicRoutes.hilfeCenter}>
                                 <Button variant="ghost" size="sm">
                                     <LifeBuoy className="mr-2 h-4 w-4" />
                                     Hilfe
@@ -104,13 +105,13 @@ export function Navigation() {
                                     Eigene Organisation
                                 </Button>
                             </Link>
-                            <Link href="/dokumentation" onClick={() => setIsOpen(false)}>
+                            <Link href={publicRoutes.dokumentation.index} onClick={() => setIsOpen(false)}>
                                 <Button variant="ghost" size="sm" className="w-full justify-start">
                                     <BookOpen className="mr-2 h-4 w-4" />
                                     Dokumentation
                                 </Button>
                             </Link>
-                            <Link href="/hilfe-center" onClick={() => setIsOpen(false)}>
+                            <Link href={publicRoutes.hilfeCenter} onClick={() => setIsOpen(false)}>
                                 <Button variant="ghost" size="sm" className="w-full justify-start">
                                     <LifeBuoy className="mr-2 h-4 w-4" />
                                     Hilfe

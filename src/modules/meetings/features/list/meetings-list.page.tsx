@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getProperties } from "@/modules/properties/shared/property.action";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
-import meetingsRoutes from "../../meetings.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import { getMeetings } from "../../shared/meeting.action";
 import { MeetingsList } from "./meetings-list";
 

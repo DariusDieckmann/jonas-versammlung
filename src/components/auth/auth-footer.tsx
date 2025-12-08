@@ -1,4 +1,5 @@
 import Link from "next/link";
+import legalRoutes from "@/lib/legal.route";
 
 export function AppFooter() {
     return (
@@ -10,18 +11,18 @@ export function AppFooter() {
                     </p>
                     <div className="flex gap-6 text-sm text-gray-600">
                         <Link
-                            href="/impressum"
+                            href={legalRoutes.impressum}
                             className="hover:text-gray-900 transition-colors"
                         >
                             Impressum
                         </Link>
                         <Link
-                            href="/datenschutz"
+                            href={legalRoutes.datenschutz}
                             className="hover:text-gray-900 transition-colors"
                         >
                             Datenschutz
                         </Link>
-                        <Link href="/agb" className="hover:text-gray-900 transition-colors">
+                        <Link href={legalRoutes.agb} className="hover:text-gray-900 transition-colors">
                             AGB
                         </Link>
                     </div>

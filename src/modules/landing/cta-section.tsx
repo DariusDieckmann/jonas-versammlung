@@ -5,6 +5,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function CTASection() {
     const ref = useRef(null);
@@ -79,24 +80,22 @@ export function CTASection() {
                         selbst von den Vorteilen der digitalen Hausverwaltung.
                     </motion.p>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                        transition={{ duration: 0.6, delay: 0.5 }}
-                        className="flex flex-col sm:flex-row gap-4 justify-center"
-                    >
-                        <Link href="/login">
-                            <Button
-                                size="lg"
-                                className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6 group shadow-xl"
-                            >
-                                Kostenlos starten
-                                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                        </Link>
-                    </motion.div>
-
-            
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="flex flex-col sm:flex-row gap-4 justify-center"
+                >
+                    <Link href={authRoutes.login}>
+                        <Button
+                            size="lg"
+                            className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6 group shadow-xl"
+                        >
+                            Kostenlos starten
+                            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    </Link>
+                </motion.div>            
                 </motion.div>
             </div>
         </section>

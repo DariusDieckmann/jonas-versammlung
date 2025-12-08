@@ -9,7 +9,7 @@ import {
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import {
     type InsertMeeting,
     insertMeetingSchema,

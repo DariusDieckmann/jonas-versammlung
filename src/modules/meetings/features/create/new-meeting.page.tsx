@@ -6,7 +6,7 @@ import { getProperties } from "@/modules/properties/shared/property.action";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import { getAgendaItemTemplates } from "../../shared/agenda-item-template.action";
 import type { AgendaItemTemplate } from "../../shared/schemas/agenda-item-template.schema";
-import meetingsRoutes from "../../meetings.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 
 export default async function NewMeetingPage() {

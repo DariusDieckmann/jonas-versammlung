@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { DOCS_CONTENT, CATEGORY_INFO } from "@/lib/docs-content";
 import Link from "next/link";
+import publicRoutes from "@/lib/public.route";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     PlayCircle,
@@ -135,7 +136,7 @@ export default function DokumentationPage() {
                                     Support kontaktieren
                                 </a>
                                 <a
-                                    href="/faq"
+                                    href={publicRoutes.faq}
                                     className="inline-flex items-center justify-center px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium border border-gray-300"
                                 >
                                     FAQ ansehen

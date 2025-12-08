@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import { PropertyForm } from "../../shared/components/property-form";
 import { getProperty } from "../../shared/property.action";
 

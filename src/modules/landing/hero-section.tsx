@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function HeroSection() {
     return (
@@ -59,30 +60,28 @@ export function HeroSection() {
                         Effizient, transparent und rechtssicher.
                     </motion.p>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
-                        className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
-                    >
-                        <Link href="/login">
-                            <Button size="lg" className="text-lg px-8 py-6 group">
-                                Jetzt starten
-                                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                        </Link>
-                        <Link href="#features">
-                            <Button
-                                size="lg"
-                                variant="outline"
-                                className="text-lg px-8 py-6"
-                            >
-                                Funktionen entdecken
-                            </Button>
-                        </Link>
-                    </motion.div>
-
-                    <motion.div
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+                >
+                    <Link href={authRoutes.login}>
+                        <Button size="lg" className="text-lg px-8 py-6 group">
+                            Jetzt starten
+                            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    </Link>
+                    <Link href="#features">
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            className="text-lg px-8 py-6"
+                        >
+                            Funktionen entdecken
+                        </Button>
+                    </Link>
+                </motion.div>                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.6 }}

@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { authClient } from "@/modules/auth/shared/utils/auth-client";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import legalRoutes from "@/lib/legal.route";
 
 export function LoginForm({
     className,
@@ -81,11 +82,11 @@ export function LoginForm({
             </Card>
             <div className="text-muted-foreground text-center text-xs text-balance">
                 Durch die Anmeldung stimmen Sie unseren{" "}
-                <a href="/agb" className="underline underline-offset-4 hover:text-primary">
+                <a href={legalRoutes.agb} className="underline underline-offset-4 hover:text-primary">
                     AGB
                 </a>{" "}
                 und unserer{" "}
-                <a href="/datenschutz" className="underline underline-offset-4 hover:text-primary">
+                <a href={legalRoutes.datenschutz} className="underline underline-offset-4 hover:text-primary">
                     Datenschutzerklärung
                 </a>{" "}
                 zu.

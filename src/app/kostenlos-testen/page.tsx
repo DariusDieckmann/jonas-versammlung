@@ -11,6 +11,8 @@ import {
     AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import authRoutes from "@/modules/auth/shared/auth.route";
+import publicRoutes from "@/lib/public.route";
 
 const features = [
     "Versammlungen planen und durchführen",
@@ -204,7 +206,7 @@ export default function KostenlosTesterPage() {
                                     von unserer Plattform.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                    <Link href="/login">
+                                    <Link href={authRoutes.login}>
                                         <Button
                                             size="lg"
                                             className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6 shadow-xl"
@@ -232,14 +234,14 @@ export default function KostenlosTesterPage() {
                         <p className="text-gray-600 mb-4">Haben Sie noch Fragen?</p>
                         <div className="flex flex-wrap justify-center gap-4">
                             <Link
-                                href="/faq"
+                                href={publicRoutes.faq}
                                 className="text-blue-600 hover:underline font-medium"
                             >
                                 Zu den FAQ
                             </Link>
                             <span className="text-gray-400">•</span>
                             <Link
-                                href="/hilfe-center"
+                                href={publicRoutes.hilfeCenter}
                                 className="text-blue-600 hover:underline font-medium"
                             >
                                 Hilfe-Center

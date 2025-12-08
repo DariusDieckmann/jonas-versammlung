@@ -3,6 +3,9 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Building2, Mail, FileText, HelpCircle, Shield } from "lucide-react";
+import authRoutes from "@/modules/auth/shared/auth.route";
+import publicRoutes from "@/lib/public.route";
+import legalRoutes from "@/lib/legal.route";
 
 export function LandingFooter() {
     return (
@@ -63,7 +66,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/login"
+                                        href={authRoutes.login}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Anmelden
@@ -71,7 +74,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/kostenlos-testen"
+                                        href={publicRoutes.kostenlosTesten}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Kostenlos testen
@@ -96,7 +99,7 @@ export function LandingFooter() {
                             <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
-                                        href="/hilfe-center"
+                                        href={publicRoutes.hilfeCenter}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Hilfe-Center
@@ -104,7 +107,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/dokumentation"
+                                        href={publicRoutes.dokumentation.index}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Dokumentation
@@ -120,7 +123,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/faq"
+                                        href={publicRoutes.faq}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         FAQ
@@ -145,7 +148,7 @@ export function LandingFooter() {
                             <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
-                                        href="/impressum"
+                                        href={legalRoutes.impressum}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Impressum
@@ -153,7 +156,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/datenschutz"
+                                        href={legalRoutes.datenschutz}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Datenschutzerklärung
@@ -161,7 +164,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/agb"
+                                        href={legalRoutes.agb}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         AGB

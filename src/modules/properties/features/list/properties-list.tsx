@@ -25,7 +25,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import type { Property } from "../../shared/schemas/property.schema";
 
 interface PropertiesListProps {

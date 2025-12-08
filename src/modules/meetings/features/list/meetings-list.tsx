@@ -28,7 +28,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../../meetings.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface MeetingsListProps {

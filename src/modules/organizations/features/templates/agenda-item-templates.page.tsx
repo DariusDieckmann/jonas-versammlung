@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 import type { OrganizationWithMemberCount } from "@/modules/organizations/shared/models/organization.model";
 import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";

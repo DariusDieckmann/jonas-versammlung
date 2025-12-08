@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Building2, Menu } from "lucide-react";
 import { useState } from "react";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
@@ -31,21 +32,19 @@ export function Navigation() {
                         <Link
                             href="/#features"
                             className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
-                        >
-                            Funktionen
-                        </Link>
-                        <Link
-                            href="/login"
-                            className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
-                        >
-                            Anmelden
-                        </Link>
-                        <Link href="/login">
-                            <Button className="shadow-sm">Jetzt starten</Button>
-                        </Link>
-                    </div>
-
-                    {/* Mobile Menu Button */}
+                    >
+                        Funktionen
+                    </Link>
+                    <Link
+                        href={authRoutes.login}
+                        className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                    >
+                        Anmelden
+                    </Link>
+                    <Link href={authRoutes.login}>
+                        <Button className="shadow-sm">Jetzt starten</Button>
+                    </Link>
+                </div>                    {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -72,13 +71,13 @@ export function Navigation() {
                                 Funktionen
                             </Link>
                             <Link
-                                href="/login"
+                                href={authRoutes.login}
                                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                                 onClick={() => setIsOpen(false)}
                             >
                                 Anmelden
                             </Link>
-                            <Link href="/login" onClick={() => setIsOpen(false)}>
+                            <Link href={authRoutes.login} onClick={() => setIsOpen(false)}>
                                 <Button className="w-full">Jetzt starten</Button>
                             </Link>
                         </div>

@@ -8,6 +8,7 @@ import { getDocBySlug, getDocNavigation } from "@/lib/docs";
 import { Calendar, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import publicRoutes from "@/lib/public.route";
 
 interface DocPageProps {
     params: Promise<{
@@ -63,7 +64,7 @@ export default async function DocPage({ params }: DocPageProps) {
                     {/* Breadcrumb */}
                     <div className="mb-8">
                         <Link
-                            href="/dokumentation"
+                            href={publicRoutes.dokumentation.index}
                             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
                         >
                             <ArrowLeft className="h-4 w-4" />

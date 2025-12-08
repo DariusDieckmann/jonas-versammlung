@@ -20,7 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import conductRoutes from "../../conduct.route";
+import conductRoutes from "../../shared/conduct.route";
 import {
     createMeetingLeaders,
     deleteMeetingLeaders,

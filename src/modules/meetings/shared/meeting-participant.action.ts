@@ -8,7 +8,7 @@ import { requireMember } from "@/modules/organizations/shared/organization-permi
 import { owners } from "@/modules/owners/shared/schemas/owner.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertMeetingParticipantSchema,

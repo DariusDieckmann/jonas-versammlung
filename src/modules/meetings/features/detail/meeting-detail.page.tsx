@@ -25,10 +25,10 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { getProperty } from "@/modules/properties/shared/property.action";
-import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../shared/conduct.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
 import {

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
-import conductRoutes from "../../conduct.route";
+import conductRoutes from "../../shared/conduct.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 import { ConductLayout } from "./conduct-layout";
