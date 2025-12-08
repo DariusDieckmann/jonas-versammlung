@@ -137,7 +137,7 @@ export function ConductLeadersForm({
                 <CardContent className="space-y-4">
                     {leaders.map((leader, index) => (
                         <div
-                            key={`leader-${index}-${leader.name}`}
+                            key={index}
                             className="p-4 border rounded-lg space-y-3"
                         >
                             <div className="flex items-center justify-between">
