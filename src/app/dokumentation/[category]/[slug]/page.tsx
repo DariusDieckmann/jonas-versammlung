@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
-import { MarkdownContent } from "@/components/documentation/markdown-content";
-import { TableOfContents } from "@/components/documentation/table-of-contents";
-import { DocNavigation } from "@/components/documentation/doc-navigation";
+import { MarkdownContent } from "@/modules/documentation/markdown-content";
+import { TableOfContents } from "@/modules/documentation/table-of-contents";
+import { DocNavigation } from "@/modules/documentation/doc-navigation";
 import {
     getDocBySlug,
     getAllDocSlugs,

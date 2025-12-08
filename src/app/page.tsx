@@ -1,9 +1,9 @@
-import { Navigation } from "@/components/landing/navigation";
-import { HeroSection } from "@/components/landing/hero-section";
-import { FeaturesSection } from "@/components/landing/features-section";
-import { BenefitsSection } from "@/components/landing/benefits-section";
-import { CTASection } from "@/components/landing/cta-section";
-import { LandingFooter } from "@/components/landing/footer";
+import { Navigation } from "@/components/public-navigation";
+import { HeroSection } from "@/modules/landing/hero-section";
+import { FeaturesSection } from "@/modules/landing/features-section";
+import { BenefitsSection } from "@/modules/landing/benefits-section";
+import { CTASection } from "@/modules/landing/cta-section";
+import { LandingFooter } from "@/components/public-footer";
 
 export default async function HomePage() {
     const jsonLd = {

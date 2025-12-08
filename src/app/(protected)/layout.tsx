@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/navigation";
-import { AppFooter } from "@/components/app-footer";
+import { Navigation } from "@/components/protected-navigation";
+import { AppFooter } from "@/components/protected-footer";
 import authRoutes from "@/modules/auth/shared/auth.route";
 import { getSession } from "@/modules/auth/shared/utils/auth-utils";
 
