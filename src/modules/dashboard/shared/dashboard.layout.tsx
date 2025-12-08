@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/navigation";
+import { Navigation } from "@/components/protected-navigation";
 import { getSession } from "@/modules/auth/shared/utils/auth-utils";
 import authRoutes from "../../auth/shared/auth.route";
 
