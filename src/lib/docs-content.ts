@@ -1,5 +1,5 @@
 // Auto-generated file - DO NOT EDIT
-// Generated at: 2025-12-08T09:20:19.453Z
+// Generated at: 2025-12-08T16:13:17.467Z
 // Run: pnpm run docs:generate
 
 export const DOCS_CONTENT = {

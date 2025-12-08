@@ -10,7 +10,7 @@ interface ConductSummaryPageProps {
     params: Promise<{ meetingId: string }>;
 }
 
-export default async function ConductSummaryPage({
+export default async function ConductSummaryRoute({
     params,
 }: ConductSummaryPageProps) {
     const { meetingId } = await params;

@@ -1,5 +1,5 @@
-import { LandingFooter } from "../public-footer";
-import { Navigation } from "../public-navigation";
+import { LandingFooter } from "@/components/public/public-footer";
+import { Navigation } from "@/components/public/public-navigation";
 
 export function PublicPageLayout({ children }: { children: React.ReactNode }) {
     return (

@@ -3,7 +3,7 @@
 import { Building, Building2, CalendarDays, Home, BookOpen, LifeBuoy, Menu } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import LogoutButton from "../modules/auth/features/logout/logout-button";
+import LogoutButton from "@/modules/auth/features/logout/logout-button";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import propertiesRoutes from "@/modules/properties/properties.route";
 import meetingsRoutes from "@/modules/meetings/meetings.route";

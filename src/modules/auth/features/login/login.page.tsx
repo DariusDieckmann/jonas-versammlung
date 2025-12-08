@@ -1,7 +1,7 @@
 import { Building2 } from "lucide-react";
 import { LoginForm } from "./login-form";
-import { Navigation } from "@/components/public-navigation";
-import { LandingFooter } from "@/components/public-footer";
+import { Navigation } from "@/components/public/public-navigation";
+import { LandingFooter } from "@/components/public/public-footer";
 
 export default function LoginPage() {
     return (

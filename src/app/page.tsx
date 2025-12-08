@@ -1,9 +1,9 @@
-import { Navigation } from "@/components/public-navigation";
+import { Navigation } from "@/components/public/public-navigation";
 import { HeroSection } from "@/modules/landing/hero-section";
 import { FeaturesSection } from "@/modules/landing/features-section";
 import { BenefitsSection } from "@/modules/landing/benefits-section";
 import { CTASection } from "@/modules/landing/cta-section";
-import { LandingFooter } from "@/components/public-footer";
+import { LandingFooter } from "@/components/public/public-footer";
 
 export default async function HomePage() {
     const jsonLd = {
