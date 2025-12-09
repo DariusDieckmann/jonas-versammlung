@@ -15,8 +15,8 @@ export function HybridPageLayout({
 
     return (
         <div className="min-h-screen flex flex-col">
-            {!loading && (isAuthenticated ? <PublicNavigation /> : <AuthNavigation />)}
-            <main className="flex-1 pt-16">{children}</main>
+            {!loading && (isAuthenticated ? <AuthNavigation /> : <PublicNavigation />)}
+            <main className="flex-1">{children}</main>
             {!loading && (isAuthenticated ? <AppFooter /> : <LandingFooter />)}
         </div>
     );
