@@ -14,6 +14,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CATEGORY_INFO, DOCS_CONTENT } from "@/lib/docs-content";
 import publicRoutes from "@/lib/public.route";
 
+export const dynamic = 'force-dynamic';
+
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     PlayCircle,
     Calendar,

@@ -10,6 +10,8 @@ import { DocNavigation } from "@/modules/documentation/doc-navigation";
 import { MarkdownContent } from "@/modules/documentation/markdown-content";
 import { TableOfContents } from "@/modules/documentation/table-of-contents";
 
+export const dynamic = 'force-dynamic';
+
 interface DocPageProps {
     params: Promise<{
         category: string;

@@ -9,6 +9,8 @@ import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import { Card, CardContent } from "@/components/ui/card";
 import publicRoutes from "@/lib/public.route";
 
+export const dynamic = 'force-dynamic';
+
 export default function HilfeCenterPage() {
     return (
         <HybridPageLayout>
