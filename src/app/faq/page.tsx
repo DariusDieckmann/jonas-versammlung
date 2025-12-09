@@ -6,7 +6,9 @@ import {
     Shield,
     Users,
 } from "lucide-react";
-import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
+import type { Metadata } from "next";
+import { LandingFooter } from "@/components/public/public-footer";
+import { Navigation } from "@/components/public/public-navigation";
 import {
     Accordion,
     AccordionContent,
@@ -14,6 +16,12 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+    title: "FAQ - Häufig gestellte Fragen | Versammlung",
+    description:
+        "Antworten auf häufig gestellte Fragen zu Eigentümerversammlungen, Protokollen, Datenschutz und mehr.",
+};
 
 const faqCategories = [
     {
@@ -110,11 +118,13 @@ const faqCategories = [
 
 export default function FAQPage() {
     return (
-        <HybridPageLayout>
-            <div className="bg-gradient-to-b from-blue-50 to-white py-22">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="text-center mb-12">
+        <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-1 pt-16">
+                <div className="bg-gradient-to-b from-blue-50 to-white py-22">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Header */}
+                        <div className="text-center mb-12">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                             <HelpCircle className="h-8 w-8 text-blue-600" />
                         </div>
@@ -187,8 +197,10 @@ export default function FAQPage() {
                             </div>
                         </CardContent>
                     </Card>
+                    </div>
                 </div>
-            </div>
-        </HybridPageLayout>
+            </main>
+            <LandingFooter />
+        </div>
     );
 }

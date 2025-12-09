@@ -20,7 +20,11 @@ export function Navigation() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 group">
+                    <Link 
+                        href="/" 
+                        className="flex items-center gap-2 group"
+                        prefetch={true}
+                    >
                         <Building2 className="h-8 w-8 text-blue-600 group-hover:scale-110 transition-transform" />
                         <span className="text-xl font-bold text-gray-900">
                             Eigentümerversammlungen
@@ -31,16 +35,18 @@ export function Navigation() {
                         <Link
                             href="/#features"
                             className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                            prefetch={true}
                         >
                             Funktionen
                         </Link>
                         <Link
                             href={authRoutes.login}
                             className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                            prefetch={true}
                         >
                             Anmelden
                         </Link>
-                        <Link href={authRoutes.login}>
+                        <Link href={authRoutes.login} prefetch={true}>
                             <Button className="shadow-sm">Jetzt starten</Button>
                         </Link>
                     </div>{" "}
@@ -67,6 +73,7 @@ export function Navigation() {
                                 href="/#features"
                                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                                 onClick={() => setIsOpen(false)}
+                                prefetch={true}
                             >
                                 Funktionen
                             </Link>
@@ -74,12 +81,14 @@ export function Navigation() {
                                 href={authRoutes.login}
                                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                                 onClick={() => setIsOpen(false)}
+                                prefetch={true}
                             >
                                 Anmelden
                             </Link>
                             <Link
                                 href={authRoutes.login}
                                 onClick={() => setIsOpen(false)}
+                                prefetch={true}
                             >
                                 <Button className="w-full">
                                     Jetzt starten

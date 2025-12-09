@@ -65,7 +65,7 @@ export function HeroSection() {
                         transition={{ duration: 0.6, delay: 0.4 }}
                         className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
                     >
-                        <Link href={authRoutes.login}>
+                        <Link href={authRoutes.login} prefetch={true}>
                             <Button
                                 size="lg"
                                 className="text-lg px-8 py-6 group"
@@ -74,7 +74,7 @@ export function HeroSection() {
                                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
-                        <Link href="#features">
+                        <Link href="#features" prefetch={true}>
                             <Button
                                 size="lg"
                                 variant="outline"
