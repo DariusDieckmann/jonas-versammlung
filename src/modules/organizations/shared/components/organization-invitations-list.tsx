@@ -1,7 +1,9 @@
 "use client";
 
+import { Clock, Mail, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Mail, Trash2, Clock } from "lucide-react";
+import toast from "react-hot-toast";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -10,10 +12,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import type { OrganizationInvitation } from "../schemas/invitation.schema";
 import { cancelOrganizationInvitation } from "../invitation.action";
-import toast from "react-hot-toast";
+import type { OrganizationInvitation } from "../schemas/invitation.schema";
 
 interface OrganizationInvitationsListProps {
     invitations: OrganizationInvitation[];

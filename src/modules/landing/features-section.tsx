@@ -1,18 +1,18 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
 import {
-    Calendar,
-    FileText,
-    Users,
-    Clock,
-    Shield,
-    Zap,
     Bell,
-    Cloud,
+    Calendar,
     CheckSquare,
+    Clock,
+    Cloud,
+    FileText,
+    Shield,
+    Users,
+    Zap,
 } from "lucide-react";
+import { useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [

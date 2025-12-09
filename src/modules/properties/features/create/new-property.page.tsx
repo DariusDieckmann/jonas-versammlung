@@ -2,8 +2,8 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import propertiesRoutes from "../../shared/properties.route";
 import { PropertyForm } from "../../shared/components/property-form";
+import propertiesRoutes from "../../shared/properties.route";
 
 export default async function NewPropertyPage() {
     await requireAuth();

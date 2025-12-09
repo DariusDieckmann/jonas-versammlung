@@ -1,7 +1,8 @@
 "use client";
 
 import { CheckCircle2, Edit, Plus, Trash2 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Dialog,
     DialogContent,
@@ -20,14 +22,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { PlaceholderPicker } from "@/components/ui/placeholder-picker";
-import toast from "react-hot-toast";
+import { Textarea } from "@/components/ui/textarea";
 import {
     createAgendaItemTemplate,
-    updateAgendaItemTemplate,
     deleteAgendaItemTemplate,
+    updateAgendaItemTemplate,
 } from "../agenda-item-template.action";
 import type { AgendaItemTemplate } from "../schemas/agenda-item-template.schema";
 

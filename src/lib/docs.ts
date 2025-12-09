@@ -1,5 +1,5 @@
 import matter from "gray-matter";
-import { DOCS_CONTENT, CATEGORY_INFO } from "./docs-content";
+import { CATEGORY_INFO, DOCS_CONTENT } from "./docs-content";
 
 export interface DocFrontmatter {
     title: string;

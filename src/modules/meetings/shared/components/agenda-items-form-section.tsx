@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronRight, FileText, Plus, Trash2, Library } from "lucide-react";
-import { useState, useRef } from "react";
+import { ChevronRight, FileText, Library, Plus, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { PlaceholderPicker } from "@/components/ui/placeholder-picker";
 import {
     Select,
@@ -23,6 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { AgendaItemTemplate } from "../schemas/agenda-item-template.schema";
 
 export interface AgendaItemFormData {

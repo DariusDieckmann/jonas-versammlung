@@ -24,13 +24,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { getProperty } from "@/modules/properties/shared/property.action";
-import conductRoutes from "../../shared/conduct.route";
-import meetingsRoutes from "../../shared/meetings.route";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
+import conductRoutes from "../../shared/conduct.route";
 import {
     deleteMeeting,
     getMeeting,
@@ -39,10 +39,10 @@ import {
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import { getMeetingLeaders } from "../../shared/meeting-leader.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
+import meetingsRoutes from "../../shared/meetings.route";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
-import { replacePlaceholders } from "@/lib/placeholder-utils";
 
 interface MeetingDetailPageProps {
     meetingId: number;

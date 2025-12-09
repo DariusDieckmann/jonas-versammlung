@@ -1,3 +1,11 @@
+import {
+    Calendar,
+    FileText,
+    HelpCircle,
+    Settings,
+    Shield,
+    Users,
+} from "lucide-react";
 import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
 import {
     Accordion,
@@ -6,14 +14,6 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-    HelpCircle,
-    Users,
-    Calendar,
-    FileText,
-    Shield,
-    Settings,
-} from "lucide-react";
 
 const faqCategories = [
     {

@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
+import { Award, Heart, Target, TrendingUp } from "lucide-react";
 import { useRef } from "react";
-import { TrendingUp, Heart, Target, Award } from "lucide-react";
 
 const benefits = [
     {

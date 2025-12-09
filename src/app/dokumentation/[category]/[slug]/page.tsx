@@ -1,14 +1,14 @@
+import { ArrowLeft, Calendar } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
+import { getDocBySlug, getDocNavigation } from "@/lib/docs";
+import { DOCS_CONTENT } from "@/lib/docs-content";
+import publicRoutes from "@/lib/public.route";
+import { DocNavigation } from "@/modules/documentation/doc-navigation";
 import { MarkdownContent } from "@/modules/documentation/markdown-content";
 import { TableOfContents } from "@/modules/documentation/table-of-contents";
-import { DocNavigation } from "@/modules/documentation/doc-navigation";
-import { DOCS_CONTENT } from "@/lib/docs-content";
-import { getDocBySlug, getDocNavigation } from "@/lib/docs";
-import { Calendar, ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import type { Metadata } from "next";
-import publicRoutes from "@/lib/public.route";
 
 interface DocPageProps {
     params: Promise<{

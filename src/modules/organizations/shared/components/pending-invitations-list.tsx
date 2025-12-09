@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import {
-    CheckCircle,
-    XCircle,
-    Mail,
-    Clock,
-    User,
     Building2,
+    CheckCircle,
+    Clock,
+    Mail,
+    User,
+    XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -18,13 +20,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import {
     acceptOrganizationInvitation,
     cancelOrganizationInvitation,
 } from "../invitation.action";
-import toast from "react-hot-toast";
-import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 
 interface PendingInvitation {
     id: number;

@@ -1,12 +1,12 @@
-import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
+    CheckCircle,
+    Clock,
     LifeBuoy,
     Mail,
     MessageCircle,
-    Clock,
-    CheckCircle,
 } from "lucide-react";
+import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
+import { Card, CardContent } from "@/components/ui/card";
 import publicRoutes from "@/lib/public.route";
 
 export default function HilfeCenterPage() {

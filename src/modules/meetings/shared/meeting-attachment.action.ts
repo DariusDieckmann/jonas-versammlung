@@ -2,10 +2,10 @@
 
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import { deleteFromR2 } from "@/lib/r2";
 import { meetings } from "./schemas/meeting.schema";
 import {
     type InsertMeetingAttachment,

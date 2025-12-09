@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Building2, CheckCircle, Loader2, User, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, XCircle, Loader2, Building2, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -11,13 +12,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import {
     acceptOrganizationInvitation,
     getInvitationDetails,
 } from "@/modules/organizations/shared/invitation.action";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
 
 interface InvitePageProps {

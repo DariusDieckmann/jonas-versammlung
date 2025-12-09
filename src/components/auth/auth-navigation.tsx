@@ -1,23 +1,23 @@
 "use client";
 
 import {
+    BookOpen,
     Building,
     Building2,
     CalendarDays,
     Home,
-    BookOpen,
     LifeBuoy,
     Menu,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import publicRoutes from "@/lib/public.route";
 import LogoutButton from "@/modules/auth/features/logout/logout-button";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
-import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
-import publicRoutes from "@/lib/public.route";
-import { useState } from "react";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 
 export function Navigation() {
     const [isOpen, setIsOpen] = useState(false);

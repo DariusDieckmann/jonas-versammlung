@@ -15,9 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { updateAgendaItem } from "../../shared/agenda-item.action";
 import conductRoutes from "../../shared/conduct.route";
 import meetingsRoutes from "../../shared/meetings.route";
-import { updateAgendaItem } from "../../shared/agenda-item.action";
 import { markAgendaItemCompleted } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";

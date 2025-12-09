@@ -1,5 +1,5 @@
+import { ArrowLeft, CheckCircle, FileText } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, FileText, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AGBPage() {

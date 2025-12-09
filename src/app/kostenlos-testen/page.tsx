@@ -1,18 +1,18 @@
-import { PublicPageLayout } from "@/components/layouts/public-page-layout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
-    Rocket,
+    AlertCircle,
     CheckCircle,
     Clock,
+    Mail,
+    Rocket,
     Shield,
     Zap,
-    Mail,
-    AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import authRoutes from "@/modules/auth/shared/auth.route";
+import { PublicPageLayout } from "@/components/layouts/public-page-layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import publicRoutes from "@/lib/public.route";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 const features = [
     "Versammlungen planen und durchführen",

@@ -3,14 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { getProperties } from "@/modules/properties/shared/property.action";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import meetingsRoutes from "../../shared/meetings.route";
+import { getProperties } from "@/modules/properties/shared/property.action";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getAgendaItemTemplates } from "../../shared/agenda-item-template.action";
-import type { AgendaItemTemplate } from "../../shared/schemas/agenda-item-template.schema";
 import { MeetingFormWithAgenda } from "../../shared/components/meeting-form-with-agenda";
 import { getMeeting } from "../../shared/meeting.action";
+import meetingsRoutes from "../../shared/meetings.route";
+import type { AgendaItemTemplate } from "../../shared/schemas/agenda-item-template.schema";
 
 interface MeetingEditPageProps {
     meetingId: number;

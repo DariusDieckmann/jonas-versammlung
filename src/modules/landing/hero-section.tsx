@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
 import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function HeroSection() {

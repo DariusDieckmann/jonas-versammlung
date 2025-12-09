@@ -2,7 +2,6 @@
 
 import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
-import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +12,13 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { authClient } from "@/modules/auth/shared/utils/auth-client";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import { OrganizationInvitationsList } from "../../shared/components/organization-invitations-list";
+import { PendingInvitationsList } from "../../shared/components/pending-invitations-list";
+import {
+    getMyPendingInvitations,
+    getOrganizationInvitations,
+} from "../../shared/invitation.action";
 import type {
     OrganizationMemberWithUser,
     OrganizationWithMemberCount,
@@ -21,17 +27,11 @@ import {
     getOrganizationMembers,
     getUserOrganizations,
 } from "../../shared/organization.action";
-import {
-    getOrganizationInvitations,
-    getMyPendingInvitations,
-} from "../../shared/invitation.action";
 import type { OrganizationInvitation } from "../../shared/schemas/invitation.schema";
 import { AddMemberDialog } from "./add-member-dialog";
 import { CreateOrganizationForm } from "./create-organization-form";
 import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
-import { OrganizationInvitationsList } from "../../shared/components/organization-invitations-list";
-import { PendingInvitationsList } from "../../shared/components/pending-invitations-list";
 
 export default function OrganizationSettingsPage() {
     const [organizations, setOrganizations] = useState<

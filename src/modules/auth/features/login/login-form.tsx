@@ -8,10 +8,10 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import legalRoutes from "@/lib/legal.route";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/modules/auth/shared/utils/auth-client";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
-import legalRoutes from "@/lib/legal.route";
 
 export function LoginForm({
     className,

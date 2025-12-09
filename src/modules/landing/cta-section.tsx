@@ -1,10 +1,10 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { useRef } from "react";
+import { Button } from "@/components/ui/button";
 import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function CTASection() {

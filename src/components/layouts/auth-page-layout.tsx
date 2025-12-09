@@ -1,5 +1,5 @@
-import { Navigation } from "@/components/auth/auth-navigation";
 import { AppFooter } from "@/components/auth/auth-footer";
+import { Navigation } from "@/components/auth/auth-navigation";
 
 export function AuthPageLayout({ children }: { children: React.ReactNode }) {
     return (

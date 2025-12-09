@@ -1,5 +1,5 @@
+import { ArrowLeft, Building2, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, Building2, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ImpressumPage() {

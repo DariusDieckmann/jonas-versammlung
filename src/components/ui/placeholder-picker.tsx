@@ -2,6 +2,7 @@
 
 import { Copy, Info } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -16,7 +17,6 @@ import {
     getPlaceholderCategories,
     getPlaceholdersByCategory,
 } from "@/lib/placeholder-utils";
-import toast from "react-hot-toast";
 
 interface PlaceholderPickerProps {
     onSelect: (placeholder: string) => void;

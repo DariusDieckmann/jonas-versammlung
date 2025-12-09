@@ -3,13 +3,13 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import {
     agendaItemTemplates,
     type InsertAgendaItemTemplate,
     insertAgendaItemTemplateSchema,
     type UpdateAgendaItemTemplate,
 } from "./schemas/agenda-item-template.schema";
-import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 
 /**
  * Get all agenda item templates for an organization

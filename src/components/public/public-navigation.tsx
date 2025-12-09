@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Building2, Menu } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function Navigation() {

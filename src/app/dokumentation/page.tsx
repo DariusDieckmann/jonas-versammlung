@@ -1,17 +1,17 @@
-import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
-import { Card, CardContent } from "@/components/ui/card";
 import {
     Book,
-    PlayCircle,
-    FileText,
-    Users,
-    Calendar,
-    Settings,
-    CheckCircle,
     Building2,
+    Calendar,
+    CheckCircle,
+    FileText,
+    PlayCircle,
+    Settings,
+    Users,
 } from "lucide-react";
-import { DOCS_CONTENT, CATEGORY_INFO } from "@/lib/docs-content";
 import Link from "next/link";
+import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { CATEGORY_INFO, DOCS_CONTENT } from "@/lib/docs-content";
 import publicRoutes from "@/lib/public.route";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {

@@ -3,14 +3,14 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import type { OrganizationWithMemberCount } from "@/modules/organizations/shared/models/organization.model";
-import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";
-import type { AgendaItemTemplate } from "@/modules/meetings/shared/schemas/agenda-item-template.schema";
-import { AgendaItemTemplatesManager } from "@/modules/meetings/shared/components/agenda-item-templates-manager";
 import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";
+import { AgendaItemTemplatesManager } from "@/modules/meetings/shared/components/agenda-item-templates-manager";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
+import type { AgendaItemTemplate } from "@/modules/meetings/shared/schemas/agenda-item-template.schema";
+import type { OrganizationWithMemberCount } from "@/modules/organizations/shared/models/organization.model";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 
 export default function AgendaItemTemplatesPage() {
     const [organization, setOrganization] =

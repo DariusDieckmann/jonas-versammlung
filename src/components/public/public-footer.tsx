@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Building2, FileText, HelpCircle, Mail, Shield } from "lucide-react";
 import Link from "next/link";
-import { Building2, Mail, FileText, HelpCircle, Shield } from "lucide-react";
-import authRoutes from "@/modules/auth/shared/auth.route";
-import publicRoutes from "@/lib/public.route";
 import legalRoutes from "@/lib/legal.route";
+import publicRoutes from "@/lib/public.route";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function LandingFooter() {
     return (

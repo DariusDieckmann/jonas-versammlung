@@ -1,5 +1,5 @@
+import { ArrowLeft, Database, Eye, Lock, Mail, Shield } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, Shield, Lock, Eye, Database, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DatenschutzPage() {
