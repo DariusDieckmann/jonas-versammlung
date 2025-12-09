@@ -30,7 +30,8 @@ export async function isOwner(organizationId: number): Promise<boolean> {
             .limit(1);
 
         return membership.length > 0;
-    } catch {
+    } catch (error) {
+        console.error("Error checking owner status:", error);
         return false;
     }
 }
@@ -55,7 +56,8 @@ export async function isMember(organizationId: number): Promise<boolean> {
             .limit(1);
 
         return membership.length > 0;
-    } catch {
+    } catch (error) {
+        console.error("Error checking member status:", error);
         return false;
     }
 }
@@ -111,7 +113,8 @@ export async function getUserRole(
         }
 
         return membership[0].role as OrganizationRoleType;
-    } catch {
+    } catch (error) {
+        console.error("Error getting user role:", error);
         return null;
     }
 }
@@ -131,7 +134,8 @@ export async function getUserOrganizationIds(): Promise<number[]> {
             .where(eq(organizationMembers.userId, currentUser.id));
 
         return memberships.map((m) => m.organizationId);
-    } catch {
+    } catch (error) {
+        console.error("Error getting user organization IDs:", error);
         return [];
     }
 }

@@ -363,6 +363,7 @@ export async function completeMeeting(
 
 /**
  * Get upcoming open meetings (status: planned, date in the future)
+ * Only returns meetings from organizations where the user is a member
  */
 export async function getUpcomingOpenMeetings(): Promise<
     (Meeting & { propertyName: string })[]
@@ -370,10 +371,17 @@ export async function getUpcomingOpenMeetings(): Promise<
     await requireAuth();
     const db = await getDb();
 
+    // Get all organization IDs the user is a member of (1 query)
+    const userOrgIds = await getUserOrganizationIds();
+
+    if (userOrgIds.length === 0) {
+        return [];
+    }
+
     // Get today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split("T")[0];
 
-    // Get all meetings with property info
+    // Get all upcoming meetings from properties in user's organizations (1 query)
     const result = await db
         .select({
             meeting: meetings,
@@ -381,20 +389,17 @@ export async function getUpcomingOpenMeetings(): Promise<
         })
         .from(meetings)
         .innerJoin(properties, eq(meetings.propertyId, properties.id))
-        .where(and(eq(meetings.status, "planned"), gte(meetings.date, today)))
+        .where(
+            and(
+                eq(meetings.status, "planned"),
+                gte(meetings.date, today),
+                inArray(properties.organizationId, userOrgIds),
+            ),
+        )
         .orderBy(meetings.date);
 
-    // Filter by organization membership and add property name
-    const accessibleMeetings: (Meeting & { propertyName: string })[] = [];
-    for (const { meeting, property } of result) {
-        try {
-            await requireMember(property.organizationId);
-            accessibleMeetings.push({
-                ...meeting,
-                propertyName: property.name,
-            });
-        } catch {}
-    }
-
-    return accessibleMeetings;
+    return result.map((r) => ({
+        ...r.meeting,
+        propertyName: r.property.name,
+    }));
 }
