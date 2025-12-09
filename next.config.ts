@@ -27,10 +27,6 @@ const nextConfig = {
             "@radix-ui/react-select",
         ],
         // Enable parallel routes caching
-        staleTimes: {
-            dynamic: 30,
-            static: 180,
-        },
     },
 };
 
