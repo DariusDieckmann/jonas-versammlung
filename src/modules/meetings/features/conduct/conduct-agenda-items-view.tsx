@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Circle, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,11 +63,15 @@ export function ConductAgendaItemsView({
         setCompletedItems(new Set(completedAgendaItemIds));
     }, [completedAgendaItemIds]);
 
-    // Filter only present and represented participants for voting
-    const votingParticipants = participants.filter(
-        (p) =>
-            p.attendanceStatus === "present" ||
-            p.attendanceStatus === "represented",
+    // Filter only present and represented participants for voting (memoized)
+    const votingParticipants = useMemo(
+        () =>
+            participants.filter(
+                (p) =>
+                    p.attendanceStatus === "present" ||
+                    p.attendanceStatus === "represented",
+            ),
+        [participants]
     );
 
     const selectedItem = agendaItems.find((item) => item.id === selectedItemId);
