@@ -115,3 +115,23 @@ export async function getUserRole(
         return null;
     }
 }
+
+/**
+ * Get all organization IDs that the current user is a member of
+ * Used for efficient bulk permission checks
+ */
+export async function getUserOrganizationIds(): Promise<number[]> {
+    try {
+        const currentUser = await requireAuth();
+        const db = await getDb();
+
+        const memberships = await db
+            .select({ organizationId: organizationMembers.organizationId })
+            .from(organizationMembers)
+            .where(eq(organizationMembers.userId, currentUser.id));
+
+        return memberships.map((m) => m.organizationId);
+    } catch {
+        return [];
+    }
+}

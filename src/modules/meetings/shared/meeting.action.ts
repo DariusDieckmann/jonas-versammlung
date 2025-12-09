@@ -1,10 +1,11 @@
 "use server";
 
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq, gte, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
+    getUserOrganizationIds,
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
@@ -21,31 +22,30 @@ import {
 
 /**
  * Get all meetings for the user's properties
+ * Only returns meetings from organizations where the user is a member
  */
 export async function getMeetings(): Promise<Meeting[]> {
     await requireAuth();
     const db = await getDb();
 
-    // Get all meetings with property info to check organization access
+    // Get all organization IDs the user is a member of (1 query)
+    const userOrgIds = await getUserOrganizationIds();
+
+    if (userOrgIds.length === 0) {
+        return [];
+    }
+
+    // Get all meetings from properties in user's organizations (1 query)
     const result = await db
         .select({
             meeting: meetings,
-            property: properties,
         })
         .from(meetings)
         .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(inArray(properties.organizationId, userOrgIds))
         .orderBy(meetings.date);
 
-    // Filter by organization membership
-    const accessibleMeetings: Meeting[] = [];
-    for (const { meeting, property } of result) {
-        try {
-            await requireMember(property.organizationId);
-            accessibleMeetings.push(meeting);
-        } catch {}
-    }
-
-    return accessibleMeetings;
+    return result.map((r) => r.meeting);
 }
 
 /**
