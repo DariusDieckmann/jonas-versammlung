@@ -46,8 +46,6 @@ export async function createAgendaItemAttachment(
 
         await requireMember(agendaItem[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         const validatedData = insertAgendaItemAttachmentSchema.parse({
             ...data,
             uploadedBy: user.id,
@@ -55,10 +53,7 @@ export async function createAgendaItemAttachment(
 
         const result = await db
             .insert(agendaItemAttachments)
-            .values({
-                ...validatedData,
-                createdAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };

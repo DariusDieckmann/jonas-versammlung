@@ -205,14 +205,11 @@ export async function createUnit(
             };
         }
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(units)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -277,14 +274,9 @@ export async function updateUnit(
             }
         }
 
-        const now = new Date().toISOString();
-
         await db
             .update(units)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(units.id, unitId));
 
         revalidatePath(propertiesRoutes.detail(existing[0].propertyId));

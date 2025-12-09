@@ -12,8 +12,13 @@ export const meetingLeaders = sqliteTable("meeting_leaders", {
         .references(() => meetings.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     role: text("role"), // z.B. "Versammlungsleiter", "Protokollführer", "Stimmzähler"
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Zod schemas

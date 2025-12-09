@@ -14,7 +14,9 @@ export const meetingAttachments = sqliteTable("meeting_attachments", {
     r2Key: text("r2_key").notNull(), // Key in R2 bucket
     r2Url: text("r2_url").notNull(), // Public URL
     uploadedBy: text("uploaded_by").notNull(), // User ID who uploaded
-    createdAt: text("created_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
 });
 
 // Validation schemas

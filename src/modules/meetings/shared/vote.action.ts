@@ -102,7 +102,6 @@ export async function castVote(
                 .update(votes)
                 .set({
                     vote: voteChoice,
-                    updatedAt: now,
                 })
                 .where(eq(votes.id, existingVote[0].id));
         } else {
@@ -113,11 +112,7 @@ export async function castVote(
                 vote: voteChoice,
             });
 
-            await db.insert(votes).values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            });
+            await db.insert(votes).values(validatedData);
         }
 
         revalidatePath(conductRoutes.agendaItems(resolution[0].meetingId));
@@ -212,7 +207,6 @@ export async function calculateResolutionResult(
                 noShares: noShares.toString(),
                 abstainShares: abstainShares.toString(),
                 result,
-                updatedAt: new Date().toISOString(),
             })
             .where(eq(resolutions.id, resolutionId));
 

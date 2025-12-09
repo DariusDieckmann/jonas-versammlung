@@ -93,14 +93,11 @@ export async function createProperty(
 
         const validatedData = insertPropertySchema.parse(data);
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(properties)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -143,14 +140,10 @@ export async function updateProperty(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updatePropertySchema.parse(data);
-        const now = new Date().toISOString();
 
         await db
             .update(properties)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(properties.id, propertyId));
 
         revalidatePath(propertiesRoutes.list);

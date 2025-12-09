@@ -26,8 +26,13 @@ export const meetingParticipants = sqliteTable("meeting_participants", {
     representedBy: text("represented_by"), // Name des Vertreters bei "represented"
     notes: text("notes"), // Zusätzliche Notizen
 
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Zod schemas

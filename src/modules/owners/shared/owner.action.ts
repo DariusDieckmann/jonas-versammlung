@@ -140,14 +140,11 @@ export async function createOwner(
             };
         }
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(owners)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -190,15 +187,11 @@ export async function updateOwner(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updateOwnerSchema.parse(data);
-        const now = new Date().toISOString();
 
         // Note: unitId cannot be changed via update (security)
         await db
             .update(owners)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(owners.id, ownerId));
 
         // Get unit to find propertyId for revalidation

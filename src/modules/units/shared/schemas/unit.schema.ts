@@ -17,12 +17,13 @@ export const units = sqliteTable("units", {
     area: real("area"),
     ownershipShares: integer("ownership_shares").notNull(),
     notes: text("notes"),
-    createdAt: text("created_at")
+    createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
-    updatedAt: text("updated_at")
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas

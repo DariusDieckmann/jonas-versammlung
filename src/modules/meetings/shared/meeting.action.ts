@@ -133,14 +133,9 @@ export async function createMeeting(
 
         const validatedData = insertMeetingSchema.parse(data);
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(meetings)
-            .values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         revalidatePath(meetingsRoutes.list);
@@ -186,14 +181,10 @@ export async function updateMeeting(
         await requireMember(existing[0].property.organizationId);
 
         const validatedData = updateMeetingSchema.parse(data);
-        const now = new Date().toISOString();
 
         await db
             .update(meetings)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(meetings.id, meetingId));
 
         revalidatePath(meetingsRoutes.list);
@@ -286,7 +277,6 @@ export async function startMeeting(
             .update(meetings)
             .set({
                 status: "in-progress",
-                updatedAt: new Date().toISOString(),
             })
             .where(eq(meetings.id, meetingId));
 
@@ -343,7 +333,6 @@ export async function completeMeeting(
             .update(meetings)
             .set({
                 status: "completed",
-                updatedAt: new Date().toISOString(),
             })
             .where(eq(meetings.id, meetingId));
 

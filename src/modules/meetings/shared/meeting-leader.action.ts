@@ -70,19 +70,13 @@ export async function createMeetingLeaders(
 
         await requireMember(meeting[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         for (const leader of leaders) {
             const validatedData = insertMeetingLeaderSchema.parse({
                 meetingId,
                 ...leader,
             });
 
-            await db.insert(meetingLeaders).values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            });
+            await db.insert(meetingLeaders).values(validatedData);
         }
 
         revalidatePath(meetingsRoutes.detail(meetingId));

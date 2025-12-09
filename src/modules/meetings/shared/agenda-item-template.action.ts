@@ -61,15 +61,9 @@ export async function createAgendaItemTemplate(
         const db = await getDb();
         await requireMember(data.organizationId);
 
-        const now = new Date().toISOString();
-
         const validatedData = insertAgendaItemTemplateSchema.parse(data);
 
-        await db.insert(agendaItemTemplates).values({
-            ...validatedData,
-            createdAt: now,
-            updatedAt: now,
-        });
+        await db.insert(agendaItemTemplates).values(validatedData);
 
         return { success: true };
     } catch (error) {
@@ -104,14 +98,9 @@ export async function updateAgendaItemTemplate(
 
         await requireMember(existing[0].organizationId);
 
-        const now = new Date().toISOString();
-
         await db
             .update(agendaItemTemplates)
-            .set({
-                ...data,
-                updatedAt: now,
-            })
+            .set(data)
             .where(eq(agendaItemTemplates.id, templateId));
 
         return { success: true };

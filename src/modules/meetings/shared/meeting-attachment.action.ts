@@ -41,8 +41,6 @@ export async function createMeetingAttachment(
 
         await requireMember(meeting[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         const validatedData = insertMeetingAttachmentSchema.parse({
             ...data,
             uploadedBy: user.id,
@@ -50,10 +48,7 @@ export async function createMeetingAttachment(
 
         const result = await db
             .insert(meetingAttachments)
-            .values({
-                ...validatedData,
-                createdAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };

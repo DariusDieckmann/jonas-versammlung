@@ -136,8 +136,8 @@ export default async function MeetingDetailPage({
         return timeStr;
     };
 
-    const formatDateTime = (dateTimeStr: string) => {
-        const date = new Date(dateTimeStr);
+    const formatDateTime = (dateTime: string | Date) => {
+        const date = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
         return date.toLocaleDateString("de-DE", {
             day: "2-digit",
             month: "2-digit",

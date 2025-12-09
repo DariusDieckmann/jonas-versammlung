@@ -13,8 +13,13 @@ export const votes = sqliteTable("votes", {
         .notNull()
         .references(() => meetingParticipants.id, { onDelete: "cascade" }),
     vote: text("vote", { enum: ["yes", "no", "abstain"] }).notNull(),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas
