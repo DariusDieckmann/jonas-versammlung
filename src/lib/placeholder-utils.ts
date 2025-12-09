@@ -165,9 +165,7 @@ export function replacePlaceholders(text: string, meeting: Meeting): string {
  * Get categories for grouping placeholders
  */
 export function getPlaceholderCategories(): string[] {
-    const categories = new Set(
-        MEETING_PLACEHOLDERS.map((p) => p.category),
-    );
+    const categories = new Set(MEETING_PLACEHOLDERS.map((p) => p.category));
     return Array.from(categories);
 }
 

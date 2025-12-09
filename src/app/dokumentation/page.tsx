@@ -27,7 +27,8 @@ export default function DokumentationPage() {
     const categories = Object.entries(DOCS_CONTENT).map(([slug, docs]) => ({
         slug,
         name: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].title,
-        description: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].description,
+        description:
+            CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].description,
         icon: CATEGORY_INFO[slug as keyof typeof CATEGORY_INFO].icon,
         docs: [...docs].sort((a, b) => a.order - b.order),
     }));
@@ -45,8 +46,8 @@ export default function DokumentationPage() {
                             Dokumentation
                         </h1>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Umfassende Anleitungen und Hilfestellungen für die Nutzung
-                            der Plattform
+                            Umfassende Anleitungen und Hilfestellungen für die
+                            Nutzung der Plattform
                         </p>
                     </div>
 
@@ -64,9 +65,9 @@ export default function DokumentationPage() {
                                         Schnellstart-Anleitung
                                     </h3>
                                     <p className="text-blue-100 mb-4">
-                                        Neu auf der Plattform? Folgen Sie unserer
-                                        Schritt-für-Schritt-Anleitung und starten Sie
-                                        in wenigen Minuten.
+                                        Neu auf der Plattform? Folgen Sie
+                                        unserer Schritt-für-Schritt-Anleitung
+                                        und starten Sie in wenigen Minuten.
                                     </p>
                                     <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
                                         <PlayCircle className="h-5 w-5" />
@@ -112,10 +113,10 @@ export default function DokumentationPage() {
                                                 </li>
                                             ))}
                                         </ul>
-                                        </CardContent>
-                                    </Card>
-                                );
-                            })}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
                     </div>
 
                     {/* Help CTA */}
@@ -125,8 +126,8 @@ export default function DokumentationPage() {
                                 Benötigen Sie weitere Hilfe?
                             </h3>
                             <p className="text-gray-600 mb-6">
-                                Unser Support-Team steht Ihnen bei Fragen gerne zur
-                                Verfügung.
+                                Unser Support-Team steht Ihnen bei Fragen gerne
+                                zur Verfügung.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <a

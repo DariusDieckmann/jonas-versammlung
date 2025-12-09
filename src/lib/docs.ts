@@ -21,20 +21,18 @@ export interface Doc {
  * Get a specific documentation by category and slug
  * Uses pre-generated static content (no filesystem access)
  */
-export function getDocBySlug(
-    category: string,
-    slug: string,
-): Doc | undefined {
+export function getDocBySlug(category: string, slug: string): Doc | undefined {
     try {
-        const categoryDocs = DOCS_CONTENT[category as keyof typeof DOCS_CONTENT];
-        
+        const categoryDocs =
+            DOCS_CONTENT[category as keyof typeof DOCS_CONTENT];
+
         if (!categoryDocs) {
             console.error(`Category not found: ${category}`);
             return undefined;
         }
 
         const doc = categoryDocs.find((d) => d.slug === slug);
-        
+
         if (!doc) {
             console.error(`Doc not found: ${category}/${slug}`);
             return undefined;
@@ -49,7 +47,8 @@ export function getDocBySlug(
                 order: doc.order,
                 description: doc.description,
                 lastUpdated: doc.lastUpdated,
-                icon: CATEGORY_INFO[category as keyof typeof CATEGORY_INFO]?.icon,
+                icon: CATEGORY_INFO[category as keyof typeof CATEGORY_INFO]
+                    ?.icon,
             },
             content: doc.content,
         };
@@ -64,7 +63,7 @@ export function getDocBySlug(
  */
 export function getDocNavigation(category: string, slug: string) {
     const categoryDocs = DOCS_CONTENT[category as keyof typeof DOCS_CONTENT];
-    
+
     if (!categoryDocs) {
         return { prev: null, next: null };
     }
@@ -76,23 +75,29 @@ export function getDocNavigation(category: string, slug: string) {
         return { prev: null, next: null };
     }
 
-    const prev = currentIndex > 0 ? {
-        slug: sortedDocs[currentIndex - 1].slug,
-        category,
-        frontmatter: {
-            title: sortedDocs[currentIndex - 1].title,
-            description: sortedDocs[currentIndex - 1].description,
-        },
-    } : null;
+    const prev =
+        currentIndex > 0
+            ? {
+                  slug: sortedDocs[currentIndex - 1].slug,
+                  category,
+                  frontmatter: {
+                      title: sortedDocs[currentIndex - 1].title,
+                      description: sortedDocs[currentIndex - 1].description,
+                  },
+              }
+            : null;
 
-    const next = currentIndex < sortedDocs.length - 1 ? {
-        slug: sortedDocs[currentIndex + 1].slug,
-        category,
-        frontmatter: {
-            title: sortedDocs[currentIndex + 1].title,
-            description: sortedDocs[currentIndex + 1].description,
-        },
-    } : null;
+    const next =
+        currentIndex < sortedDocs.length - 1
+            ? {
+                  slug: sortedDocs[currentIndex + 1].slug,
+                  category,
+                  frontmatter: {
+                      title: sortedDocs[currentIndex + 1].title,
+                      description: sortedDocs[currentIndex + 1].description,
+                  },
+              }
+            : null;
 
     return { prev, next };
 }

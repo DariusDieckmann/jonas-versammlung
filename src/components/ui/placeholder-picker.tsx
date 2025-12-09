@@ -43,7 +43,8 @@ export function PlaceholderPicker({ onSelect }: PlaceholderPickerProps) {
             <div className="flex items-center gap-2 text-xs text-gray-500">
                 <Info className="h-3.5 w-3.5" />
                 <span>
-                    Platzhalter werden später automatisch mit Meeting-Daten ersetzt
+                    Platzhalter werden später automatisch mit Meeting-Daten
+                    ersetzt
                 </span>
             </div>
 

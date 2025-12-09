@@ -3,7 +3,11 @@ import { LandingFooter as PublicFooter } from "@/components/public/public-footer
 import { AuthPageLayout } from "./auth-page-layout";
 import { getCurrentUser } from "@/modules/auth/shared/utils/auth-utils";
 
-export async function HybridPageLayout({ children }: { children: React.ReactNode }) {
+export async function HybridPageLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
     const user = await getCurrentUser();
 
     if (user) {

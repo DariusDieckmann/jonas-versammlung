@@ -230,8 +230,7 @@ export function AgendaItemTemplatesManager({
                     <DialogHeader>
                         <DialogTitle>Neue Vorlage erstellen</DialogTitle>
                         <DialogDescription>
-                            Erstellen Sie eine Vorlage für
-                            Tagesordnungspunkte
+                            Erstellen Sie eine Vorlage für Tagesordnungspunkte
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -267,7 +266,9 @@ export function AgendaItemTemplatesManager({
                                     placeholder="Zusätzliche Details..."
                                     rows={4}
                                 />
-                                <PlaceholderPicker onSelect={insertPlaceholder} />
+                                <PlaceholderPicker
+                                    onSelect={insertPlaceholder}
+                                />
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -310,8 +311,7 @@ export function AgendaItemTemplatesManager({
                     <DialogHeader>
                         <DialogTitle>Vorlage bearbeiten</DialogTitle>
                         <DialogDescription>
-                            Bearbeiten Sie die Vorlage für
-                            Tagesordnungspunkte
+                            Bearbeiten Sie die Vorlage für Tagesordnungspunkte
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -347,7 +347,9 @@ export function AgendaItemTemplatesManager({
                                     placeholder="Zusätzliche Details..."
                                     rows={4}
                                 />
-                                <PlaceholderPicker onSelect={insertPlaceholder} />
+                                <PlaceholderPicker
+                                    onSelect={insertPlaceholder}
+                                />
                             </div>
                         </div>
                         <div className="flex items-center space-x-2">

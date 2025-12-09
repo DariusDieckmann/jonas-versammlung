@@ -70,7 +70,9 @@ export function TableOfContents({ content }: TableOfContentsProps) {
                     {toc.map((item) => (
                         <li
                             key={item.id}
-                            style={{ paddingLeft: `${(item.level - 2) * 0.75}rem` }}
+                            style={{
+                                paddingLeft: `${(item.level - 2) * 0.75}rem`,
+                            }}
                         >
                             <a
                                 href={`#${item.id}`}
@@ -82,13 +84,17 @@ export function TableOfContents({ content }: TableOfContentsProps) {
                                 )}
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    const element = document.getElementById(item.id);
+                                    const element = document.getElementById(
+                                        item.id,
+                                    );
                                     if (element) {
                                         const offset = 80;
                                         const elementPosition =
                                             element.getBoundingClientRect().top;
                                         const offsetPosition =
-                                            elementPosition + window.pageYOffset - offset;
+                                            elementPosition +
+                                            window.pageYOffset -
+                                            offset;
 
                                         window.scrollTo({
                                             top: offsetPosition,

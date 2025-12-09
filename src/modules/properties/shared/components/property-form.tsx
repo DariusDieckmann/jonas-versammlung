@@ -129,7 +129,9 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                             name="address"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Adresse (Straße und Hausnummer) *</FormLabel>
+                                    <FormLabel>
+                                        Adresse (Straße und Hausnummer) *
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="z.B. Musterstraße 42a"

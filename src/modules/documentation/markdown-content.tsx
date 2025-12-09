@@ -24,7 +24,10 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
                         const text = String(children);
                         const id = generateId(text);
                         return (
-                            <h1 id={id} className="text-4xl font-bold text-gray-900 mb-4 mt-8">
+                            <h1
+                                id={id}
+                                className="text-4xl font-bold text-gray-900 mb-4 mt-8"
+                            >
                                 {children}
                             </h1>
                         );
@@ -33,7 +36,10 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
                         const text = String(children);
                         const id = generateId(text);
                         return (
-                            <h2 id={id} className="text-3xl font-bold text-gray-900 mb-3 mt-6">
+                            <h2
+                                id={id}
+                                className="text-3xl font-bold text-gray-900 mb-3 mt-6"
+                            >
                                 {children}
                             </h2>
                         );
@@ -42,7 +48,10 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
                         const text = String(children);
                         const id = generateId(text);
                         return (
-                            <h3 id={id} className="text-2xl font-semibold text-gray-900 mb-2 mt-4">
+                            <h3
+                                id={id}
+                                className="text-2xl font-semibold text-gray-900 mb-2 mt-4"
+                            >
                                 {children}
                             </h3>
                         );

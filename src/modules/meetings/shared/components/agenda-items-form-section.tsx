@@ -234,7 +234,9 @@ export function AgendaItemsFormSection({
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <Library className="h-3 w-3" />
-                                                    <span>{template.title}</span>
+                                                    <span>
+                                                        {template.title}
+                                                    </span>
                                                     {template.requiresResolution && (
                                                         <Badge
                                                             variant="outline"

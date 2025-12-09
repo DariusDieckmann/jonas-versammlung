@@ -38,9 +38,8 @@ export const insertAgendaItemTemplateSchema = createInsertSchema(
     updatedAt: true,
 });
 
-export const selectAgendaItemTemplateSchema = createSelectSchema(
-    agendaItemTemplates,
-);
+export const selectAgendaItemTemplateSchema =
+    createSelectSchema(agendaItemTemplates);
 
 export const updateAgendaItemTemplateSchema =
     insertAgendaItemTemplateSchema.partial();

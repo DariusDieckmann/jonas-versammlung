@@ -49,7 +49,7 @@ const faqCategories = [
             {
                 question: "Kann ich Versammlungen bearbeiten oder absagen?",
                 answer: "Ja, Sie können jederzeit bestehende Versammlungen bearbeiten oder absagen. Alle eingeladenen Teilnehmer werden automatisch über Änderungen informiert.",
-            }
+            },
         ],
     },
     {
@@ -122,7 +122,8 @@ export default function FAQPage() {
                             Häufig gestellte Fragen (FAQ)
                         </h1>
                         <p className="text-xl text-gray-600">
-                            Finden Sie schnell Antworten auf die häufigsten Fragen
+                            Finden Sie schnell Antworten auf die häufigsten
+                            Fragen
                         </p>
                     </div>
 
@@ -140,20 +141,26 @@ export default function FAQPage() {
                                         </h2>
                                     </div>
 
-                                    <Accordion type="single" collapsible className="w-full">
-                                        {category.questions.map((item, index) => (
-                                            <AccordionItem
-                                                key={index}
-                                                value={`item-${categoryIndex}-${index}`}
-                                            >
-                                                <AccordionTrigger className="text-left">
-                                                    {item.question}
-                                                </AccordionTrigger>
-                                                <AccordionContent className="text-gray-600 leading-relaxed">
-                                                    {item.answer}
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        ))}
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        className="w-full"
+                                    >
+                                        {category.questions.map(
+                                            (item, index) => (
+                                                <AccordionItem
+                                                    key={index}
+                                                    value={`item-${categoryIndex}-${index}`}
+                                                >
+                                                    <AccordionTrigger className="text-left">
+                                                        {item.question}
+                                                    </AccordionTrigger>
+                                                    <AccordionContent className="text-gray-600 leading-relaxed">
+                                                        {item.answer}
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ),
+                                        )}
                                     </Accordion>
                                 </CardContent>
                             </Card>
@@ -167,7 +174,8 @@ export default function FAQPage() {
                                 Ihre Frage wurde nicht beantwortet?
                             </h3>
                             <p className="text-gray-600 mb-6">
-                                Kontaktieren Sie uns – wir helfen Ihnen gerne weiter!
+                                Kontaktieren Sie uns – wir helfen Ihnen gerne
+                                weiter!
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <a

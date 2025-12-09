@@ -44,7 +44,8 @@ export default function KostenlosTesterPage() {
                             Kostenlos testen
                         </h1>
                         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                            Testen Sie alle Funktionen unverbindlich und ohne Risiko
+                            Testen Sie alle Funktionen unverbindlich und ohne
+                            Risiko
                         </p>
                     </div>
 
@@ -65,9 +66,9 @@ export default function KostenlosTesterPage() {
                                             Einloggen und loslegen
                                         </h3>
                                         <p className="text-gray-600">
-                                            Melden Sie sich einfach mit Ihrem Google- oder
-                                            Microsoft-Account an – ohne komplizierte
-                                            Registrierung.
+                                            Melden Sie sich einfach mit Ihrem
+                                            Google- oder Microsoft-Account an –
+                                            ohne komplizierte Registrierung.
                                         </p>
                                     </div>
                                 </div>
@@ -80,8 +81,9 @@ export default function KostenlosTesterPage() {
                                             Alle Funktionen nutzen
                                         </h3>
                                         <p className="text-gray-600">
-                                            Testen Sie die gesamte Plattform uneingeschränkt.
-                                            Erstellen Sie Versammlungen, Protokolle und vieles
+                                            Testen Sie die gesamte Plattform
+                                            uneingeschränkt. Erstellen Sie
+                                            Versammlungen, Protokolle und vieles
                                             mehr.
                                         </p>
                                     </div>
@@ -95,8 +97,9 @@ export default function KostenlosTesterPage() {
                                             Bei Interesse: Kontakt aufnehmen
                                         </h3>
                                         <p className="text-gray-600">
-                                            Überzeugt? Kontaktieren Sie uns für eine feste
-                                            Vereinbarung und unbegrenzten Zugang.
+                                            Überzeugt? Kontaktieren Sie uns für
+                                            eine feste Vereinbarung und
+                                            unbegrenzten Zugang.
                                         </p>
                                     </div>
                                 </div>
@@ -112,9 +115,14 @@ export default function KostenlosTesterPage() {
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {features.map((feature, index) => (
-                                    <div key={index} className="flex items-center gap-3">
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-3"
+                                    >
                                         <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-700">{feature}</span>
+                                        <span className="text-gray-700">
+                                            {feature}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
@@ -132,20 +140,28 @@ export default function KostenlosTesterPage() {
                                         Wichtiger Hinweis zur Testphase
                                     </h3>
                                     <p className="text-gray-700 mb-4 leading-relaxed">
-                                        Wenn Ihre Organisation noch nicht bei uns registriert
-                                        ist, werden die von Ihnen erstellten Testdaten{" "}
-                                        <strong>automatisch nach 7 Tagen gelöscht</strong>.
-                                        Dies dient dem Schutz Ihrer Daten und der Einhaltung
-                                        der Datenschutzbestimmungen.
+                                        Wenn Ihre Organisation noch nicht bei
+                                        uns registriert ist, werden die von
+                                        Ihnen erstellten Testdaten{" "}
+                                        <strong>
+                                            automatisch nach 7 Tagen gelöscht
+                                        </strong>
+                                        . Dies dient dem Schutz Ihrer Daten und
+                                        der Einhaltung der
+                                        Datenschutzbestimmungen.
                                     </p>
                                     <div className="bg-white rounded-lg p-4 border border-amber-200">
                                         <p className="text-gray-700 mb-2">
-                                            <strong>Sie möchten dauerhaft mit uns arbeiten?</strong>
+                                            <strong>
+                                                Sie möchten dauerhaft mit uns
+                                                arbeiten?
+                                            </strong>
                                         </p>
                                         <p className="text-gray-600 text-sm">
-                                            Kontaktieren Sie uns einfach während oder nach der
-                                            Testphase. Wir richten Ihnen dann einen dauerhaften
-                                            Account ein und Ihre Daten bleiben erhalten.
+                                            Kontaktieren Sie uns einfach während
+                                            oder nach der Testphase. Wir richten
+                                            Ihnen dann einen dauerhaften Account
+                                            ein und Ihre Daten bleiben erhalten.
                                         </p>
                                     </div>
                                 </div>
@@ -164,30 +180,36 @@ export default function KostenlosTesterPage() {
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <p>
-                                        <strong>DSGVO-konform:</strong> Alle Daten werden
-                                        verschlüsselt und sicher in Europa gespeichert
+                                        <strong>DSGVO-konform:</strong> Alle
+                                        Daten werden verschlüsselt und sicher in
+                                        Europa gespeichert
                                     </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <p>
-                                        <strong>Keine Kreditkarte:</strong> Sie müssen keine
-                                        Zahlungsinformationen angeben
+                                        <strong>Keine Kreditkarte:</strong> Sie
+                                        müssen keine Zahlungsinformationen
+                                        angeben
                                     </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <p>
-                                        <strong>Automatische Löschung:</strong> Nach 7 Tagen
-                                        werden Testdaten automatisch entfernt (außer bei fester
+                                        <strong>Automatische Löschung:</strong>{" "}
+                                        Nach 7 Tagen werden Testdaten
+                                        automatisch entfernt (außer bei fester
                                         Vereinbarung)
                                     </p>
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <p>
-                                        <strong>Keine versteckten Kosten:</strong> Der Test ist
-                                        komplett kostenlos und unverbindlich
+                                        <strong>
+                                            Keine versteckten Kosten:
+                                        </strong>{" "}
+                                        Der Test ist komplett kostenlos und
+                                        unverbindlich
                                     </p>
                                 </div>
                             </div>
@@ -202,8 +224,8 @@ export default function KostenlosTesterPage() {
                                     Bereit zum Testen?
                                 </h3>
                                 <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-                                    Loggen Sie sich jetzt ein und überzeugen Sie sich selbst
-                                    von unserer Plattform.
+                                    Loggen Sie sich jetzt ein und überzeugen Sie
+                                    sich selbst von unserer Plattform.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                     <Link href={authRoutes.login}>
@@ -231,7 +253,9 @@ export default function KostenlosTesterPage() {
 
                     {/* FAQ Quick Links */}
                     <div className="mt-12 text-center">
-                        <p className="text-gray-600 mb-4">Haben Sie noch Fragen?</p>
+                        <p className="text-gray-600 mb-4">
+                            Haben Sie noch Fragen?
+                        </p>
                         <div className="flex flex-wrap justify-center gap-4">
                             <Link
                                 href={publicRoutes.faq}

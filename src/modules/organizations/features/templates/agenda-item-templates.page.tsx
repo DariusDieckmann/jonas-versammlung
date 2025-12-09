@@ -19,21 +19,21 @@ export default function AgendaItemTemplatesPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-        const orgs = await getUserOrganizations();
-        if (orgs.length > 0) {
-            setOrganization(orgs[0]);
-            const templateList = await getAgendaItemTemplates(orgs[0].id);
-            setTemplates(templateList);
+        setIsLoading(true);
+        try {
+            const orgs = await getUserOrganizations();
+            if (orgs.length > 0) {
+                setOrganization(orgs[0]);
+                const templateList = await getAgendaItemTemplates(orgs[0].id);
+                setTemplates(templateList);
+            }
+        } catch (error) {
+            console.error("Error loading templates:", error);
+            toast.error("Fehler beim Laden der Vorlagen");
+        } finally {
+            setIsLoading(false);
         }
-    } catch (error) {
-        console.error("Error loading templates:", error);
-        toast.error("Fehler beim Laden der Vorlagen");
-    } finally {
-        setIsLoading(false);
-    }
-}, []);
+    }, []);
 
     useEffect(() => {
         loadData();

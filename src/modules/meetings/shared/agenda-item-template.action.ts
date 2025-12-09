@@ -26,7 +26,6 @@ export async function getAgendaItemTemplates(organizationId: number) {
         .where(eq(agendaItemTemplates.organizationId, organizationId))
         .orderBy(agendaItemTemplates.title);
 
-
     return templates;
 }
 
@@ -46,7 +45,7 @@ export async function getAgendaItemTemplate(templateId: number) {
     if (!template.length) {
         return null;
     }
-    
+
     await requireMember(template[0].organizationId);
     return template[0];
 }
@@ -98,11 +97,11 @@ export async function updateAgendaItemTemplate(
             .from(agendaItemTemplates)
             .where(eq(agendaItemTemplates.id, templateId))
             .limit(1);
-        
+
         if (!existing.length) {
             return { success: false, error: "Vorlage nicht gefunden" };
         }
-        
+
         await requireMember(existing[0].organizationId);
 
         const now = new Date().toISOString();
@@ -140,11 +139,11 @@ export async function deleteAgendaItemTemplate(
             .from(agendaItemTemplates)
             .where(eq(agendaItemTemplates.id, templateId))
             .limit(1);
-        
+
         if (!existing.length) {
             return { success: false, error: "Vorlage nicht gefunden" };
         }
-        
+
         await requireMember(existing[0].organizationId);
 
         await db

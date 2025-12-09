@@ -1,6 +1,14 @@
 "use client";
 
-import { Building, Building2, CalendarDays, Home, BookOpen, LifeBuoy, Menu } from "lucide-react";
+import {
+    Building,
+    Building2,
+    CalendarDays,
+    Home,
+    BookOpen,
+    LifeBuoy,
+    Menu,
+} from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/modules/auth/features/logout/logout-button";
@@ -19,7 +27,10 @@ export function Navigation() {
             <div className="container mx-auto px-4 py-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-6">
-                        <Link href={dashboardRoutes.dashboard} className="text-xl font-bold text-gray-900">
+                        <Link
+                            href={dashboardRoutes.dashboard}
+                            className="text-xl font-bold text-gray-900"
+                        >
                             Triple-D
                         </Link>
                         {/* Desktop Navigation */}
@@ -81,38 +92,80 @@ export function Navigation() {
                 {isOpen && (
                     <div className="xl:hidden border-t border-gray-200 py-4 mt-3">
                         <div className="flex flex-col gap-2">
-                            <Link href={dashboardRoutes.dashboard} onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" size="sm" className="w-full justify-start">
+                            <Link
+                                href={dashboardRoutes.dashboard}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start"
+                                >
                                     <Home className="mr-2 h-4 w-4" />
                                     Startseite
                                 </Button>
                             </Link>
-                            <Link href={propertiesRoutes.list} onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" size="sm" className="w-full justify-start">
+                            <Link
+                                href={propertiesRoutes.list}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start"
+                                >
                                     <Building className="mr-2 h-4 w-4" />
                                     Liegenschaften
                                 </Button>
                             </Link>
-                            <Link href={meetingsRoutes.list} onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" size="sm" className="w-full justify-start">
+                            <Link
+                                href={meetingsRoutes.list}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start"
+                                >
                                     <CalendarDays className="mr-2 h-4 w-4" />
                                     Versammlungen
                                 </Button>
                             </Link>
-                            <Link href={settingsRoutes.organization} onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" size="sm" className="w-full justify-start">
+                            <Link
+                                href={settingsRoutes.organization}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start"
+                                >
                                     <Building2 className="mr-2 h-4 w-4" />
                                     Eigene Organisation
                                 </Button>
                             </Link>
-                            <Link href={publicRoutes.dokumentation.index} onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" size="sm" className="w-full justify-start">
+                            <Link
+                                href={publicRoutes.dokumentation.index}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start"
+                                >
                                     <BookOpen className="mr-2 h-4 w-4" />
                                     Dokumentation
                                 </Button>
                             </Link>
-                            <Link href={publicRoutes.hilfeCenter} onClick={() => setIsOpen(false)}>
-                                <Button variant="ghost" size="sm" className="w-full justify-start">
+                            <Link
+                                href={publicRoutes.hilfeCenter}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start"
+                                >
                                     <LifeBuoy className="mr-2 h-4 w-4" />
                                     Hilfe
                                 </Button>

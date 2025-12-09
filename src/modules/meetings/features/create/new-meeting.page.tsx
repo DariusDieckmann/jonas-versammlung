@@ -31,7 +31,10 @@ export default async function NewMeetingPage() {
                 </Link>
             </div>
 
-            <MeetingFormWithAgenda properties={properties} templates={templates} />
+            <MeetingFormWithAgenda
+                properties={properties}
+                templates={templates}
+            />
         </div>
     );
 }

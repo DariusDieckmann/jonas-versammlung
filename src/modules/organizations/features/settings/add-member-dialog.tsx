@@ -45,9 +45,7 @@ interface AddMemberDialogProps {
     onSuccess?: () => void;
 }
 
-export function AddMemberDialog({
-    onSuccess,
-}: AddMemberDialogProps) {
+export function AddMemberDialog({ onSuccess }: AddMemberDialogProps) {
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
 

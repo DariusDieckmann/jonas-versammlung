@@ -19,13 +19,13 @@ interface DocPageProps {
 
 export async function generateStaticParams() {
     const slugs: Array<{ category: string; slug: string }> = [];
-    
+
     for (const [category, docs] of Object.entries(DOCS_CONTENT)) {
         for (const doc of docs) {
             slugs.push({ category, slug: doc.slug });
         }
     }
-    
+
     return slugs;
 }
 
@@ -102,7 +102,10 @@ export default async function DocPage({ params }: DocPageProps) {
                             </div>
 
                             {/* Navigation */}
-                            <DocNavigation prev={navigation.prev} next={navigation.next} />
+                            <DocNavigation
+                                prev={navigation.prev}
+                                next={navigation.next}
+                            />
                         </article>
 
                         {/* Table of Contents */}

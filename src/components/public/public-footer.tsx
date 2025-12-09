@@ -22,14 +22,12 @@ export function LandingFooter() {
                         >
                             <div className="flex items-center gap-2 mb-4">
                                 <Building2 className="h-8 w-8 text-blue-500" />
-                               
-                                    Eigentümerversammlungen
-                            
+                                Eigentümerversammlungen
                             </div>
                             <p className="text-gray-400 mb-4 text-sm leading-relaxed">
                                 Moderne Digitalisierung für Hausverwaltungen und
-                                Eigentümerversammlungen. Effizient, transparent und
-                                rechtssicher.
+                                Eigentümerversammlungen. Effizient, transparent
+                                und rechtssicher.
                             </p>
                             <div className="flex items-center gap-2 text-sm">
                                 <Mail className="h-4 w-4 text-blue-500" />
@@ -185,8 +183,8 @@ export function LandingFooter() {
                 >
                     <div className="flex flex-col md:flex-row justify-between items-center gap-3">
                         <p className="text-sm text-gray-400">
-                            © {new Date().getFullYear()} Eigentümerversammlungen. Alle
-                            Rechte vorbehalten.
+                            © {new Date().getFullYear()}{" "}
+                            Eigentümerversammlungen. Alle Rechte vorbehalten.
                         </p>
                         <p className="text-xs text-gray-500">
                             Made with ❤️ in Deutschland

@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, XCircle, Mail, Clock, User, Building2 } from "lucide-react";
+import {
+    CheckCircle,
+    XCircle,
+    Mail,
+    Clock,
+    User,
+    Building2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -99,12 +106,12 @@ export function PendingInvitationsList({
         const now = new Date();
         const expires = new Date(expiresAt);
         const diffMs = expires.getTime() - now.getTime();
-        
+
         // Handle expired invitations
         if (diffMs <= 0) {
             return "Abgelaufen";
         }
-        
+
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         const diffMinutes = Math.floor(
             (diffMs % (1000 * 60 * 60)) / (1000 * 60),
@@ -179,7 +186,8 @@ export function PendingInvitationsList({
 
                                 <div className="flex items-center gap-4 text-sm text-gray-500 pt-2 border-t">
                                     <span>
-                                        Gesendet: {formatDate(invitation.invitedAt)}
+                                        Gesendet:{" "}
+                                        {formatDate(invitation.invitedAt)}
                                     </span>
                                     <span>•</span>
                                     <span className="flex items-center gap-1">

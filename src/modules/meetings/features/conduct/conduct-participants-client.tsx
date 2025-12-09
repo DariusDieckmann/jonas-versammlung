@@ -30,9 +30,7 @@ export function ConductParticipantsClient({
             onNext={handleFinish}
             nextLabel="Weiter"
         >
-            <ConductParticipantsForm
-                initialParticipants={participants}
-            />
+            <ConductParticipantsForm initialParticipants={participants} />
         </ConductLayout>
     );
 }

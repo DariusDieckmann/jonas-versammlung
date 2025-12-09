@@ -53,9 +53,7 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                 setState("ready");
             } else {
                 setState("error");
-                setMessage(
-                    result.error || "Fehler beim Laden der Einladung",
-                );
+                setMessage(result.error || "Fehler beim Laden der Einladung");
             }
         };
 
@@ -136,14 +134,14 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center gap-4">
                             <XCircle className="h-12 w-12 text-red-500" />
-                            <h2 className="text-xl font-semibold">
-                                Fehler
-                            </h2>
+                            <h2 className="text-xl font-semibold">Fehler</h2>
                             <p className="text-center text-gray-600">
                                 {message}
                             </p>
                             <Button
-                                onClick={() => router.push(dashboardRoutes.dashboard)}
+                                onClick={() =>
+                                    router.push(dashboardRoutes.dashboard)
+                                }
                                 variant="outline"
                             >
                                 Zum Dashboard
@@ -235,9 +233,9 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                             </p>
                             <p className="text-sm text-amber-700">
                                 Um diese Einladung anzunehmen, müssen Sie zuerst
-                                Ihre aktuelle Organisation verlassen. Klicken Sie
-                                auf "Weiter zur Organisationseinstellung", um zu den Einstellungen zu
-                                gelangen.
+                                Ihre aktuelle Organisation verlassen. Klicken
+                                Sie auf "Weiter zur Organisationseinstellung",
+                                um zu den Einstellungen zu gelangen.
                             </p>
                         </div>
                     )}
@@ -245,7 +243,9 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                     <Button
                         onClick={handleAccept}
                         className="w-full"
-                        variant={hasExistingOrganization ? "outline" : "default"}
+                        variant={
+                            hasExistingOrganization ? "outline" : "default"
+                        }
                     >
                         {hasExistingOrganization
                             ? "Weiter zur Organisationseinstellung"

@@ -82,11 +82,17 @@ export function LoginForm({
             </Card>
             <div className="text-muted-foreground text-center text-xs text-balance">
                 Durch die Anmeldung stimmen Sie unseren{" "}
-                <a href={legalRoutes.agb} className="underline underline-offset-4 hover:text-primary">
+                <a
+                    href={legalRoutes.agb}
+                    className="underline underline-offset-4 hover:text-primary"
+                >
                     AGB
                 </a>{" "}
                 und unserer{" "}
-                <a href={legalRoutes.datenschutz} className="underline underline-offset-4 hover:text-primary">
+                <a
+                    href={legalRoutes.datenschutz}
+                    className="underline underline-offset-4 hover:text-primary"
+                >
                     Datenschutzerklärung
                 </a>{" "}
                 zu.

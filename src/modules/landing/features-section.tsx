@@ -75,7 +75,10 @@ const features = [
 function FeatureCard({
     feature,
     index,
-}: { feature: (typeof features)[0]; index: number }) {
+}: {
+    feature: (typeof features)[0];
+    index: number;
+}) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -119,7 +122,9 @@ export function FeaturesSection() {
                 <motion.div
                     ref={ref}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                    animate={
+                        isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+                    }
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -134,7 +139,11 @@ export function FeaturesSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((feature, index) => (
-                        <FeatureCard key={feature.title} feature={feature} index={index} />
+                        <FeatureCard
+                            key={feature.title}
+                            feature={feature}
+                            index={index}
+                        />
                     ))}
                 </div>
             </div>

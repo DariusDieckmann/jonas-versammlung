@@ -22,7 +22,10 @@ export function AppFooter() {
                         >
                             Datenschutz
                         </Link>
-                        <Link href={legalRoutes.agb} className="hover:text-gray-900 transition-colors">
+                        <Link
+                            href={legalRoutes.agb}
+                            className="hover:text-gray-900 transition-colors"
+                        >
                             AGB
                         </Link>
                     </div>

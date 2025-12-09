@@ -71,7 +71,10 @@ export default async function RootLayout({
         <html lang="de">
             <head>
                 <link rel="canonical" href="https://triple-d.ninja" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                />
             </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
