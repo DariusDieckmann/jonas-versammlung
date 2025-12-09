@@ -2,11 +2,6 @@ import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-    /* Performance Optimizations for smooth navigation */
-    
-    // Enable optimized font loading
-    optimizeFonts: true,
-    
     // Compiler optimizations
     compiler: {
         // Remove console logs in production
