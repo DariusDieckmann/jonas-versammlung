@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import authRoutes from "@/modules/auth/shared/auth.route";
 
-export function Navigation() {
+export function PublicNavigation() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (

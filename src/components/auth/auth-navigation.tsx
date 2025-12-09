@@ -19,7 +19,7 @@ import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
 import propertiesRoutes from "@/modules/properties/shared/properties.route";
 
-export function Navigation() {
+export function AuthNavigation() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (

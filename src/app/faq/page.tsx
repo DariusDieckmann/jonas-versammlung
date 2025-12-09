@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 import { LandingFooter } from "@/components/public/public-footer";
-import { Navigation } from "@/components/public/public-navigation";
+import { PublicNavigation } from "@/components/public/public-navigation";
 import {
     Accordion,
     AccordionContent,
@@ -119,7 +119,7 @@ const faqCategories = [
 export default function FAQPage() {
     return (
         <div className="min-h-screen flex flex-col">
-            <Navigation />
+            <PublicNavigation />
             <main className="flex-1 pt-16">
                 <div className="bg-gradient-to-b from-blue-50 to-white py-22">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,5 +1,5 @@
 import { LandingFooter } from "@/components/public/public-footer";
-import { Navigation } from "@/components/public/public-navigation";
+import { PublicNavigation } from "@/components/public/public-navigation";
 import { BenefitsSection } from "@/modules/landing/benefits-section";
 import { CTASection } from "@/modules/landing/cta-section";
 import { FeaturesSection } from "@/modules/landing/features-section";
@@ -32,7 +32,7 @@ export default async function HomePage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <Navigation />
+            <PublicNavigation />
             <div className="pt-16">
                 <HeroSection />
                 <FeaturesSection />

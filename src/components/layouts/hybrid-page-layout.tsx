@@ -1,24 +1,23 @@
-import { LandingFooter as PublicFooter } from "@/components/public/public-footer";
-import { Navigation as PublicNavigation } from "@/components/public/public-navigation";
-import { getCurrentUser } from "@/modules/auth/shared/utils/auth-utils";
-import { AuthPageLayout } from "./auth-page-layout";
+"use client";
 
-export async function HybridPageLayout({
+import { AppFooter } from "@/components/auth/auth-footer";
+import { LandingFooter } from "@/components/public/public-footer";
+import { PublicNavigation } from "../public/public-navigation";
+import { AuthNavigation } from "../auth/auth-navigation";
+import { useAuth } from "@/contexts/auth-context";
+
+export function HybridPageLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const user = await getCurrentUser();
-
-    if (user) {
-        return <AuthPageLayout>{children}</AuthPageLayout>;
-    }
+    const { isAuthenticated, loading } = useAuth();
 
     return (
         <div className="min-h-screen flex flex-col">
-            <PublicNavigation />
+            {!loading && (isAuthenticated ? <PublicNavigation /> : <AuthNavigation />)}
             <main className="flex-1 pt-16">{children}</main>
-            <PublicFooter />
+            {!loading && (isAuthenticated ? <AppFooter /> : <LandingFooter />)}
         </div>
     );
 }
