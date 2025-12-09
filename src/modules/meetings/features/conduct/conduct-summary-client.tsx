@@ -11,8 +11,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import meetingsRoutes from "../../meetings.route";
 import { completeMeeting } from "../../shared/meeting.action";
+import meetingsRoutes from "../../shared/meetings.route";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { Resolution } from "../../shared/schemas/resolution.schema";

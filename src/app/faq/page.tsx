@@ -1,4 +1,14 @@
-import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
+import {
+    Calendar,
+    FileText,
+    HelpCircle,
+    Settings,
+    Shield,
+    Users,
+} from "lucide-react";
+import type { Metadata } from "next";
+import { LandingFooter } from "@/components/public/public-footer";
+import { PublicNavigation } from "@/components/public/public-navigation";
 import {
     Accordion,
     AccordionContent,
@@ -6,14 +16,12 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-    HelpCircle,
-    Users,
-    Calendar,
-    FileText,
-    Shield,
-    Settings,
-} from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "FAQ - Häufig gestellte Fragen | Versammlung",
+    description:
+        "Antworten auf häufig gestellte Fragen zu Eigentümerversammlungen, Protokollen, Datenschutz und mehr.",
+};
 
 const faqCategories = [
     {
@@ -49,7 +57,7 @@ const faqCategories = [
             {
                 question: "Kann ich Versammlungen bearbeiten oder absagen?",
                 answer: "Ja, Sie können jederzeit bestehende Versammlungen bearbeiten oder absagen. Alle eingeladenen Teilnehmer werden automatisch über Änderungen informiert.",
-            }
+            },
         ],
     },
     {
@@ -110,11 +118,13 @@ const faqCategories = [
 
 export default function FAQPage() {
     return (
-        <HybridPageLayout>
-            <div className="bg-gradient-to-b from-blue-50 to-white py-22">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Header */}
-                    <div className="text-center mb-12">
+        <div className="min-h-screen flex flex-col">
+            <PublicNavigation />
+            <main className="flex-1 pt-16">
+                <div className="bg-gradient-to-b from-blue-50 to-white py-22">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Header */}
+                        <div className="text-center mb-12">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                             <HelpCircle className="h-8 w-8 text-blue-600" />
                         </div>
@@ -122,7 +132,8 @@ export default function FAQPage() {
                             Häufig gestellte Fragen (FAQ)
                         </h1>
                         <p className="text-xl text-gray-600">
-                            Finden Sie schnell Antworten auf die häufigsten Fragen
+                            Finden Sie schnell Antworten auf die häufigsten
+                            Fragen
                         </p>
                     </div>
 
@@ -140,20 +151,26 @@ export default function FAQPage() {
                                         </h2>
                                     </div>
 
-                                    <Accordion type="single" collapsible className="w-full">
-                                        {category.questions.map((item, index) => (
-                                            <AccordionItem
-                                                key={index}
-                                                value={`item-${categoryIndex}-${index}`}
-                                            >
-                                                <AccordionTrigger className="text-left">
-                                                    {item.question}
-                                                </AccordionTrigger>
-                                                <AccordionContent className="text-gray-600 leading-relaxed">
-                                                    {item.answer}
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        ))}
+                                    <Accordion
+                                        type="single"
+                                        collapsible
+                                        className="w-full"
+                                    >
+                                        {category.questions.map(
+                                            (item, index) => (
+                                                <AccordionItem
+                                                    key={index}
+                                                    value={`item-${categoryIndex}-${index}`}
+                                                >
+                                                    <AccordionTrigger className="text-left">
+                                                        {item.question}
+                                                    </AccordionTrigger>
+                                                    <AccordionContent className="text-gray-600 leading-relaxed">
+                                                        {item.answer}
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            ),
+                                        )}
                                     </Accordion>
                                 </CardContent>
                             </Card>
@@ -167,7 +184,8 @@ export default function FAQPage() {
                                 Ihre Frage wurde nicht beantwortet?
                             </h3>
                             <p className="text-gray-600 mb-6">
-                                Kontaktieren Sie uns – wir helfen Ihnen gerne weiter!
+                                Kontaktieren Sie uns – wir helfen Ihnen gerne
+                                weiter!
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <a
@@ -179,8 +197,10 @@ export default function FAQPage() {
                             </div>
                         </CardContent>
                     </Card>
+                    </div>
                 </div>
-            </div>
-        </HybridPageLayout>
+            </main>
+            <LandingFooter />
+        </div>
     );
 }

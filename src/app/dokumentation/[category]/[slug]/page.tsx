@@ -1,13 +1,14 @@
+import { ArrowLeft, Calendar } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HybridPageLayout } from "@/components/layouts/hybrid-page-layout";
+import { getDocBySlug, getDocNavigation } from "@/lib/docs";
+import { DOCS_CONTENT } from "@/lib/docs-content";
+import publicRoutes from "@/lib/public.route";
+import { DocNavigation } from "@/modules/documentation/doc-navigation";
 import { MarkdownContent } from "@/modules/documentation/markdown-content";
 import { TableOfContents } from "@/modules/documentation/table-of-contents";
-import { DocNavigation } from "@/modules/documentation/doc-navigation";
-import { DOCS_CONTENT } from "@/lib/docs-content";
-import { getDocBySlug, getDocNavigation } from "@/lib/docs";
-import { Calendar, ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import type { Metadata } from "next";
 
 interface DocPageProps {
     params: Promise<{
@@ -18,13 +19,13 @@ interface DocPageProps {
 
 export async function generateStaticParams() {
     const slugs: Array<{ category: string; slug: string }> = [];
-    
+
     for (const [category, docs] of Object.entries(DOCS_CONTENT)) {
         for (const doc of docs) {
             slugs.push({ category, slug: doc.slug });
         }
     }
-    
+
     return slugs;
 }
 
@@ -63,7 +64,7 @@ export default async function DocPage({ params }: DocPageProps) {
                     {/* Breadcrumb */}
                     <div className="mb-8">
                         <Link
-                            href="/dokumentation"
+                            href={publicRoutes.dokumentation.index}
                             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
                         >
                             <ArrowLeft className="h-4 w-4" />
@@ -101,7 +102,10 @@ export default async function DocPage({ params }: DocPageProps) {
                             </div>
 
                             {/* Navigation */}
-                            <DocNavigation prev={navigation.prev} next={navigation.next} />
+                            <DocNavigation
+                                prev={navigation.prev}
+                                next={navigation.next}
+                            />
                         </article>
 
                         {/* Table of Contents */}

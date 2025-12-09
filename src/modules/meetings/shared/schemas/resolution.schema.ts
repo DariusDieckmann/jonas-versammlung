@@ -21,8 +21,13 @@ export const resolutions = sqliteTable("resolutions", {
     noShares: text("no_shares"),
     abstainShares: text("abstain_shares"),
     comment: text("comment"),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas

@@ -25,7 +25,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import type { Property } from "../../shared/schemas/property.schema";
 
 interface PropertiesListProps {
@@ -143,8 +143,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                                 <span className="font-medium">
                                                     Fläche:
                                                 </span>{" "}
-                                                {property.totalArea}{" "}
-                                                m²
+                                                {property.totalArea} m²
                                             </div>
                                         )}
                                     </div>
@@ -187,9 +186,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                             {property.name}
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        {property.address}
-                                    </TableCell>
+                                    <TableCell>{property.address}</TableCell>
                                     <TableCell>
                                         {property.postalCode} {property.city}
                                     </TableCell>

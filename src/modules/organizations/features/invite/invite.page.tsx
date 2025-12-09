@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Building2, CheckCircle, Loader2, User, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, XCircle, Loader2, Building2, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -11,13 +12,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import {
     acceptOrganizationInvitation,
     getInvitationDetails,
 } from "@/modules/organizations/shared/invitation.action";
 import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
 
 interface InvitePageProps {
@@ -53,9 +53,7 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                 setState("ready");
             } else {
                 setState("error");
-                setMessage(
-                    result.error || "Fehler beim Laden der Einladung",
-                );
+                setMessage(result.error || "Fehler beim Laden der Einladung");
             }
         };
 
@@ -136,14 +134,14 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center gap-4">
                             <XCircle className="h-12 w-12 text-red-500" />
-                            <h2 className="text-xl font-semibold">
-                                Fehler
-                            </h2>
+                            <h2 className="text-xl font-semibold">Fehler</h2>
                             <p className="text-center text-gray-600">
                                 {message}
                             </p>
                             <Button
-                                onClick={() => router.push(dashboardRoutes.dashboard)}
+                                onClick={() =>
+                                    router.push(dashboardRoutes.dashboard)
+                                }
                                 variant="outline"
                             >
                                 Zum Dashboard
@@ -235,9 +233,9 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                             </p>
                             <p className="text-sm text-amber-700">
                                 Um diese Einladung anzunehmen, müssen Sie zuerst
-                                Ihre aktuelle Organisation verlassen. Klicken Sie
-                                auf "Weiter zur Organisationseinstellung", um zu den Einstellungen zu
-                                gelangen.
+                                Ihre aktuelle Organisation verlassen. Klicken
+                                Sie auf "Weiter zur Organisationseinstellung",
+                                um zu den Einstellungen zu gelangen.
                             </p>
                         </div>
                     )}
@@ -245,7 +243,9 @@ export function InvitePage({ invitationCode }: InvitePageProps) {
                     <Button
                         onClick={handleAccept}
                         className="w-full"
-                        variant={hasExistingOrganization ? "outline" : "default"}
+                        variant={
+                            hasExistingOrganization ? "outline" : "default"
+                        }
                     >
                         {hasExistingOrganization
                             ? "Weiter zur Organisationseinstellung"

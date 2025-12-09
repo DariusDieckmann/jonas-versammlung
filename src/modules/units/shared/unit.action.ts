@@ -13,7 +13,7 @@ import {
     type Owner,
     owners,
 } from "@/modules/owners/shared/schemas/owner.schema";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import {
     type InsertUnit,
@@ -205,14 +205,11 @@ export async function createUnit(
             };
         }
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(units)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -277,14 +274,9 @@ export async function updateUnit(
             }
         }
 
-        const now = new Date().toISOString();
-
         await db
             .update(units)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(units.id, unitId));
 
         revalidatePath(propertiesRoutes.detail(existing[0].propertyId));

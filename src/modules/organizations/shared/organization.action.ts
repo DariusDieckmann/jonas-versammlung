@@ -153,10 +153,7 @@ export async function updateOrganization(
         // Update organization
         await db
             .update(organizations)
-            .set({
-                ...validatedData,
-                updatedAt: new Date().toISOString(),
-            })
+            .set(validatedData)
             .where(eq(organizations.id, organizationId));
 
         revalidatePath(dashboardRoutes.dashboard);

@@ -3,14 +3,14 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
-import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
-import type { OrganizationWithMemberCount } from "@/modules/organizations/shared/models/organization.model";
-import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";
-import type { AgendaItemTemplate } from "@/modules/meetings/shared/schemas/agenda-item-template.schema";
-import { AgendaItemTemplatesManager } from "@/modules/meetings/shared/components/agenda-item-templates-manager";
 import toast from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { getAgendaItemTemplates } from "@/modules/meetings/shared/agenda-item-template.action";
+import { AgendaItemTemplatesManager } from "@/modules/meetings/shared/components/agenda-item-templates-manager";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
+import type { AgendaItemTemplate } from "@/modules/meetings/shared/schemas/agenda-item-template.schema";
+import type { OrganizationWithMemberCount } from "@/modules/organizations/shared/models/organization.model";
+import { getUserOrganizations } from "@/modules/organizations/shared/organization.action";
 
 export default function AgendaItemTemplatesPage() {
     const [organization, setOrganization] =
@@ -19,21 +19,21 @@ export default function AgendaItemTemplatesPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-        const orgs = await getUserOrganizations();
-        if (orgs.length > 0) {
-            setOrganization(orgs[0]);
-            const templateList = await getAgendaItemTemplates(orgs[0].id);
-            setTemplates(templateList);
+        setIsLoading(true);
+        try {
+            const orgs = await getUserOrganizations();
+            if (orgs.length > 0) {
+                setOrganization(orgs[0]);
+                const templateList = await getAgendaItemTemplates(orgs[0].id);
+                setTemplates(templateList);
+            }
+        } catch (error) {
+            console.error("Error loading templates:", error);
+            toast.error("Fehler beim Laden der Vorlagen");
+        } finally {
+            setIsLoading(false);
         }
-    } catch (error) {
-        console.error("Error loading templates:", error);
-        toast.error("Fehler beim Laden der Vorlagen");
-    } finally {
-        setIsLoading(false);
-    }
-}, []);
+    }, []);
 
     useEffect(() => {
         loadData();

@@ -4,7 +4,7 @@ interface PageProps {
     params: Promise<{ meetingId: string }>;
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function MeetingEditRoute({ params }: PageProps) {
     const { meetingId } = await params;
     return <MeetingEditPage meetingId={parseInt(meetingId, 10)} />;
 }

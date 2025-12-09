@@ -9,7 +9,7 @@ import {
     Table as TableIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +28,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../../meetings.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface MeetingsListProps {
@@ -65,8 +65,11 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
         localStorage.setItem("meetings-view-mode", mode);
     };
 
-    // Create a map of property IDs to property names
-    const propertyMap = new Map(properties.map((p) => [p.id, p]));
+    // Create a map of property IDs to property names (memoized to avoid recreation on every render)
+    const propertyMap = useMemo(
+        () => new Map(properties.map((p) => [p.id, p])),
+        [properties]
+    );
 
     if (meetings.length === 0) {
         return (

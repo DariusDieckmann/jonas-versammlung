@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import {
     type AgendaItem,
     agendaItems,
@@ -112,14 +112,9 @@ export async function createAgendaItem(
 
         const validatedData = insertAgendaItemSchema.parse(data);
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(agendaItems)
-            .values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         revalidatePath(meetingsRoutes.detail(data.meetingId));
@@ -171,13 +166,10 @@ export async function createAgendaItems(
             return { success: true };
         }
 
-        const now = new Date().toISOString();
         const values = items.map((item, index) => ({
             ...item,
             meetingId,
             orderIndex: index,
-            createdAt: now,
-            updatedAt: now,
         }));
 
         await db.insert(agendaItems).values(values);
@@ -230,14 +222,10 @@ export async function updateAgendaItem(
         await requireMember(existing[0].property.organizationId);
 
         const validatedData = updateAgendaItemSchema.parse(data);
-        const now = new Date().toISOString();
 
         await db
             .update(agendaItems)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(agendaItems.id, agendaItemId));
 
         revalidatePath(meetingsRoutes.detail(existing[0].agendaItem.meetingId));
@@ -334,15 +322,12 @@ export async function reorderAgendaItems(
 
         await requireMember(meeting[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         // Update each item's order index
         for (let i = 0; i < itemIds.length; i++) {
             await db
                 .update(agendaItems)
                 .set({
                     orderIndex: i,
-                    updatedAt: now,
                 })
                 .where(
                     and(

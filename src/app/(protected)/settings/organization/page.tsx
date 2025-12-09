@@ -1,5 +1,5 @@
 import OrganizationSettingsPage from "@/modules/organizations/features/settings/organization-settings.page";
 
-export default async function Page() {
+export default async function OrganizationSettingsRoute() {
     return <OrganizationSettingsPage />;
 }

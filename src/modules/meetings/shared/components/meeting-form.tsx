@@ -29,7 +29,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../../meetings.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import { createMeeting, updateMeeting } from "../meeting.action";
 import type { AgendaItem } from "../schemas/agenda-item.schema";
 import { insertMeetingSchema, type Meeting } from "../schemas/meeting.schema";

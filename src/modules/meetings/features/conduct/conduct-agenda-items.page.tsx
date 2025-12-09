@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
+import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getMeeting } from "../../shared/meeting.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { ConductAgendaItemsClient } from "./conduct-agenda-items-client";
-import { replacePlaceholders } from "@/lib/placeholder-utils";
 
 interface ConductAgendaItemsPageProps {
     meetingId: number;

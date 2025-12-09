@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import { PropertyUnitsList } from "@/modules/units/shared/components/property-units-list";
 import { getUnitsWithOwners } from "@/modules/units/shared/unit.action";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import { deleteProperty, getProperty } from "../../shared/property.action";
 
 interface PropertyDetailPageProps {

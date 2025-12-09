@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function HeroSection() {
     return (
@@ -45,10 +46,10 @@ export function HeroSection() {
                     >
                         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 tracking-tight mb-6">
                             Eigentümerversammlungen{" "}
-                            <span className="text-blue-600">digital</span> gestalten
+                            <span className="text-blue-600">digital</span>{" "}
+                            gestalten
                         </h1>
                     </motion.div>
-
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -58,20 +59,22 @@ export function HeroSection() {
                         Moderne Hausverwaltung für WEG-Verwalter und Eigentümer.
                         Effizient, transparent und rechtssicher.
                     </motion.p>
-
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.4 }}
                         className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
                     >
-                        <Link href="/login">
-                            <Button size="lg" className="text-lg px-8 py-6 group">
+                        <Link href={authRoutes.login} prefetch={true}>
+                            <Button
+                                size="lg"
+                                className="text-lg px-8 py-6 group"
+                            >
                                 Jetzt starten
                                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
-                        <Link href="#features">
+                        <Link href="#features" prefetch={true}>
                             <Button
                                 size="lg"
                                 variant="outline"
@@ -80,8 +83,7 @@ export function HeroSection() {
                                 Funktionen entdecken
                             </Button>
                         </Link>
-                    </motion.div>
-
+                    </motion.div>{" "}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -98,7 +100,10 @@ export function HeroSection() {
                                 key={feature}
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                                transition={{
+                                    duration: 0.4,
+                                    delay: 0.8 + index * 0.1,
+                                }}
                                 className="flex items-center gap-2"
                             >
                                 <CheckCircle className="h-5 w-5 text-green-500" />

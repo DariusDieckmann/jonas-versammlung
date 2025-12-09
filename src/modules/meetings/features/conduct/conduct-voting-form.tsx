@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -85,18 +85,22 @@ export function ConductVotingForm({
         }
     };
 
-    // Calculate current totals
-    const yesShares = participants
-        .filter((p) => votes.get(p.id) === "yes")
-        .reduce((sum, p) => sum + p.shares, 0);
+    // Calculate current totals (memoized to avoid recalculation on every render)
+    const voteTotals = useMemo(() => {
+        const yesShares = participants
+            .filter((p) => votes.get(p.id) === "yes")
+            .reduce((sum, p) => sum + p.shares, 0);
 
-    const noShares = participants
-        .filter((p) => votes.get(p.id) === "no")
-        .reduce((sum, p) => sum + p.shares, 0);
+        const noShares = participants
+            .filter((p) => votes.get(p.id) === "no")
+            .reduce((sum, p) => sum + p.shares, 0);
 
-    const abstainShares = participants
-        .filter((p) => votes.get(p.id) === "abstain")
-        .reduce((sum, p) => sum + p.shares, 0);
+        const abstainShares = participants
+            .filter((p) => votes.get(p.id) === "abstain")
+            .reduce((sum, p) => sum + p.shares, 0);
+
+        return { yesShares, noShares, abstainShares };
+    }, [participants, votes]);
 
     const votedCount = votes.size;
 
@@ -126,7 +130,7 @@ export function ConductVotingForm({
                     <div>
                         <div className="text-sm text-gray-600 mb-1">Ja</div>
                         <div className="text-2xl font-bold text-green-600">
-                            {yesShares} MEA
+                            {voteTotals.yesShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
                             {
@@ -140,7 +144,7 @@ export function ConductVotingForm({
                     <div>
                         <div className="text-sm text-gray-600 mb-1">Nein</div>
                         <div className="text-2xl font-bold text-red-600">
-                            {noShares} MEA
+                            {voteTotals.noShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
                             {
@@ -156,7 +160,7 @@ export function ConductVotingForm({
                             Enthaltung
                         </div>
                         <div className="text-2xl font-bold text-gray-600">
-                            {abstainShares} MEA
+                            {voteTotals.abstainShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
                             {

@@ -1,5 +1,5 @@
+import { ArrowLeft, CheckCircle, FileText } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, FileText, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AGBPage() {
@@ -33,17 +33,21 @@ export default function AGBPage() {
                                 § 1 Geltungsbereich
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend
-                                „AGB") gelten für alle Verträge über die Nutzung der
-                                Software-as-a-Service-Lösung „Eigentümerversammlungen"
-                                (nachfolgend „Software" oder „Plattform") zwischen
-                                [Firmenname] (nachfolgend „Anbieter") und dem Kunden.
+                                (1) Diese Allgemeinen Geschäftsbedingungen
+                                (nachfolgend „AGB") gelten für alle Verträge
+                                über die Nutzung der
+                                Software-as-a-Service-Lösung
+                                „Eigentümerversammlungen" (nachfolgend
+                                „Software" oder „Plattform") zwischen
+                                [Firmenname] (nachfolgend „Anbieter") und dem
+                                Kunden.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Abweichende, entgegenstehende oder ergänzende
-                                Allgemeine Geschäftsbedingungen des Kunden werden nicht
-                                Vertragsbestandteil, es sei denn, der Anbieter hat ihrer
-                                Geltung ausdrücklich schriftlich zugestimmt.
+                                (2) Abweichende, entgegenstehende oder
+                                ergänzende Allgemeine Geschäftsbedingungen des
+                                Kunden werden nicht Vertragsbestandteil, es sei
+                                denn, der Anbieter hat ihrer Geltung
+                                ausdrücklich schriftlich zugestimmt.
                             </p>
                         </section>
 
@@ -52,9 +56,10 @@ export default function AGBPage() {
                                 § 2 Vertragsgegenstand
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Der Anbieter stellt dem Kunden eine cloudbasierte
-                                Software zur Verwaltung von Eigentümerversammlungen zur
-                                Verfügung. Die Software ermöglicht unter anderem:
+                                (1) Der Anbieter stellt dem Kunden eine
+                                cloudbasierte Software zur Verwaltung von
+                                Eigentümerversammlungen zur Verfügung. Die
+                                Software ermöglicht unter anderem:
                             </p>
                             <ul className="space-y-2 mb-4">
                                 <li className="flex items-start gap-2 text-gray-700">
@@ -67,7 +72,8 @@ export default function AGBPage() {
                                 <li className="flex items-start gap-2 text-gray-700">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                     <span>
-                                        Erstellung und Verwaltung von digitalen Protokollen
+                                        Erstellung und Verwaltung von digitalen
+                                        Protokollen
                                     </span>
                                 </li>
                                 <li className="flex items-start gap-2 text-gray-700">
@@ -76,7 +82,9 @@ export default function AGBPage() {
                                 </li>
                                 <li className="flex items-start gap-2 text-gray-700">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                                    <span>Durchführung digitaler Abstimmungen</span>
+                                    <span>
+                                        Durchführung digitaler Abstimmungen
+                                    </span>
                                 </li>
                                 <li className="flex items-start gap-2 text-gray-700">
                                     <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -84,9 +92,10 @@ export default function AGBPage() {
                                 </li>
                             </ul>
                             <p className="text-gray-700 leading-relaxed">
-                                (2) Der konkrete Leistungsumfang ergibt sich aus der
-                                gewählten Tarifoption und der Leistungsbeschreibung auf der
-                                Website des Anbieters.
+                                (2) Der konkrete Leistungsumfang ergibt sich aus
+                                der gewählten Tarifoption und der
+                                Leistungsbeschreibung auf der Website des
+                                Anbieters.
                             </p>
                         </section>
 
@@ -95,17 +104,19 @@ export default function AGBPage() {
                                 § 3 Vertragsschluss
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Die Registrierung auf der Plattform stellt ein Angebot
-                                des Kunden zum Abschluss eines Nutzungsvertrages dar.
+                                (1) Die Registrierung auf der Plattform stellt
+                                ein Angebot des Kunden zum Abschluss eines
+                                Nutzungsvertrages dar.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
                                 (2) Der Vertrag kommt durch die Bestätigung der
-                                Registrierung durch den Anbieter per E-Mail zustande.
+                                Registrierung durch den Anbieter per E-Mail
+                                zustande.
                             </p>
                             <p className="text-gray-700 leading-relaxed">
-                                (3) Der Kunde gewährleistet, dass die von ihm bei der
-                                Registrierung angegebenen Daten vollständig und richtig
-                                sind.
+                                (3) Der Kunde gewährleistet, dass die von ihm
+                                bei der Registrierung angegebenen Daten
+                                vollständig und richtig sind.
                             </p>
                         </section>
 
@@ -114,16 +125,16 @@ export default function AGBPage() {
                                 § 4 Nutzungsrechte
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Der Anbieter räumt dem Kunden für die Dauer des
-                                Vertrages ein nicht ausschließliches, nicht übertragbares
-                                und nicht unterlizenzierbares Recht zur Nutzung der
-                                Software ein.
+                                (1) Der Anbieter räumt dem Kunden für die Dauer
+                                des Vertrages ein nicht ausschließliches, nicht
+                                übertragbares und nicht unterlizenzierbares
+                                Recht zur Nutzung der Software ein.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Der Kunde ist nicht berechtigt, die Software zu
-                                vervielfältigen, zu bearbeiten oder in sonstiger Weise zu
-                                verändern, es sei denn, dies ist für die vertragsgemäße
-                                Nutzung erforderlich.
+                                (2) Der Kunde ist nicht berechtigt, die Software
+                                zu vervielfältigen, zu bearbeiten oder in
+                                sonstiger Weise zu verändern, es sei denn, dies
+                                ist für die vertragsgemäße Nutzung erforderlich.
                             </p>
                         </section>
 
@@ -132,17 +143,17 @@ export default function AGBPage() {
                                 § 5 Vergütung und Zahlungsbedingungen
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Die Vergütung richtet sich nach der vom Kunden
-                                gewählten Tarifoption gemäß der aktuellen Preisliste auf
-                                der Website des Anbieters.
+                                (1) Die Vergütung richtet sich nach der vom
+                                Kunden gewählten Tarifoption gemäß der aktuellen
+                                Preisliste auf der Website des Anbieters.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Sofern nicht anders vereinbart, erfolgt die Abrechnung
-                                monatlich im Voraus.
+                                (2) Sofern nicht anders vereinbart, erfolgt die
+                                Abrechnung monatlich im Voraus.
                             </p>
                             <p className="text-gray-700 leading-relaxed">
-                                (3) Alle Preise verstehen sich zuzüglich der jeweils
-                                gültigen gesetzlichen Umsatzsteuer.
+                                (3) Alle Preise verstehen sich zuzüglich der
+                                jeweils gültigen gesetzlichen Umsatzsteuer.
                             </p>
                         </section>
 
@@ -151,15 +162,16 @@ export default function AGBPage() {
                                 § 6 Verfügbarkeit und Wartung
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Der Anbieter bemüht sich um eine möglichst hohe
-                                Verfügbarkeit der Software. Eine Verfügbarkeit von 99%
-                                im Jahresmittel wird angestrebt.
+                                (1) Der Anbieter bemüht sich um eine möglichst
+                                hohe Verfügbarkeit der Software. Eine
+                                Verfügbarkeit von 99% im Jahresmittel wird
+                                angestrebt.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Der Anbieter ist berechtigt, die Software für
-                                Wartungsarbeiten vorübergehend außer Betrieb zu nehmen.
-                                Geplante Wartungsarbeiten werden dem Kunden rechtzeitig
-                                angekündigt.
+                                (2) Der Anbieter ist berechtigt, die Software
+                                für Wartungsarbeiten vorübergehend außer Betrieb
+                                zu nehmen. Geplante Wartungsarbeiten werden dem
+                                Kunden rechtzeitig angekündigt.
                             </p>
                         </section>
 
@@ -169,17 +181,18 @@ export default function AGBPage() {
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
                                 (1) Der Anbieter erhebt, verarbeitet und nutzt
-                                personenbezogene Daten des Kunden ausschließlich im Rahmen
-                                der gesetzlichen Bestimmungen.
+                                personenbezogene Daten des Kunden ausschließlich
+                                im Rahmen der gesetzlichen Bestimmungen.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Nähere Informationen zum Datenschutz finden sich in der
-                                Datenschutzerklärung des Anbieters.
+                                (2) Nähere Informationen zum Datenschutz finden
+                                sich in der Datenschutzerklärung des Anbieters.
                             </p>
                             <p className="text-gray-700 leading-relaxed">
-                                (3) Der Anbieter trifft technische und organisatorische
-                                Maßnahmen gemäß Art. 32 DSGVO, um die Daten des Kunden vor
-                                unbefugtem Zugriff zu schützen.
+                                (3) Der Anbieter trifft technische und
+                                organisatorische Maßnahmen gemäß Art. 32 DSGVO,
+                                um die Daten des Kunden vor unbefugtem Zugriff
+                                zu schützen.
                             </p>
                         </section>
 
@@ -188,13 +201,15 @@ export default function AGBPage() {
                                 § 8 Pflichten des Kunden
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Der Kunde ist verpflichtet, seine Zugangsdaten geheim
-                                zu halten und vor dem Zugriff durch Dritte zu schützen.
+                                (1) Der Kunde ist verpflichtet, seine
+                                Zugangsdaten geheim zu halten und vor dem
+                                Zugriff durch Dritte zu schützen.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Der Kunde verpflichtet sich, die Software nicht
-                                missbräuchlich zu nutzen und keine rechtswidrigen Inhalte
-                                zu speichern oder zu verbreiten.
+                                (2) Der Kunde verpflichtet sich, die Software
+                                nicht missbräuchlich zu nutzen und keine
+                                rechtswidrigen Inhalte zu speichern oder zu
+                                verbreiten.
                             </p>
                         </section>
 
@@ -203,14 +218,15 @@ export default function AGBPage() {
                                 § 9 Haftung
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Der Anbieter haftet unbeschränkt für Schäden aus der
-                                Verletzung des Lebens, des Körpers oder der Gesundheit, die
-                                auf einer vorsätzlichen oder fahrlässigen
-                                Pflichtverletzung des Anbieters beruhen.
+                                (1) Der Anbieter haftet unbeschränkt für Schäden
+                                aus der Verletzung des Lebens, des Körpers oder
+                                der Gesundheit, die auf einer vorsätzlichen oder
+                                fahrlässigen Pflichtverletzung des Anbieters
+                                beruhen.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Für sonstige Schäden haftet der Anbieter nur bei
-                                Vorsatz und grober Fahrlässigkeit.
+                                (2) Für sonstige Schäden haftet der Anbieter nur
+                                bei Vorsatz und grober Fahrlässigkeit.
                             </p>
                         </section>
 
@@ -219,19 +235,20 @@ export default function AGBPage() {
                                 § 10 Vertragslaufzeit und Kündigung
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Der Vertrag wird für die in der gewählten Tarifoption
-                                angegebene Mindestlaufzeit geschlossen.
+                                (1) Der Vertrag wird für die in der gewählten
+                                Tarifoption angegebene Mindestlaufzeit
+                                geschlossen.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Nach Ablauf der Mindestlaufzeit verlängert sich der
-                                Vertrag automatisch um einen weiteren Monat, sofern er
-                                nicht mit einer Frist von 14 Tagen zum Ende der
-                                Mindestlaufzeit bzw. zum Ende eines Verlängerungszeitraums
-                                gekündigt wird.
+                                (2) Nach Ablauf der Mindestlaufzeit verlängert
+                                sich der Vertrag automatisch um einen weiteren
+                                Monat, sofern er nicht mit einer Frist von 14
+                                Tagen zum Ende der Mindestlaufzeit bzw. zum Ende
+                                eines Verlängerungszeitraums gekündigt wird.
                             </p>
                             <p className="text-gray-700 leading-relaxed">
-                                (3) Das Recht zur außerordentlichen Kündigung aus wichtigem
-                                Grund bleibt unberührt.
+                                (3) Das Recht zur außerordentlichen Kündigung
+                                aus wichtigem Grund bleibt unberührt.
                             </p>
                         </section>
 
@@ -240,13 +257,14 @@ export default function AGBPage() {
                                 § 11 Schlussbestimmungen
                             </h2>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (1) Es gilt das Recht der Bundesrepublik Deutschland unter
-                                Ausschluss des UN-Kaufrechts.
+                                (1) Es gilt das Recht der Bundesrepublik
+                                Deutschland unter Ausschluss des UN-Kaufrechts.
                             </p>
                             <p className="text-gray-700 leading-relaxed mb-4">
-                                (2) Sollten einzelne Bestimmungen dieser AGB unwirksam oder
-                                undurchführbar sein oder werden, berührt dies die
-                                Wirksamkeit der übrigen Bestimmungen nicht.
+                                (2) Sollten einzelne Bestimmungen dieser AGB
+                                unwirksam oder undurchführbar sein oder werden,
+                                berührt dies die Wirksamkeit der übrigen
+                                Bestimmungen nicht.
                             </p>
                         </section>
 
@@ -255,7 +273,8 @@ export default function AGBPage() {
                                 <strong>Stand:</strong> Dezember 2025
                             </p>
                             <p className="text-sm text-gray-600">
-                                Bei Fragen zu den AGB kontaktieren Sie uns unter:{" "}
+                                Bei Fragen zu den AGB kontaktieren Sie uns
+                                unter:{" "}
                                 <a
                                     href="mailto:info@triple-d.ninja"
                                     className="text-blue-600 hover:underline"

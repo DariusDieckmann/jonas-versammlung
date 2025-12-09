@@ -13,8 +13,13 @@ export const agendaItemTemplates = sqliteTable("agenda_item_templates", {
     requiresResolution: integer("requires_resolution", { mode: "boolean" })
         .notNull()
         .default(false),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas
@@ -38,9 +43,8 @@ export const insertAgendaItemTemplateSchema = createInsertSchema(
     updatedAt: true,
 });
 
-export const selectAgendaItemTemplateSchema = createSelectSchema(
-    agendaItemTemplates,
-);
+export const selectAgendaItemTemplateSchema =
+    createSelectSchema(agendaItemTemplates);
 
 export const updateAgendaItemTemplateSchema =
     insertAgendaItemTemplateSchema.partial();

@@ -4,19 +4,25 @@ import { and, eq, gt, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { getAppUrl } from "@/lib/app-url";
+import { user } from "@/modules/auth/shared/schemas/auth.schema";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { sendEmail } from "@/services/email.service";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
+import { sendEmail } from "@/services/email.service";
+import {
+    OrganizationRole,
+    type OrganizationRoleType,
+} from "./models/organization.model";
 import { getUserOrganizations } from "./organization.action";
 import { requireOwner } from "./organization-permissions.action";
 import {
-    organizationInvitations,
-    type NewOrganizationInvitation,
     insertOrganizationInvitationSchema,
+    type NewOrganizationInvitation,
+    organizationInvitations,
 } from "./schemas/invitation.schema";
-import { organizationMembers, organizations } from "./schemas/organization.schema";
-import { OrganizationRole, type OrganizationRoleType } from "./models/organization.model";
-import { user } from "@/modules/auth/shared/schemas/auth.schema";
+import {
+    organizationMembers,
+    organizations,
+} from "./schemas/organization.schema";
 import settingsRoutes from "./settings.route";
 
 /**
@@ -39,7 +45,7 @@ function generateInvitationCode(): string {
     const length = 32;
     const randomValues = new Uint8Array(length);
     crypto.getRandomValues(randomValues);
-    
+
     let code = "";
     for (let i = 0; i < length; i++) {
         code += chars.charAt(randomValues[i] % chars.length);
@@ -125,7 +131,9 @@ export async function inviteOrganizationMember(
 
         // Generate invitation code and expiry (24 hours)
         const invitationCode = generateInvitationCode();
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        const expiresAt = new Date(
+            Date.now() + 24 * 60 * 60 * 1000,
+        ).toISOString();
 
         // Validate input
         const validatedData = insertOrganizationInvitationSchema.parse({
@@ -145,12 +153,14 @@ export async function inviteOrganizationMember(
 
         // Send invitation email
         const invitationUrl = `${await getAppUrl()}/invite/${invitationCode}`;
-        
+
         // Escape all user-controlled content to prevent XSS
-        const escapedInviterName = escapeHtml(currentUser.name || currentUser.email);
+        const escapedInviterName = escapeHtml(
+            currentUser.name || currentUser.email,
+        );
         const escapedOrgName = escapeHtml(organization.name);
         const escapedRole = role === "owner" ? "Eigentümer" : "Mitglied";
-        
+
         await sendEmail({
             to: email,
             subject: `Einladung zur Organisation "${escapedOrgName}"`,
@@ -215,10 +225,7 @@ export async function getInvitationDetails(invitationCode: string): Promise<{
                 organizations,
                 eq(organizationInvitations.organizationId, organizations.id),
             )
-            .innerJoin(
-                user,
-                eq(organizationInvitations.invitedBy, user.id),
-            )
+            .innerJoin(user, eq(organizationInvitations.invitedBy, user.id))
             .where(eq(organizationInvitations.invitationCode, invitationCode))
             .limit(1);
 
@@ -232,7 +239,9 @@ export async function getInvitationDetails(invitationCode: string): Promise<{
         const { invitation, organization, inviter } = result[0];
 
         // Check if invitation is for the current user's email
-        if (invitation.email.toLowerCase() !== currentUser.email.toLowerCase()) {
+        if (
+            invitation.email.toLowerCase() !== currentUser.email.toLowerCase()
+        ) {
             return {
                 success: false,
                 error: "Diese Einladung ist für eine andere E-Mail-Adresse bestimmt",
@@ -512,16 +521,14 @@ export async function cancelOrganizationInvitation(
         const inv = invitation[0];
 
         // Check if user is either the invited person or an owner of the organization
-        const isInvitedUser = inv.email.toLowerCase() === currentUser.email.toLowerCase();
+        const isInvitedUser =
+            inv.email.toLowerCase() === currentUser.email.toLowerCase();
         let isOwner = false;
 
         if (!isInvitedUser) {
             // Check if user is owner of the organization
             const userOrgs = await getUserOrganizations();
-            if (
-                userOrgs.length > 0 &&
-                userOrgs[0].id === inv.organizationId
-            ) {
+            if (userOrgs.length > 0 && userOrgs[0].id === inv.organizationId) {
                 try {
                     await requireOwner(inv.organizationId);
                     isOwner = true;

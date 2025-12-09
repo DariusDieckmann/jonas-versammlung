@@ -16,8 +16,13 @@ export const properties = sqliteTable("properties", {
     numberOfUnits: integer("number_of_units"),
     totalArea: integer("total_area"), // in m²
     notes: text("notes"),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas

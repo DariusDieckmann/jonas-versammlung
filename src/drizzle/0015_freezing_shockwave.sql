@@ -1,1 +1,0 @@
-ALTER TABLE `resolutions` DROP COLUMN `resolution_text`;

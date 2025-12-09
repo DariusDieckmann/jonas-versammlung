@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Building2, Menu } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
-export function Navigation() {
+export function PublicNavigation() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -19,32 +20,36 @@ export function Navigation() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 group">
+                    <Link 
+                        href="/" 
+                        className="flex items-center gap-2 group"
+                        prefetch={true}
+                    >
                         <Building2 className="h-8 w-8 text-blue-600 group-hover:scale-110 transition-transform" />
                         <span className="text-xl font-bold text-gray-900">
                             Eigentümerversammlungen
                         </span>
                     </Link>
-
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-8">
                         <Link
                             href="/#features"
                             className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                            prefetch={true}
                         >
                             Funktionen
                         </Link>
                         <Link
-                            href="/login"
+                            href={authRoutes.login}
                             className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                            prefetch={true}
                         >
                             Anmelden
                         </Link>
-                        <Link href="/login">
+                        <Link href={authRoutes.login} prefetch={true}>
                             <Button className="shadow-sm">Jetzt starten</Button>
                         </Link>
-                    </div>
-
+                    </div>{" "}
                     {/* Mobile Menu Button */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
@@ -68,18 +73,26 @@ export function Navigation() {
                                 href="/#features"
                                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                                 onClick={() => setIsOpen(false)}
+                                prefetch={true}
                             >
                                 Funktionen
                             </Link>
                             <Link
-                                href="/login"
+                                href={authRoutes.login}
                                 className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                                 onClick={() => setIsOpen(false)}
+                                prefetch={true}
                             >
                                 Anmelden
                             </Link>
-                            <Link href="/login" onClick={() => setIsOpen(false)}>
-                                <Button className="w-full">Jetzt starten</Button>
+                            <Link
+                                href={authRoutes.login}
+                                onClick={() => setIsOpen(false)}
+                                prefetch={true}
+                            >
+                                <Button className="w-full">
+                                    Jetzt starten
+                                </Button>
                             </Link>
                         </div>
                     </motion.div>

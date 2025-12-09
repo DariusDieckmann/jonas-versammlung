@@ -2,10 +2,10 @@
 
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import { deleteFromR2 } from "@/lib/r2";
 import { meetings } from "./schemas/meeting.schema";
 import {
     type InsertMeetingAttachment,
@@ -41,8 +41,6 @@ export async function createMeetingAttachment(
 
         await requireMember(meeting[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         const validatedData = insertMeetingAttachmentSchema.parse({
             ...data,
             uploadedBy: user.id,
@@ -50,10 +48,7 @@ export async function createMeetingAttachment(
 
         const result = await db
             .insert(meetingAttachments)
-            .values({
-                ...validatedData,
-                createdAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };

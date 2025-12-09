@@ -1,15 +1,16 @@
 "use server";
 
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq, gte, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
+    getUserOrganizationIds,
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import {
     type InsertMeeting,
     insertMeetingSchema,
@@ -21,31 +22,30 @@ import {
 
 /**
  * Get all meetings for the user's properties
+ * Only returns meetings from organizations where the user is a member
  */
 export async function getMeetings(): Promise<Meeting[]> {
     await requireAuth();
     const db = await getDb();
 
-    // Get all meetings with property info to check organization access
+    // Get all organization IDs the user is a member of (1 query)
+    const userOrgIds = await getUserOrganizationIds();
+
+    if (userOrgIds.length === 0) {
+        return [];
+    }
+
+    // Get all meetings from properties in user's organizations (1 query)
     const result = await db
         .select({
             meeting: meetings,
-            property: properties,
         })
         .from(meetings)
         .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(inArray(properties.organizationId, userOrgIds))
         .orderBy(meetings.date);
 
-    // Filter by organization membership
-    const accessibleMeetings: Meeting[] = [];
-    for (const { meeting, property } of result) {
-        try {
-            await requireMember(property.organizationId);
-            accessibleMeetings.push(meeting);
-        } catch {}
-    }
-
-    return accessibleMeetings;
+    return result.map((r) => r.meeting);
 }
 
 /**
@@ -133,14 +133,9 @@ export async function createMeeting(
 
         const validatedData = insertMeetingSchema.parse(data);
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(meetings)
-            .values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         revalidatePath(meetingsRoutes.list);
@@ -186,14 +181,10 @@ export async function updateMeeting(
         await requireMember(existing[0].property.organizationId);
 
         const validatedData = updateMeetingSchema.parse(data);
-        const now = new Date().toISOString();
 
         await db
             .update(meetings)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(meetings.id, meetingId));
 
         revalidatePath(meetingsRoutes.list);
@@ -286,7 +277,6 @@ export async function startMeeting(
             .update(meetings)
             .set({
                 status: "in-progress",
-                updatedAt: new Date().toISOString(),
             })
             .where(eq(meetings.id, meetingId));
 
@@ -343,7 +333,6 @@ export async function completeMeeting(
             .update(meetings)
             .set({
                 status: "completed",
-                updatedAt: new Date().toISOString(),
             })
             .where(eq(meetings.id, meetingId));
 
@@ -363,6 +352,7 @@ export async function completeMeeting(
 
 /**
  * Get upcoming open meetings (status: planned, date in the future)
+ * Only returns meetings from organizations where the user is a member
  */
 export async function getUpcomingOpenMeetings(): Promise<
     (Meeting & { propertyName: string })[]
@@ -370,10 +360,17 @@ export async function getUpcomingOpenMeetings(): Promise<
     await requireAuth();
     const db = await getDb();
 
+    // Get all organization IDs the user is a member of (1 query)
+    const userOrgIds = await getUserOrganizationIds();
+
+    if (userOrgIds.length === 0) {
+        return [];
+    }
+
     // Get today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split("T")[0];
 
-    // Get all meetings with property info
+    // Get all upcoming meetings from properties in user's organizations (1 query)
     const result = await db
         .select({
             meeting: meetings,
@@ -381,20 +378,17 @@ export async function getUpcomingOpenMeetings(): Promise<
         })
         .from(meetings)
         .innerJoin(properties, eq(meetings.propertyId, properties.id))
-        .where(and(eq(meetings.status, "planned"), gte(meetings.date, today)))
+        .where(
+            and(
+                eq(meetings.status, "planned"),
+                gte(meetings.date, today),
+                inArray(properties.organizationId, userOrgIds),
+            ),
+        )
         .orderBy(meetings.date);
 
-    // Filter by organization membership and add property name
-    const accessibleMeetings: (Meeting & { propertyName: string })[] = [];
-    for (const { meeting, property } of result) {
-        try {
-            await requireMember(property.organizationId);
-            accessibleMeetings.push({
-                ...meeting,
-                propertyName: property.name,
-            });
-        } catch {}
-    }
-
-    return accessibleMeetings;
+    return result.map((r) => ({
+        ...r.meeting,
+        propertyName: r.property.name,
+    }));
 }

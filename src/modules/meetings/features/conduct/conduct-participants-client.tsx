@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import conductRoutes from "../../conduct.route";
+import conductRoutes from "../../shared/conduct.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductLayout } from "./conduct-layout";
@@ -30,9 +30,7 @@ export function ConductParticipantsClient({
             onNext={handleFinish}
             nextLabel="Weiter"
         >
-            <ConductParticipantsForm
-                initialParticipants={participants}
-            />
+            <ConductParticipantsForm initialParticipants={participants} />
         </ConductLayout>
     );
 }

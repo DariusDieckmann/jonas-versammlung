@@ -9,12 +9,13 @@ export const organizations = sqliteTable("organizations", {
     createdBy: text("created_by")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: text("created_at")
+    createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
-    updatedAt: text("updated_at")
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 export const organizationMembers = sqliteTable("organization_members", {
@@ -26,9 +27,9 @@ export const organizationMembers = sqliteTable("organization_members", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     role: text("role").notNull().default("member"), // 'owner' or 'member'
-    joinedAt: text("joined_at")
+    joinedAt: integer("joined_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
+        .$defaultFn(() => new Date()),
 });
 
 // Zod schemas for validation

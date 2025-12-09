@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
 import {
     type AgendaItemFormData,

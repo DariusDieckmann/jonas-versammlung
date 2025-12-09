@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
@@ -13,7 +14,6 @@ import {
     insertAgendaItemAttachmentSchema,
 } from "./schemas/agenda-item-attachment.schema";
 import { meetings } from "./schemas/meeting.schema";
-import { deleteFromR2 } from "@/lib/r2";
 
 /**
  * Create an agenda item attachment
@@ -46,8 +46,6 @@ export async function createAgendaItemAttachment(
 
         await requireMember(agendaItem[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         const validatedData = insertAgendaItemAttachmentSchema.parse({
             ...data,
             uploadedBy: user.id,
@@ -55,10 +53,7 @@ export async function createAgendaItemAttachment(
 
         const result = await db
             .insert(agendaItemAttachments)
-            .values({
-                ...validatedData,
-                createdAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };

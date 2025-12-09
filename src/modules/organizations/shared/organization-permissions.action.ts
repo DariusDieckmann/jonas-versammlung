@@ -30,7 +30,8 @@ export async function isOwner(organizationId: number): Promise<boolean> {
             .limit(1);
 
         return membership.length > 0;
-    } catch {
+    } catch (error) {
+        console.error("Error checking owner status:", error);
         return false;
     }
 }
@@ -55,7 +56,8 @@ export async function isMember(organizationId: number): Promise<boolean> {
             .limit(1);
 
         return membership.length > 0;
-    } catch {
+    } catch (error) {
+        console.error("Error checking member status:", error);
         return false;
     }
 }
@@ -111,7 +113,29 @@ export async function getUserRole(
         }
 
         return membership[0].role as OrganizationRoleType;
-    } catch {
+    } catch (error) {
+        console.error("Error getting user role:", error);
         return null;
+    }
+}
+
+/**
+ * Get all organization IDs that the current user is a member of
+ * Used for efficient bulk permission checks
+ */
+export async function getUserOrganizationIds(): Promise<number[]> {
+    try {
+        const currentUser = await requireAuth();
+        const db = await getDb();
+
+        const memberships = await db
+            .select({ organizationId: organizationMembers.organizationId })
+            .from(organizationMembers)
+            .where(eq(organizationMembers.userId, currentUser.id));
+
+        return memberships.map((m) => m.organizationId);
+    } catch (error) {
+        console.error("Error getting user organization IDs:", error);
+        return [];
     }
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Building2, FileText, HelpCircle, Mail, Shield } from "lucide-react";
 import Link from "next/link";
-import { Building2, Mail, FileText, HelpCircle, Shield } from "lucide-react";
+import legalRoutes from "@/lib/legal.route";
+import publicRoutes from "@/lib/public.route";
+import authRoutes from "@/modules/auth/shared/auth.route";
 
 export function LandingFooter() {
     return (
@@ -19,14 +22,12 @@ export function LandingFooter() {
                         >
                             <div className="flex items-center gap-2 mb-4">
                                 <Building2 className="h-8 w-8 text-blue-500" />
-                               
-                                    Eigentümerversammlungen
-                            
+                                Eigentümerversammlungen
                             </div>
                             <p className="text-gray-400 mb-4 text-sm leading-relaxed">
                                 Moderne Digitalisierung für Hausverwaltungen und
-                                Eigentümerversammlungen. Effizient, transparent und
-                                rechtssicher.
+                                Eigentümerversammlungen. Effizient, transparent
+                                und rechtssicher.
                             </p>
                             <div className="flex items-center gap-2 text-sm">
                                 <Mail className="h-4 w-4 text-blue-500" />
@@ -63,7 +64,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/login"
+                                        href={authRoutes.login}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Anmelden
@@ -71,7 +72,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/kostenlos-testen"
+                                        href={publicRoutes.kostenlosTesten}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Kostenlos testen
@@ -96,7 +97,7 @@ export function LandingFooter() {
                             <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
-                                        href="/hilfe-center"
+                                        href={publicRoutes.hilfeCenter}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Hilfe-Center
@@ -104,7 +105,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/dokumentation"
+                                        href={publicRoutes.dokumentation.index}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Dokumentation
@@ -120,7 +121,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/faq"
+                                        href={publicRoutes.faq}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         FAQ
@@ -145,7 +146,7 @@ export function LandingFooter() {
                             <ul className="space-y-2 text-sm">
                                 <li>
                                     <Link
-                                        href="/impressum"
+                                        href={legalRoutes.impressum}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Impressum
@@ -153,7 +154,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/datenschutz"
+                                        href={legalRoutes.datenschutz}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         Datenschutzerklärung
@@ -161,7 +162,7 @@ export function LandingFooter() {
                                 </li>
                                 <li>
                                     <Link
-                                        href="/agb"
+                                        href={legalRoutes.agb}
                                         className="hover:text-blue-400 transition-colors"
                                     >
                                         AGB
@@ -182,8 +183,8 @@ export function LandingFooter() {
                 >
                     <div className="flex flex-col md:flex-row justify-between items-center gap-3">
                         <p className="text-sm text-gray-400">
-                            © {new Date().getFullYear()} Eigentümerversammlungen. Alle
-                            Rechte vorbehalten.
+                            © {new Date().getFullYear()}{" "}
+                            Eigentümerversammlungen. Alle Rechte vorbehalten.
                         </p>
                         <p className="text-xs text-gray-500">
                             Made with ❤️ in Deutschland

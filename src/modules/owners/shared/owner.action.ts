@@ -9,7 +9,7 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
 import {
     type InsertOwner,
@@ -140,14 +140,11 @@ export async function createOwner(
             };
         }
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(owners)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -190,15 +187,11 @@ export async function updateOwner(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updateOwnerSchema.parse(data);
-        const now = new Date().toISOString();
 
         // Note: unitId cannot be changed via update (security)
         await db
             .update(owners)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(validatedData)
             .where(eq(owners.id, ownerId));
 
         // Get unit to find propertyId for revalidation

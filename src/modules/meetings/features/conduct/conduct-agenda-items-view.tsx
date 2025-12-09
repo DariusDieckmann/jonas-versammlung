@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Circle, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
 import { updateAgendaItem } from "../../shared/agenda-item.action";
+import conductRoutes from "../../shared/conduct.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import { markAgendaItemCompleted } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
@@ -63,11 +63,15 @@ export function ConductAgendaItemsView({
         setCompletedItems(new Set(completedAgendaItemIds));
     }, [completedAgendaItemIds]);
 
-    // Filter only present and represented participants for voting
-    const votingParticipants = participants.filter(
-        (p) =>
-            p.attendanceStatus === "present" ||
-            p.attendanceStatus === "represented",
+    // Filter only present and represented participants for voting (memoized)
+    const votingParticipants = useMemo(
+        () =>
+            participants.filter(
+                (p) =>
+                    p.attendanceStatus === "present" ||
+                    p.attendanceStatus === "represented",
+            ),
+        [participants]
     );
 
     const selectedItem = agendaItems.find((item) => item.id === selectedItemId);

@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation";
+import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { ConductSummaryClient } from "@/modules/meetings/features/conduct/conduct-summary-client";
 import { getAgendaItems } from "@/modules/meetings/shared/agenda-item.action";
 import { getMeeting } from "@/modules/meetings/shared/meeting.action";
 import { getResolutionsByAgendaItems } from "@/modules/meetings/shared/resolution.action";
-import { replacePlaceholders } from "@/lib/placeholder-utils";
 
 interface ConductSummaryPageProps {
     params: Promise<{ meetingId: string }>;
 }
 
-export default async function ConductSummaryPage({
+export default async function ConductSummaryRoute({
     params,
 }: ConductSummaryPageProps) {
     const { meetingId } = await params;

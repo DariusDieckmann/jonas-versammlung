@@ -24,12 +24,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import propertiesRoutes from "../../properties.route";
 import { createProperty, updateProperty } from "../../shared/property.action";
 import {
     insertPropertySchema,
     type Property,
 } from "../../shared/schemas/property.schema";
+import propertiesRoutes from "../properties.route";
 
 type FormData = z.infer<typeof insertPropertySchema>;
 
@@ -129,7 +129,9 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                             name="address"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Adresse (Straße und Hausnummer) *</FormLabel>
+                                    <FormLabel>
+                                        Adresse (Straße und Hausnummer) *
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="z.B. Musterstraße 42a"

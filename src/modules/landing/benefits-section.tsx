@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
+import { Award, Heart, Target, TrendingUp } from "lucide-react";
 import { useRef } from "react";
-import { TrendingUp, Heart, Target, Award } from "lucide-react";
 
 const benefits = [
     {
@@ -42,7 +42,10 @@ const benefits = [
 function BenefitCard({
     benefit,
     index,
-}: { benefit: (typeof benefits)[0]; index: number }) {
+}: {
+    benefit: (typeof benefits)[0];
+    index: number;
+}) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-100px" });
 
@@ -50,7 +53,9 @@ function BenefitCard({
         <motion.div
             ref={ref}
             initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+            animate={
+                isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }
+            }
             transition={{ duration: 0.5, delay: index * 0.15 }}
             className="relative"
         >
@@ -123,7 +128,9 @@ export function BenefitsSection() {
                 <motion.div
                     ref={ref}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                    animate={
+                        isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+                    }
                     transition={{ duration: 0.6 }}
                     className="text-center mb-16"
                 >
@@ -138,7 +145,11 @@ export function BenefitsSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {benefits.map((benefit, index) => (
-                        <BenefitCard key={benefit.title} benefit={benefit} index={index} />
+                        <BenefitCard
+                            key={benefit.title}
+                            benefit={benefit}
+                            index={index}
+                        />
                     ))}
                 </div>
             </div>

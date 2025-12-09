@@ -1,8 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { CheckCircle, XCircle, Mail, Clock, User, Building2 } from "lucide-react";
+import {
+    Building2,
+    CheckCircle,
+    Clock,
+    Mail,
+    User,
+    XCircle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -11,13 +20,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 import {
     acceptOrganizationInvitation,
     cancelOrganizationInvitation,
 } from "../invitation.action";
-import toast from "react-hot-toast";
-import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
 
 interface PendingInvitation {
     id: number;
@@ -99,12 +106,12 @@ export function PendingInvitationsList({
         const now = new Date();
         const expires = new Date(expiresAt);
         const diffMs = expires.getTime() - now.getTime();
-        
+
         // Handle expired invitations
         if (diffMs <= 0) {
             return "Abgelaufen";
         }
-        
+
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
         const diffMinutes = Math.floor(
             (diffMs % (1000 * 60 * 60)) / (1000 * 60),
@@ -179,7 +186,8 @@ export function PendingInvitationsList({
 
                                 <div className="flex items-center gap-4 text-sm text-gray-500 pt-2 border-t">
                                     <span>
-                                        Gesendet: {formatDate(invitation.invitedAt)}
+                                        Gesendet:{" "}
+                                        {formatDate(invitation.invitedAt)}
                                     </span>
                                     <span>•</span>
                                     <span className="flex items-center gap-1">

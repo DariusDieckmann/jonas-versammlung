@@ -1,15 +1,13 @@
-import { Building2 } from "lucide-react";
+import { LandingFooter } from "@/components/public/public-footer";
+import { PublicNavigation } from "@/components/public/public-navigation";
 import { LoginForm } from "./login-form";
-import { Navigation } from "@/components/public-navigation";
-import { LandingFooter } from "@/components/public-footer";
 
 export default function LoginPage() {
     return (
         <>
-            <Navigation />
+            <PublicNavigation />
             <div className="bg-gradient-to-b from-blue-50 to-white flex min-h-[calc(100vh-64px)] flex-col items-center justify-center gap-6 p-6 md:p-10">
                 <div className="flex w-full max-w-sm flex-col gap-6">
-                
                     <LoginForm />
                 </div>
             </div>

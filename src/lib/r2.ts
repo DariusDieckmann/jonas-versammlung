@@ -29,8 +29,8 @@ export async function uploadToR2(
         const randomBytes = new Uint8Array(12);
         crypto.getRandomValues(randomBytes);
         const randomId = Array.from(randomBytes)
-            .map(byte => byte.toString(36).padStart(2, '0'))
-            .join('')
+            .map((byte) => byte.toString(36).padStart(2, "0"))
+            .join("")
             .substring(0, 15);
         const extension = file.name.split(".").pop() || "bin";
         const key = `${folder}/${timestamp}_${randomId}.${extension}`;

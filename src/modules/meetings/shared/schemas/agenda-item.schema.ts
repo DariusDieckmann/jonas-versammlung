@@ -14,8 +14,13 @@ export const agendaItems = sqliteTable("agenda_items", {
     requiresResolution: integer("requires_resolution", { mode: "boolean" })
         .notNull()
         .default(false),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas

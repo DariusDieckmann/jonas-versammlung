@@ -59,8 +59,6 @@ export async function createResolution(
             return { success: true, data: existing[0] };
         }
 
-        const now = new Date().toISOString();
-
         const validatedData = insertResolutionSchema.parse({
             agendaItemId,
             majorityType: data.majorityType || "simple",
@@ -68,11 +66,7 @@ export async function createResolution(
 
         const result = await db
             .insert(resolutions)
-            .values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };
@@ -174,13 +168,9 @@ export async function markAgendaItemCompleted(
         }
 
         // Create a resolution without votes to mark as completed
-        const now = new Date().toISOString();
-
         await db.insert(resolutions).values({
             agendaItemId,
             majorityType: "simple", // Default value, not relevant for non-voting items
-            createdAt: now,
-            updatedAt: now,
         });
 
         return { success: true };

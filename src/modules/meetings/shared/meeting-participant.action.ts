@@ -8,7 +8,7 @@ import { requireMember } from "@/modules/organizations/shared/organization-permi
 import { owners } from "@/modules/owners/shared/schemas/owner.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertMeetingParticipantSchema,
@@ -123,8 +123,6 @@ export async function createParticipantsFromOwners(
         }
 
         // Create snapshot of participants
-        const now = new Date().toISOString();
-
         for (const { owner, unit } of allOwners) {
             const participantData = {
                 meetingId,
@@ -139,11 +137,7 @@ export async function createParticipantsFromOwners(
             const validatedData =
                 insertMeetingParticipantSchema.parse(participantData);
 
-            await db.insert(meetingParticipants).values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            });
+            await db.insert(meetingParticipants).values(validatedData);
         }
 
         // Don't revalidate here as this is called during render
@@ -191,10 +185,7 @@ export async function updateMeetingParticipant(
 
         await db
             .update(meetingParticipants)
-            .set({
-                ...validatedData,
-                updatedAt: new Date().toISOString(),
-            })
+            .set(validatedData)
             .where(eq(meetingParticipants.id, participantId));
 
         revalidatePath(

@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
     subsets: ["latin"],
+    display: "swap",
 });
 
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
+    display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -60,8 +62,6 @@ export const metadata: Metadata = {
     },
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function RootLayout({
     children,
 }: Readonly<{
@@ -71,13 +71,17 @@ export default async function RootLayout({
         <html lang="de">
             <head>
                 <link rel="canonical" href="https://triple-d.ninja" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1"
+                />
             </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
             >
-                <main>{children}</main>
-                <Toaster position="bottom-right" />
+                <Providers>
+                    <main>{children}</main>
+                </Providers>
             </body>
         </html>
     );

@@ -18,8 +18,13 @@ export const meetings = sqliteTable("meetings", {
     status: text("status", { enum: ["planned", "in-progress", "completed"] })
         .notNull()
         .default("planned"),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 // Validation schemas

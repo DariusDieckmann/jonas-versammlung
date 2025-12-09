@@ -1,9 +1,9 @@
-import { Navigation } from "@/components/public-navigation";
-import { HeroSection } from "@/modules/landing/hero-section";
-import { FeaturesSection } from "@/modules/landing/features-section";
+import { LandingFooter } from "@/components/public/public-footer";
+import { PublicNavigation } from "@/components/public/public-navigation";
 import { BenefitsSection } from "@/modules/landing/benefits-section";
 import { CTASection } from "@/modules/landing/cta-section";
-import { LandingFooter } from "@/components/public-footer";
+import { FeaturesSection } from "@/modules/landing/features-section";
+import { HeroSection } from "@/modules/landing/hero-section";
 
 export default async function HomePage() {
     const jsonLd = {
@@ -32,7 +32,7 @@ export default async function HomePage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <Navigation />
+            <PublicNavigation />
             <div className="pt-16">
                 <HeroSection />
                 <FeaturesSection />

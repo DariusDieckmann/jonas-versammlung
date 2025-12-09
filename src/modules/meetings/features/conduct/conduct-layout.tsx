@@ -1,8 +1,8 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../shared/conduct.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface ConductLayoutProps {
