@@ -28,12 +28,14 @@ interface ConductVotingFormProps {
     agendaItem: AgendaItem;
     participants: MeetingParticipant[];
     onComplete: () => void;
+    isCompletingItem?: boolean;
 }
 
 export function ConductVotingForm({
     agendaItem,
     participants,
     onComplete,
+    isCompletingItem = false,
 }: ConductVotingFormProps) {
     const [votes, setVotes] = useState<Map<number, VoteChoice>>(new Map());
     const [resolutionId, setResolutionId] = useState<number | null>(null);
@@ -273,10 +275,12 @@ export function ConductVotingForm({
                     </div>
                     <Button
                         onClick={handleSubmit}
-                        disabled={isSubmitting || votedCount === 0}
+                        disabled={
+                            isSubmitting || isCompletingItem || votedCount === 0
+                        }
                         size="lg"
                     >
-                        {isSubmitting
+                        {isSubmitting || isCompletingItem
                             ? "Wird gespeichert..."
                             : "Abstimmung speichern"}
                         <Check className="ml-2 h-4 w-4" />
