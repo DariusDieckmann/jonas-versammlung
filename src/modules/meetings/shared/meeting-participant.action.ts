@@ -123,7 +123,7 @@ export async function createParticipantsFromOwners(
         }
 
         // Create snapshot of participants
-        for (const { owner, unit } of allOwners) {
+        const participantsData = allOwners.map(({ owner, unit }) => {
             const participantData = {
                 meetingId,
                 ownerName: `${owner.firstName} ${owner.lastName}`,
@@ -134,11 +134,11 @@ export async function createParticipantsFromOwners(
                 notes: null,
             };
 
-            const validatedData =
-                insertMeetingParticipantSchema.parse(participantData);
+            return insertMeetingParticipantSchema.parse(participantData);
+        });
 
-            await db.insert(meetingParticipants).values(validatedData);
-        }
+        // Single batch insert instead of N individual inserts
+        await db.insert(meetingParticipants).values(participantsData);
 
         // Don't revalidate here as this is called during render
         // The page component will fetch the newly created participants immediately after
