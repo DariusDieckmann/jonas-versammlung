@@ -41,10 +41,8 @@ export default function OrganizationSettingsPage() {
     const [myPendingInvitations, setMyPendingInvitations] = useState<PendingInvitation[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
 
     const loadOrganizations = useCallback(async () => {
-        setIsLoading(true);
         
         try {
             // Load user session and organizations in parallel
@@ -64,7 +62,6 @@ export default function OrganizationSettingsPage() {
             if (orgs.length === 0) {
                 const pendingInvites = await getMyPendingInvitations();
                 setMyPendingInvitations(pendingInvites);
-                setIsLoading(false);
                 return;
             }
 
@@ -91,22 +88,12 @@ export default function OrganizationSettingsPage() {
             }
         } catch (error) {
             console.error("Error loading organizations:", error);
-        } finally {
-            setIsLoading(false);
         }
     }, []);
 
     useEffect(() => {
         loadOrganizations();
     }, [loadOrganizations]);
-
-    if (isLoading) {
-        return (
-            <div className="container max-w-2xl mx-auto py-8">
-                <p>Lädt...</p>
-            </div>
-        );
-    }
 
     // User has no organization - show creation form
     if (organizations.length === 0) {
