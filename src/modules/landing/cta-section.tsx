@@ -26,6 +26,10 @@ export function CTASection() {
                         repeat: Number.POSITIVE_INFINITY,
                         ease: "easeInOut",
                     }}
+                    style={{
+                        willChange: "transform",
+                        transform: "translateZ(0)",
+                    }}
                 />
                 <motion.div
                     className="absolute bottom-0 right-1/4 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-10"
@@ -37,6 +41,10 @@ export function CTASection() {
                         duration: 20,
                         repeat: Number.POSITIVE_INFINITY,
                         ease: "easeInOut",
+                    }}
+                    style={{
+                        willChange: "transform",
+                        transform: "translateZ(0)",
                     }}
                 />
             </div>
@@ -50,6 +58,10 @@ export function CTASection() {
                     }
                     transition={{ duration: 0.6 }}
                     className="text-center"
+                    style={{
+                        willChange: "transform, opacity",
+                        transform: "translateZ(0)",
+                    }}
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}

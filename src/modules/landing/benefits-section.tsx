@@ -58,6 +58,10 @@ function BenefitCard({
             }
             transition={{ duration: 0.5, delay: index * 0.15 }}
             className="relative"
+            style={{
+                willChange: "transform, opacity",
+                transform: "translateZ(0)",
+            }}
         >
             <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-shadow duration-300 h-full border border-gray-100">
                 <div className="flex flex-col items-center text-center">
@@ -65,6 +69,10 @@ function BenefitCard({
                         className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6"
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         transition={{ type: "spring", stiffness: 300 }}
+                        style={{
+                            willChange: "transform",
+                            transform: "translateZ(0)",
+                        }}
                     >
                         <benefit.icon className="h-8 w-8 text-white" />
                     </motion.div>
