@@ -18,6 +18,7 @@ import { PendingInvitationsList } from "../../shared/components/pending-invitati
 import {
     getMyPendingInvitations,
     getOrganizationInvitations,
+    type PendingInvitation,
 } from "../../shared/invitation.action";
 import type {
     OrganizationMemberWithUser,
@@ -34,25 +35,10 @@ import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
 
 export default function OrganizationSettingsPage() {
-    const [organizations, setOrganizations] = useState<
-        OrganizationWithMemberCount[]
-    >([]);
+    const [organizations, setOrganizations] = useState<OrganizationWithMemberCount[]>([]);
     const [members, setMembers] = useState<OrganizationMemberWithUser[]>([]);
-    const [invitations, setInvitations] = useState<OrganizationInvitation[]>(
-        [],
-    );
-    const [myPendingInvitations, setMyPendingInvitations] = useState<
-        Array<{
-            id: number;
-            invitationCode: string;
-            organizationName: string;
-            inviterName: string;
-            inviterEmail: string;
-            role: string;
-            invitedAt: string;
-            expiresAt: string;
-        }>
-    >([]);
+    const [invitations, setInvitations] = useState<OrganizationInvitation[]>([]);
+    const [myPendingInvitations, setMyPendingInvitations] = useState<PendingInvitation[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
     const [isLoading, setIsLoading] = useState(true);

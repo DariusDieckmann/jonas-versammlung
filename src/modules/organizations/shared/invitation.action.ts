@@ -435,18 +435,18 @@ export async function getOrganizationInvitations() {
 /**
  * Get all pending invitations for the current user
  */
-export async function getMyPendingInvitations(): Promise<
-    Array<{
-        id: number;
-        invitationCode: string;
-        organizationName: string;
-        inviterName: string;
-        inviterEmail: string;
-        role: string;
-        invitedAt: string;
-        expiresAt: string;
-    }>
-> {
+export type PendingInvitation = {
+    id: number;
+    invitationCode: string;
+    organizationName: string;
+    inviterName: string;
+    inviterEmail: string;
+    role: string;
+    invitedAt: string;
+    expiresAt: string;
+};
+
+export async function getMyPendingInvitations(): Promise<PendingInvitation[]> {
     try {
         const currentUser = await requireAuth();
         const db = await getDb();
