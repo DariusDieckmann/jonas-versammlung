@@ -7,6 +7,7 @@ import { getProperties } from "@/modules/properties/shared/property.action";
 import { getMeetings } from "../../shared/meeting.action";
 import meetingsRoutes from "../../shared/meetings.route";
 import { MeetingsList } from "./meetings-list";
+import { NewMeetingButton } from "./new-meeting-button";
 
 export default async function MeetingsListPage() {
     await requireAuth();
@@ -32,14 +33,7 @@ export default async function MeetingsListPage() {
                             TOP-Vorlagen
                         </Button>
                     </Link>
-                    {meetings.length > 0 && (
-                        <Link href={meetingsRoutes.new}>
-                            <Button>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Neue Versammlung
-                            </Button>
-                        </Link>
-                    )}
+                    {meetings.length > 0 && <NewMeetingButton />}
                 </div>
             </div>
 
