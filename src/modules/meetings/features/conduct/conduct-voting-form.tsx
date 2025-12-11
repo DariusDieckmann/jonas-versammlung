@@ -24,7 +24,7 @@ import type { MeetingParticipant } from "../../shared/schemas/meeting-participan
 import type { VoteChoice } from "../../shared/schemas/vote.schema";
 import {
     calculateResolutionResult,
-    castVote,
+    castVotesBatch,
     getVotes,
 } from "../../shared/vote.action";
 
@@ -87,9 +87,19 @@ export function ConductVotingForm({
         setIsSubmitting(true);
 
         try {
-            // Cast all votes
-            for (const [participantId, vote] of votes.entries()) {
-                await castVote(resolutionId, participantId, vote);
+            // Cast all votes in a single batch to avoid N+1 problem
+            const votesData = Array.from(votes.entries()).map(
+                ([participantId, voteChoice]) => ({
+                    participantId,
+                    voteChoice,
+                }),
+            );
+
+            const result = await castVotesBatch(resolutionId, votesData);
+
+            if (!result.success) {
+                alert(result.error || "Fehler beim Speichern der Abstimmung");
+                return;
             }
 
             // Calculate result

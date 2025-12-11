@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -95,15 +95,21 @@ export async function getAgendaItemAttachmentsByItems(
     }
 
     await requireAuth();
+    const db = await getDb();
 
+    // Fetch all attachments in one query using inArray
+    const results = await db
+        .select()
+        .from(agendaItemAttachments)
+        .where(inArray(agendaItemAttachments.agendaItemId, agendaItemIds))
+        .orderBy(agendaItemAttachments.createdAt);
+
+    // Group by agenda item ID
     const attachmentsMap = new Map<number, AgendaItemAttachment[]>();
-
-    // Fetch attachments for each item individually
-    for (const itemId of agendaItemIds) {
-        const attachments = await getAgendaItemAttachments(itemId);
-        if (attachments.length > 0) {
-            attachmentsMap.set(itemId, attachments);
-        }
+    for (const attachment of results) {
+        const existing = attachmentsMap.get(attachment.agendaItemId) || [];
+        existing.push(attachment);
+        attachmentsMap.set(attachment.agendaItemId, existing);
     }
 
     return attachmentsMap;
