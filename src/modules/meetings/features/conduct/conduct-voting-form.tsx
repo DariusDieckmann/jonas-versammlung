@@ -22,7 +22,11 @@ import { createResolution } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import type { VoteChoice } from "../../shared/schemas/vote.schema";
-import { calculateResolutionResult, castVote } from "../../shared/vote.action";
+import {
+    calculateResolutionResult,
+    castVote,
+    getVotes,
+} from "../../shared/vote.action";
 
 interface ConductVotingFormProps {
     agendaItem: AgendaItem;
@@ -42,7 +46,7 @@ export function ConductVotingForm({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isInitializing, setIsInitializing] = useState(true);
 
-    // Initialize resolution on mount
+    // Initialize resolution and load existing votes on mount
     useEffect(() => {
         async function initResolution() {
             setIsInitializing(true);
@@ -52,6 +56,20 @@ export function ConductVotingForm({
 
             if (result.success && result.data) {
                 setResolutionId(result.data.id);
+
+                // Load existing votes if any
+                try {
+                    const existingVotes = await getVotes(result.data.id);
+                    if (existingVotes.length > 0) {
+                        const votesMap = new Map<number, VoteChoice>();
+                        for (const vote of existingVotes) {
+                            votesMap.set(vote.participantId, vote.vote);
+                        }
+                        setVotes(votesMap);
+                    }
+                } catch (error) {
+                    console.error("Error loading existing votes:", error);
+                }
             }
             setIsInitializing(false);
         }
