@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -91,29 +91,16 @@ export async function createParticipantsFromOwners(
             };
         }
 
-        // First: Get all units for this property
-        const propertyUnits = await db
-            .select()
-            .from(units)
-            .where(eq(units.propertyId, propertyId));
-
-        if (propertyUnits.length === 0) {
-            return {
-                success: false,
-                error: "Keine Einheiten für diese Liegenschaft gefunden",
-            };
-        }
-
-        // Second: Get all owners for these units
-        const unitIds = propertyUnits.map((u) => u.id);
+        // Optimized: Single query with JOIN instead of two separate queries
+        // Get all owners with their units for this property in one go
         const allOwners = await db
             .select({
                 owner: owners,
                 unit: units,
             })
-            .from(owners)
-            .innerJoin(units, eq(owners.unitId, units.id))
-            .where(inArray(owners.unitId, unitIds));
+            .from(units)
+            .innerJoin(owners, eq(owners.unitId, units.id))
+            .where(eq(units.propertyId, propertyId));
 
         if (allOwners.length === 0) {
             return {
