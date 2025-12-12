@@ -38,11 +38,17 @@ export async function uploadToR2(
         // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
 
+        // Sanitize filename for Content-Disposition header (remove quotes and special chars)
+        const sanitizedFileName = file.name
+            .replace(/"/g, '\\"')
+            .replace(/[\r\n]/g, '');
+
         // Upload to R2
         const result = await env.BUCKET.put(key, arrayBuffer, {
             httpMetadata: {
                 contentType: file.type,
-                contentDisposition: "attachment", // Force download, prevent execution
+                // Set filename in Content-Disposition to preserve original name on download
+                contentDisposition: `attachment; filename="${sanitizedFileName}"`,
                 cacheControl: "public, max-age=31536000", // 1 year
             },
             customMetadata: {
