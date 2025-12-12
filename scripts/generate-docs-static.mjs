@@ -83,7 +83,6 @@ const { docsData, categoryInfo } = getAllDocs();
 
 // Generate TypeScript file
 const tsContent = `// Auto-generated file - DO NOT EDIT
-// Generated at: ${new Date().toISOString()}
 // Run: pnpm run docs:generate
 
 export const DOCS_CONTENT = ${JSON.stringify(docsData, null, 2)} as const;

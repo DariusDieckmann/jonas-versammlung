@@ -70,6 +70,23 @@ export async function getMeetingAttachments(
     await requireAuth();
     const db = await getDb();
 
+    // Check access - verify meeting belongs to user's organization
+    const meeting = await db
+        .select({
+            meeting: meetings,
+            property: properties,
+        })
+        .from(meetings)
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(eq(meetings.id, meetingId))
+        .limit(1);
+
+    if (!meeting.length) {
+        throw new Error("Versammlung nicht gefunden");
+    }
+
+    await requireMember(meeting[0].property.organizationId);
+
     const result = await db
         .select()
         .from(meetingAttachments)

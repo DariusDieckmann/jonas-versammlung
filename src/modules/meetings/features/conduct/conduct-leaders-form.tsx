@@ -37,6 +37,7 @@ interface ConductLeadersFormProps {
     existingLeaders: MeetingLeader[];
     onSuccess?: () => void;
     formRef?: React.RefObject<HTMLFormElement | null>;
+    onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
 const LEADER_ROLES = [
@@ -51,6 +52,7 @@ export function ConductLeadersForm({
     existingLeaders,
     onSuccess,
     formRef,
+    onSubmittingChange,
 }: ConductLeadersFormProps) {
     const router = useRouter();
 
@@ -64,7 +66,7 @@ export function ConductLeadersForm({
             : [{ name: "", role: "Versammlungsleiter" }];
 
     const [leaders, setLeaders] = useState<LeaderFormData[]>(initialLeaders);
-    const [, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addLeader = () => {
         setLeaders([...leaders, { name: "", role: "Protokollführer" }]);
@@ -89,6 +91,7 @@ export function ConductLeadersForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        onSubmittingChange?.(true);
 
         try {
             // Validate: at least one leader with name
@@ -96,6 +99,7 @@ export function ConductLeadersForm({
             if (validLeaders.length === 0) {
                 alert("Bitte mindestens einen Leiter eintragen");
                 setIsSubmitting(false);
+                onSubmittingChange?.(false);
                 return;
             }
 
@@ -122,6 +126,7 @@ export function ConductLeadersForm({
             alert("Ein Fehler ist aufgetreten");
         } finally {
             setIsSubmitting(false);
+            onSubmittingChange?.(false);
         }
     };
 

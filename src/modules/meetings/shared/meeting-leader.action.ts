@@ -70,14 +70,15 @@ export async function createMeetingLeaders(
 
         await requireMember(meeting[0].property.organizationId);
 
-        for (const leader of leaders) {
-            const validatedData = insertMeetingLeaderSchema.parse({
+       
+        const validatedLeaders = leaders.map((leader) =>
+            insertMeetingLeaderSchema.parse({
                 meetingId,
                 ...leader,
-            });
+            }),
+        );
 
-            await db.insert(meetingLeaders).values(validatedData);
-        }
+        await db.insert(meetingLeaders).values(validatedLeaders);
 
         revalidatePath(meetingsRoutes.detail(meetingId));
         return { success: true };

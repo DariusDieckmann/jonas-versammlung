@@ -40,6 +40,7 @@ export function ConductAgendaItemsView({
     const [selectedItemId, setSelectedItemId] = useState<number | null>(
         agendaItems.length > 0 ? agendaItems[0].id : null,
     );
+    const [isCompletingItem, setIsCompletingItem] = useState(false);
 
     // Initialize completedItems from existing resolutions
     const [completedItems, setCompletedItems] = useState<Set<number>>(() => {
@@ -102,44 +103,53 @@ export function ConductAgendaItemsView({
     };
 
     const handleItemComplete = async (itemId: number) => {
-        // Save changes before completing
-        const edited = editedItems.get(itemId);
-        const originalItem = agendaItems.find((i) => i.id === itemId);
+        setIsCompletingItem(true);
 
-        if (edited && originalItem) {
-            const hasChanges =
-                edited.title !== originalItem.title ||
-                edited.description !== (originalItem.description || "");
+        try {
+            // Save changes before completing
+            const edited = editedItems.get(itemId);
+            const originalItem = agendaItems.find((i) => i.id === itemId);
 
-            if (hasChanges) {
-                await updateAgendaItem(itemId, {
-                    title: edited.title,
-                    description: edited.description || null,
-                });
+            if (edited && originalItem) {
+                const hasChanges =
+                    edited.title !== originalItem.title ||
+                    edited.description !== (originalItem.description || "");
+
+                if (hasChanges) {
+                    await updateAgendaItem(itemId, {
+                        title: edited.title,
+                        description: edited.description || null,
+                    });
+                }
             }
-        }
 
-        // For items without voting, mark as completed in DB
-        const item = agendaItems.find((i) => i.id === itemId);
-        if (item && !item.requiresResolution) {
-            const result = await markAgendaItemCompleted(itemId);
-            if (!result.success) {
-                alert(result.error || "Fehler beim Markieren als erledigt");
-                return;
+            // For items without voting, mark as completed in DB
+            const item = agendaItems.find((i) => i.id === itemId);
+            if (item && !item.requiresResolution) {
+                const result = await markAgendaItemCompleted(itemId);
+                if (!result.success) {
+                    alert(result.error || "Fehler beim Markieren als erledigt");
+                    setIsCompletingItem(false);
+                    return;
+                }
             }
-        }
 
-        setCompletedItems((prev) => new Set([...prev, itemId]));
+            setCompletedItems((prev) => new Set([...prev, itemId]));
 
-        // Move to next item
-        const currentIndex = agendaItems.findIndex(
-            (item) => item.id === itemId,
-        );
-        if (currentIndex < agendaItems.length - 1) {
-            setSelectedItemId(agendaItems[currentIndex + 1].id);
-        } else {
-            // All items done - go to summary page
-            router.push(conductRoutes.summary(meetingId));
+            // Move to next item
+            const currentIndex = agendaItems.findIndex(
+                (item) => item.id === itemId,
+            );
+            if (currentIndex < agendaItems.length - 1) {
+                setSelectedItemId(agendaItems[currentIndex + 1].id);
+                setIsCompletingItem(false);
+            } else {
+                // All items done - go to summary page (keep loading state)
+                router.push(conductRoutes.summary(meetingId));
+            }
+        } catch (error) {
+            console.error("Error completing item:", error);
+            setIsCompletingItem(false);
         }
     };
 
@@ -298,6 +308,7 @@ export function ConductAgendaItemsView({
                                 onComplete={() =>
                                     handleItemComplete(selectedItem.id)
                                 }
+                                isCompletingItem={isCompletingItem}
                             />
                         ) : (
                             <Card>
@@ -310,8 +321,11 @@ export function ConductAgendaItemsView({
                                         onClick={() =>
                                             handleItemComplete(selectedItem.id)
                                         }
+                                        disabled={isCompletingItem}
                                     >
-                                        Als erledigt markieren
+                                        {isCompletingItem
+                                            ? "Wird gespeichert..."
+                                            : "Als erledigt markieren"}
                                     </Button>
                                 </CardContent>
                             </Card>

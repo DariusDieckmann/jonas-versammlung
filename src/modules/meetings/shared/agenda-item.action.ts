@@ -322,20 +322,22 @@ export async function reorderAgendaItems(
 
         await requireMember(meeting[0].property.organizationId);
 
-        // Update each item's order index
-        for (let i = 0; i < itemIds.length; i++) {
-            await db
-                .update(agendaItems)
-                .set({
-                    orderIndex: i,
-                })
-                .where(
-                    and(
-                        eq(agendaItems.id, itemIds[i]),
-                        eq(agendaItems.meetingId, meetingId),
+        // Update each item's order index 
+        await Promise.all(
+            itemIds.map((itemId, index) =>
+                db
+                    .update(agendaItems)
+                    .set({
+                        orderIndex: index,
+                    })
+                    .where(
+                        and(
+                            eq(agendaItems.id, itemId),
+                            eq(agendaItems.meetingId, meetingId),
+                        ),
                     ),
-                );
-        }
+            ),
+        );
 
         revalidatePath(meetingsRoutes.detail(meetingId));
         return { success: true };

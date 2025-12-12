@@ -18,6 +18,7 @@ import { PendingInvitationsList } from "../../shared/components/pending-invitati
 import {
     getMyPendingInvitations,
     getOrganizationInvitations,
+    type PendingInvitation,
 } from "../../shared/invitation.action";
 import type {
     OrganizationMemberWithUser,
@@ -34,81 +35,65 @@ import { LeaveOrganizationButton } from "./leave-organization-button";
 import { MembersList } from "./members-list";
 
 export default function OrganizationSettingsPage() {
-    const [organizations, setOrganizations] = useState<
-        OrganizationWithMemberCount[]
-    >([]);
+    const [organizations, setOrganizations] = useState<OrganizationWithMemberCount[]>([]);
     const [members, setMembers] = useState<OrganizationMemberWithUser[]>([]);
-    const [invitations, setInvitations] = useState<OrganizationInvitation[]>(
-        [],
-    );
-    const [myPendingInvitations, setMyPendingInvitations] = useState<
-        Array<{
-            id: number;
-            invitationCode: string;
-            organizationName: string;
-            inviterName: string;
-            inviterEmail: string;
-            role: string;
-            invitedAt: string;
-            expiresAt: string;
-        }>
-    >([]);
+    const [invitations, setInvitations] = useState<OrganizationInvitation[]>([]);
+    const [myPendingInvitations, setMyPendingInvitations] = useState<PendingInvitation[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
 
     const loadOrganizations = useCallback(async () => {
-        setIsLoading(true);
-        const orgs = await getUserOrganizations();
-        setOrganizations(orgs);
+        
+        try {
+            // Load user session and organizations in parallel
+            const [session, orgs] = await Promise.all([
+                authClient.getSession(),
+                getUserOrganizations(),
+            ]);
 
-        // Load current user
-        const session = await authClient.getSession();
-        const userId = session?.data?.user?.id;
-        if (userId) {
-            setCurrentUserId(userId);
-        }
-
-        // Always load pending invitations for current user
-        const pendingInvites = await getMyPendingInvitations();
-        setMyPendingInvitations(pendingInvites);
-
-        // If no organization, only show invitations
-        if (orgs.length === 0) {
-            setIsLoading(false);
-            return;
-        }
-
-        // Load members if organization exists
-        const orgMembers = await getOrganizationMembers(orgs[0].id);
-        setMembers(orgMembers);
-
-        // Load invitations if user is owner
-        if (userId) {
-            const currentMember = orgMembers.find((m) => m.userId === userId);
-            const isOwner = currentMember?.role === "owner";
-            setIsCurrentUserOwner(isOwner);
-
-            if (isOwner) {
-                const orgInvitations = await getOrganizationInvitations();
-                setInvitations(orgInvitations);
+            const userId = session?.data?.user?.id;
+            if (userId) {
+                setCurrentUserId(userId);
             }
-        }
 
-        setIsLoading(false);
+            setOrganizations(orgs);
+
+            // If no organization, only load pending invitations
+            if (orgs.length === 0) {
+                const pendingInvites = await getMyPendingInvitations();
+                setMyPendingInvitations(pendingInvites);
+                return;
+            }
+
+            // Load members and pending invitations in parallel
+            const [orgMembers, pendingInvites] = await Promise.all([
+                getOrganizationMembers(orgs[0].id),
+                getMyPendingInvitations(),
+            ]);
+
+            setMembers(orgMembers);
+            setMyPendingInvitations(pendingInvites);
+
+            // Check if user is owner and load invitations if needed
+            if (userId) {
+                const currentMember = orgMembers.find((m) => m.userId === userId);
+                const isOwner = currentMember?.role === "owner";
+                setIsCurrentUserOwner(isOwner);
+
+                if (isOwner) {
+                    // Load invitations separately only for owners
+                    const orgInvitations = await getOrganizationInvitations();
+                    setInvitations(orgInvitations);
+                }
+            }
+        } catch (error) {
+            console.error("Error loading organizations:", error);
+        }
     }, []);
 
     useEffect(() => {
         loadOrganizations();
     }, [loadOrganizations]);
-
-    if (isLoading) {
-        return (
-            <div className="container max-w-2xl mx-auto py-8">
-                <p>Lädt...</p>
-            </div>
-        );
-    }
 
     // User has no organization - show creation form
     if (organizations.length === 0) {

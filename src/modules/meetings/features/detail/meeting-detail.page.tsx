@@ -1,6 +1,5 @@
 import {
     AlertCircle,
-    ArrowLeft,
     Building2,
     CalendarDays,
     CheckCircle2,
@@ -42,6 +41,7 @@ import { getMeetingParticipants } from "../../shared/meeting-participant.action"
 import meetingsRoutes from "../../shared/meetings.route";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
+import { BackToMeetingsButton } from "./back-to-meetings-button";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 
 interface MeetingDetailPageProps {
@@ -150,12 +150,7 @@ export default async function MeetingDetailPage({
     return (
         <div className="container mx-auto py-8 px-4 max-w-4xl">
             <div className="mb-8">
-                <Link href={meetingsRoutes.list}>
-                    <Button variant="ghost" className="mb-4">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Zurück zur Übersicht
-                    </Button>
-                </Link>
+                <BackToMeetingsButton />
 
                 <div className="flex items-start justify-between">
                     <div className="flex-1">

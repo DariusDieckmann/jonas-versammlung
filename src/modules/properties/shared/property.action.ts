@@ -9,6 +9,7 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
+import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
 import propertiesRoutes from "./properties.route";
 import {
     type InsertProperty,
@@ -23,26 +24,23 @@ import {
  * Get all properties for the user's organization
  */
 export async function getProperties(): Promise<Property[]> {
-    await requireAuth();
+    const currentUser = await requireAuth();
     const db = await getDb();
-
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
+   
+    // This avoids the separate getUserOrganizations() call
     const result = await db
-        .select()
+        .select({
+            property: properties,
+        })
         .from(properties)
-        .where(eq(properties.organizationId, organization.id))
+        .innerJoin(
+            organizationMembers,
+            eq(properties.organizationId, organizationMembers.organizationId),
+        )
+        .where(eq(organizationMembers.userId, currentUser.id))
         .orderBy(properties.name);
 
-    return result;
+    return result.map((r) => r.property);
 }
 
 /**

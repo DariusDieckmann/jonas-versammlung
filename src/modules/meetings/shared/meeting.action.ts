@@ -57,26 +57,37 @@ export async function getMeetingsByProperty(
     await requireAuth();
     const db = await getDb();
 
-    // Check property access
-    const property = await db
-        .select()
-        .from(properties)
-        .where(eq(properties.id, propertyId))
-        .limit(1);
-
-    if (!property.length) {
-        throw new Error("Liegenschaft nicht gefunden");
-    }
-
-    await requireMember(property[0].organizationId);
-
+    // Get meetings with property in one query to check access and retrieve data
     const result = await db
-        .select()
+        .select({
+            meeting: meetings,
+            property: properties,
+        })
         .from(meetings)
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
         .where(eq(meetings.propertyId, propertyId))
         .orderBy(meetings.date);
 
-    return result;
+    if (result.length === 0) {
+        // Check if property exists
+        const property = await db
+            .select()
+            .from(properties)
+            .where(eq(properties.id, propertyId))
+            .limit(1);
+
+        if (!property.length) {
+            throw new Error("Liegenschaft nicht gefunden");
+        }
+
+        await requireMember(property[0].organizationId);
+        return [];
+    }
+
+    // Check access using the first result
+    await requireMember(result[0].property.organizationId);
+
+    return result.map((r) => r.meeting);
 }
 
 /**

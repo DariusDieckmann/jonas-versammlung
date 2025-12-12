@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -48,12 +48,11 @@ export async function getVotes(
 }
 
 /**
- * Cast or update a vote
+ * Cast or update multiple votes in a batch (optimized to avoid N+1)
  */
-export async function castVote(
+export async function castVotesBatch(
     resolutionId: number,
-    participantId: number,
-    voteChoice: VoteChoice,
+    votesData: Array<{ participantId: number; voteChoice: VoteChoice }>,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         await requireAuth();
@@ -82,43 +81,60 @@ export async function castVote(
 
         await requireMember(resolution[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
-        // Check if vote exists
-        const existingVote = await db
+        // Get all existing votes for this resolution in one query
+        const participantIds = votesData.map((v) => v.participantId);
+        const existingVotes = await db
             .select()
             .from(votes)
             .where(
                 and(
                     eq(votes.resolutionId, resolutionId),
-                    eq(votes.participantId, participantId),
+                    inArray(votes.participantId, participantIds),
                 ),
-            )
-            .limit(1);
+            );
 
-        if (existingVote.length > 0) {
-            // Update existing vote
+        const existingVotesMap = new Map(
+            existingVotes.map((v) => [v.participantId, v]),
+        );
+
+        // Prepare updates and inserts
+        const updates: Array<{ id: number; vote: VoteChoice }> = [];
+        const inserts: Array<{
+            resolutionId: number;
+            participantId: number;
+            vote: VoteChoice;
+        }> = [];
+
+        for (const { participantId, voteChoice } of votesData) {
+            const existingVote = existingVotesMap.get(participantId);
+            if (existingVote) {
+                updates.push({ id: existingVote.id, vote: voteChoice });
+            } else {
+                inserts.push({
+                    resolutionId,
+                    participantId,
+                    vote: voteChoice,
+                });
+            }
+        }
+
+        // Execute updates
+        for (const update of updates) {
             await db
                 .update(votes)
-                .set({
-                    vote: voteChoice,
-                })
-                .where(eq(votes.id, existingVote[0].id));
-        } else {
-            // Create new vote
-            const validatedData = insertVoteSchema.parse({
-                resolutionId,
-                participantId,
-                vote: voteChoice,
-            });
+                .set({ vote: update.vote })
+                .where(eq(votes.id, update.id));
+        }
 
-            await db.insert(votes).values(validatedData);
+        // Execute inserts in batch if there are any
+        if (inserts.length > 0) {
+            await db.insert(votes).values(inserts);
         }
 
         revalidatePath(conductRoutes.agendaItems(resolution[0].meetingId));
         return { success: true };
     } catch (error) {
-        console.error("Error casting vote:", error);
+        console.error("Error casting votes batch:", error);
         return {
             success: false,
             error: "Fehler beim Abstimmen",

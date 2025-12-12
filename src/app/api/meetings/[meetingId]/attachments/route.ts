@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { MAX_FILES_PER_MEETING, validateFile } from "@/lib/file-validation";
 import { uploadToR2 } from "@/lib/r2";
+import { getMeetingPath } from "@/lib/r2-paths";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
     createMeetingAttachment,
@@ -54,7 +55,7 @@ export async function POST(
         }
 
         // Upload to R2
-        const uploadResult = await uploadToR2(file, `meetings/${meetingId}`);
+        const uploadResult = await uploadToR2(file, getMeetingPath(meetingIdNum));
 
         if (!uploadResult.success || !uploadResult.key || !uploadResult.url) {
             return NextResponse.json(

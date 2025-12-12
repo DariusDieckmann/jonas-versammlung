@@ -2,7 +2,7 @@
 
 import { UserCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -34,40 +34,111 @@ export function ConductParticipantsForm({
     const router = useRouter();
     const [participants, setParticipants] =
         useState<MeetingParticipant[]>(initialParticipants);
+    
+    // Debounce timer for representation updates
+    const debounceTimers = useRef<Record<number, NodeJS.Timeout>>({});
+    const pendingUpdates = useRef<Record<number, string | null>>({});
+
+    // Cleanup: flush all pending updates before component unmounts
+    useEffect(() => {
+        return () => {
+            // Clear all timers and execute pending updates immediately
+            Object.keys(debounceTimers.current).forEach((key) => {
+                const participantId = Number(key);
+                if (debounceTimers.current[participantId]) {
+                    clearTimeout(debounceTimers.current[participantId]);
+                }
+                
+                // Execute pending update if exists
+                if (pendingUpdates.current[participantId] !== undefined) {
+                    updateMeetingParticipant(participantId, {
+                        representedBy: pendingUpdates.current[participantId],
+                    });
+                }
+            });
+        };
+    }, []);
 
     const handleUpdateAttendance = async (
         participantId: number,
         attendanceStatus: "present" | "represented" | "absent",
     ) => {
+        // Optimistic update
+        setParticipants((prev) =>
+            prev.map((p) =>
+                p.id === participantId ? { ...p, attendanceStatus } : p,
+            ),
+        );
+
         const result = await updateMeetingParticipant(participantId, {
             attendanceStatus,
         });
 
-        if (result.success) {
+        if (!result.success) {
+            // Revert on error
             setParticipants((prev) =>
                 prev.map((p) =>
-                    p.id === participantId ? { ...p, attendanceStatus } : p,
+                    p.id === participantId
+                        ? {
+                              ...p,
+                              attendanceStatus:
+                                  initialParticipants.find(
+                                      (ip) => ip.id === participantId,
+                                  )?.attendanceStatus || "absent",
+                          }
+                        : p,
                 ),
             );
         }
     };
 
-    const handleUpdateRepresentation = async (
-        participantId: number,
-        representedBy: string | null,
-    ) => {
-        const result = await updateMeetingParticipant(participantId, {
-            representedBy,
-        });
-
-        if (result.success) {
+    const handleUpdateRepresentation = useCallback(
+        (participantId: number, representedBy: string | null) => {
+            // Immediate optimistic update for UI responsiveness
             setParticipants((prev) =>
                 prev.map((p) =>
                     p.id === participantId ? { ...p, representedBy } : p,
                 ),
             );
-        }
-    };
+
+            // Store pending update
+            pendingUpdates.current[participantId] = representedBy || null;
+
+            // Clear existing timer for this participant
+            if (debounceTimers.current[participantId]) {
+                clearTimeout(debounceTimers.current[participantId]);
+            }
+
+            // Set new timer to save after user stops typing
+            debounceTimers.current[participantId] = setTimeout(async () => {
+                const result = await updateMeetingParticipant(participantId, {
+                    representedBy: representedBy || null,
+                });
+
+                // Clear pending update after successful save
+                delete pendingUpdates.current[participantId];
+                delete debounceTimers.current[participantId];
+
+                if (!result.success) {
+                    // Revert on error
+                    setParticipants((prev) =>
+                        prev.map((p) =>
+                            p.id === participantId
+                                ? {
+                                      ...p,
+                                      representedBy:
+                                          initialParticipants.find(
+                                              (ip) => ip.id === participantId,
+                                          )?.representedBy || null,
+                                  }
+                                : p,
+                        ),
+                    );
+                }
+            }, 500); // Wait 500ms after user stops typing
+        },
+        [],
+    );
 
     const totalShares = participants.reduce((sum, p) => sum + p.shares, 0);
     const presentShares = participants

@@ -88,6 +88,10 @@ function FeatureCard({
             initial={{ opacity: 0, y: 50 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
+            style={{
+                willChange: "transform, opacity",
+                transform: "translateZ(0)",
+            }}
         >
             <Card className="h-full hover:shadow-lg transition-shadow duration-300 border-gray-200">
                 <CardContent className="p-6">

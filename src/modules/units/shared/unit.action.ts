@@ -9,6 +9,7 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
+import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
 import {
     type Owner,
     owners,
@@ -25,102 +26,55 @@ import {
 } from "./schemas/unit.schema";
 
 /**
- * Get all units for a specific property
- */
-export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
-    await requireAuth();
-    const db = await getDb();
-
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
-    const result = await db
-        .select()
-        .from(units)
-        .where(
-            and(
-                eq(units.organizationId, organization.id),
-                eq(units.propertyId, propertyId),
-            ),
-        )
-        .orderBy(units.name);
-
-    return result;
-}
-
-/**
  * Get all units with their owners for a specific property
  */
 export async function getUnitsWithOwners(
     propertyId: number,
 ): Promise<Array<Unit & { owners: Owner[] }>> {
-    await requireAuth();
+    const currentUser = await requireAuth();
     const db = await getDb();
 
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
-    // Get all units for the property
-    const unitsResult = await db
-        .select()
+    const result = await db
+        .select({
+            unit: units,
+            owner: owners,
+        })
         .from(units)
+        .innerJoin(
+            organizationMembers,
+            eq(units.organizationId, organizationMembers.organizationId),
+        )
+        .leftJoin(owners, eq(owners.unitId, units.id))
         .where(
             and(
-                eq(units.organizationId, organization.id),
                 eq(units.propertyId, propertyId),
+                eq(organizationMembers.userId, currentUser.id),
             ),
         )
-        .orderBy(units.name);
+        .orderBy(units.name, owners.lastName, owners.firstName);
 
-    // Get all owners for these units
-    const unitIds = unitsResult.map((u) => u.id);
-
-    if (unitIds.length === 0) {
+    if (result.length === 0) {
         return [];
     }
 
-    const ownersResult = await db
-        .select()
-        .from(owners)
-        .where(
-            and(
-                eq(owners.organizationId, organization.id),
-                inArray(owners.unitId, unitIds),
-            ),
-        )
-        .orderBy(owners.lastName, owners.firstName);
+    // Group by unitId and collect owners
+    const unitsMap = new Map<number, Unit & { owners: Owner[] }>();
 
-    // Group owners by unitId
-    const ownersByUnit = ownersResult.reduce(
-        (acc, owner) => {
-            if (!acc[owner.unitId]) {
-                acc[owner.unitId] = [];
-            }
-            acc[owner.unitId].push(owner);
-            return acc;
-        },
-        {} as Record<number, Owner[]>,
-    );
+    for (const row of result) {
+        if (!unitsMap.has(row.unit.id)) {
+            unitsMap.set(row.unit.id, {
+                ...row.unit,
+                owners: [],
+            });
+        }
 
-    // Combine units with their owners
-    return unitsResult.map((unit) => ({
-        ...unit,
-        owners: ownersByUnit[unit.id] || [],
-    }));
+        // Add owner if exists (LEFT JOIN can return null for owner)
+        if (row.owner) {
+            unitsMap.get(row.unit.id)!.owners.push(row.owner);
+        }
+    }
+
+    return Array.from(unitsMap.values());
 }
 
 /**

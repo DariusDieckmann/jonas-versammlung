@@ -9,6 +9,7 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
+import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
 import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
 import {
@@ -21,60 +22,30 @@ import {
 } from "./schemas/owner.schema";
 
 /**
- * Get all owners for the user's organization
- */
-export async function getOwners(): Promise<Owner[]> {
-    await requireAuth();
-    const db = await getDb();
-
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
-    const result = await db
-        .select()
-        .from(owners)
-        .where(eq(owners.organizationId, organization.id))
-        .orderBy(owners.lastName, owners.firstName);
-
-    return result;
-}
-
-/**
  * Get owners for a specific unit
  */
 export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
-    await requireAuth();
+    const currentUser = await requireAuth();
     const db = await getDb();
 
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
     const result = await db
-        .select()
+        .select({
+            owner: owners,
+        })
         .from(owners)
+        .innerJoin(
+            organizationMembers,
+            eq(owners.organizationId, organizationMembers.organizationId),
+        )
         .where(
             and(
-                eq(owners.organizationId, organization.id),
                 eq(owners.unitId, unitId),
+                eq(organizationMembers.userId, currentUser.id),
             ),
         )
         .orderBy(owners.lastName, owners.firstName);
 
-    return result;
+    return result.map((r) => r.owner);
 }
 
 /**
