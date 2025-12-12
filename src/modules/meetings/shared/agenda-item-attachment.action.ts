@@ -75,6 +75,24 @@ export async function getAgendaItemAttachments(
     await requireAuth();
     const db = await getDb();
 
+    // Check access - verify agenda item belongs to user's organization
+    const agendaItem = await db
+        .select({
+            agendaItem: agendaItems,
+            property: properties,
+        })
+        .from(agendaItems)
+        .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(eq(agendaItems.id, agendaItemId))
+        .limit(1);
+
+    if (!agendaItem.length) {
+        throw new Error("Tagesordnungspunkt nicht gefunden");
+    }
+
+    await requireMember(agendaItem[0].property.organizationId);
+
     const result = await db
         .select()
         .from(agendaItemAttachments)
