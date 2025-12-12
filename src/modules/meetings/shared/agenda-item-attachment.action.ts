@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -104,6 +104,8 @@ export async function getAgendaItemAttachments(
 
 /**
  * Get all attachments for multiple agenda items
+ * NOTE: This function assumes agendaItemIds have already been validated
+ * to belong to the user's organization. Only use after checking access!
  */
 export async function getAgendaItemAttachmentsByItems(
     agendaItemIds: number[],
@@ -115,11 +117,35 @@ export async function getAgendaItemAttachmentsByItems(
     await requireAuth();
     const db = await getDb();
 
+    // Security check: Verify all agenda items belong to user's organizations
+    const userOrgIds = await import("@/modules/organizations/shared/organization-permissions.action").then(m => m.getUserOrganizationIds());
+    
+    const agendaItemsCheck = await db
+        .select({
+            id: agendaItems.id,
+        })
+        .from(agendaItems)
+        .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(
+            and(
+                inArray(agendaItems.id, agendaItemIds),
+                inArray(properties.organizationId, userOrgIds)
+            )
+        );
+
+    // Only fetch attachments for validated agenda items
+    const validatedIds = agendaItemsCheck.map(item => item.id);
+    
+    if (validatedIds.length === 0) {
+        return new Map();
+    }
+
     // Fetch all attachments in one query using inArray
     const results = await db
         .select()
         .from(agendaItemAttachments)
-        .where(inArray(agendaItemAttachments.agendaItemId, agendaItemIds))
+        .where(inArray(agendaItemAttachments.agendaItemId, validatedIds))
         .orderBy(agendaItemAttachments.createdAt);
 
     // Group by agenda item ID
