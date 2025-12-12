@@ -1,11 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { MAX_FILES_PER_MEETING, validateFile } from "@/lib/file-validation";
 import { uploadToR2 } from "@/lib/r2";
+import { getAgendaItemPath } from "@/lib/r2-paths";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
     createAgendaItemAttachment,
     getAgendaItemAttachments,
 } from "@/modules/meetings/shared/agenda-item-attachment.action";
+import { getAgendaItem } from "@/modules/meetings/shared/agenda-item.action";
 
 export async function POST(
     request: NextRequest,
@@ -54,10 +56,19 @@ export async function POST(
             );
         }
 
-        // Upload to R2
+        // Get meeting ID from agenda item
+        const agendaItemData = await getAgendaItem(agendaItemIdNum);
+        if (!agendaItemData) {
+            return NextResponse.json(
+                { error: "Tagesordnungspunkt nicht gefunden" },
+                { status: 404 },
+            );
+        }
+
+        // Upload to R2 with hierarchical structure
         const uploadResult = await uploadToR2(
             file,
-            `agenda-items/${agendaItemId}`,
+            getAgendaItemPath(agendaItemData.meetingId, agendaItemIdNum),
         );
 
         if (!uploadResult.success || !uploadResult.key || !uploadResult.url) {
