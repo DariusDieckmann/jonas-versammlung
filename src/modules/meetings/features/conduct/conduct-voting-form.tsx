@@ -22,25 +22,31 @@ import { createResolution } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import type { VoteChoice } from "../../shared/schemas/vote.schema";
-import { calculateResolutionResult, castVote } from "../../shared/vote.action";
+import {
+    calculateResolutionResult,
+    castVotesBatch,
+    getVotes,
+} from "../../shared/vote.action";
 
 interface ConductVotingFormProps {
     agendaItem: AgendaItem;
     participants: MeetingParticipant[];
     onComplete: () => void;
+    isCompletingItem?: boolean;
 }
 
 export function ConductVotingForm({
     agendaItem,
     participants,
     onComplete,
+    isCompletingItem = false,
 }: ConductVotingFormProps) {
     const [votes, setVotes] = useState<Map<number, VoteChoice>>(new Map());
     const [resolutionId, setResolutionId] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isInitializing, setIsInitializing] = useState(true);
 
-    // Initialize resolution on mount
+    // Initialize resolution and load existing votes on mount
     useEffect(() => {
         async function initResolution() {
             setIsInitializing(true);
@@ -50,6 +56,20 @@ export function ConductVotingForm({
 
             if (result.success && result.data) {
                 setResolutionId(result.data.id);
+
+                // Load existing votes if any
+                try {
+                    const existingVotes = await getVotes(result.data.id);
+                    if (existingVotes.length > 0) {
+                        const votesMap = new Map<number, VoteChoice>();
+                        for (const vote of existingVotes) {
+                            votesMap.set(vote.participantId, vote.vote);
+                        }
+                        setVotes(votesMap);
+                    }
+                } catch (error) {
+                    console.error("Error loading existing votes:", error);
+                }
             }
             setIsInitializing(false);
         }
@@ -67,16 +87,25 @@ export function ConductVotingForm({
         setIsSubmitting(true);
 
         try {
-            // Cast all votes
-            for (const [participantId, vote] of votes.entries()) {
-                await castVote(resolutionId, participantId, vote);
+            // Cast all votes in a single batch to avoid N+1 problem
+            const votesData = Array.from(votes.entries()).map(
+                ([participantId, voteChoice]) => ({
+                    participantId,
+                    voteChoice,
+                }),
+            );
+
+            const result = await castVotesBatch(resolutionId, votesData);
+
+            if (result.success) {
+                // Calculate result
+                await calculateResolutionResult(resolutionId);
+
+                // Mark as complete and move to next
+                onComplete();
+            } else {
+                alert(result.error || "Fehler beim Speichern der Abstimmung");
             }
-
-            // Calculate result
-            await calculateResolutionResult(resolutionId);
-
-            // Mark as complete and move to next
-            onComplete();
         } catch (error) {
             console.error("Error submitting votes:", error);
             alert("Fehler beim Speichern der Abstimmung");
@@ -273,10 +302,12 @@ export function ConductVotingForm({
                     </div>
                     <Button
                         onClick={handleSubmit}
-                        disabled={isSubmitting || votedCount === 0}
+                        disabled={
+                            isSubmitting || isCompletingItem || votedCount === 0
+                        }
                         size="lg"
                     >
-                        {isSubmitting
+                        {isSubmitting || isCompletingItem
                             ? "Wird gespeichert..."
                             : "Abstimmung speichern"}
                         <Check className="ml-2 h-4 w-4" />

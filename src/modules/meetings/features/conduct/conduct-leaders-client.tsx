@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import conductRoutes from "../../shared/conduct.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
@@ -19,6 +19,7 @@ export function ConductLeadersClient({
 }: ConductLeadersClientProps) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleNext = () => {
         // Trigger form submit programmatically
@@ -41,13 +42,15 @@ export function ConductLeadersClient({
             currentStep={1}
             maxWidth="3xl"
             onNext={handleNext}
-            nextLabel="Weiter"
+            nextLabel={isSubmitting ? "Wird gespeichert..." : "Weiter"}
+            nextDisabled={isSubmitting}
         >
             <ConductLeadersForm
                 meetingId={meeting.id}
                 existingLeaders={existingLeaders}
                 onSuccess={handleSuccess}
                 formRef={formRef}
+                onSubmittingChange={setIsSubmitting}
             />
         </ConductLayout>
     );

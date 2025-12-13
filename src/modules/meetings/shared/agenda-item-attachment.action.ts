@@ -1,10 +1,10 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
+import { getUserOrganizationIds, requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import {
@@ -75,6 +75,24 @@ export async function getAgendaItemAttachments(
     await requireAuth();
     const db = await getDb();
 
+    // Check access - verify agenda item belongs to user's organization
+    const agendaItem = await db
+        .select({
+            agendaItem: agendaItems,
+            property: properties,
+        })
+        .from(agendaItems)
+        .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(eq(agendaItems.id, agendaItemId))
+        .limit(1);
+
+    if (!agendaItem.length) {
+        throw new Error("Tagesordnungspunkt nicht gefunden");
+    }
+
+    await requireMember(agendaItem[0].property.organizationId);
+
     const result = await db
         .select()
         .from(agendaItemAttachments)
@@ -86,6 +104,8 @@ export async function getAgendaItemAttachments(
 
 /**
  * Get all attachments for multiple agenda items
+ * NOTE: This function assumes agendaItemIds have already been validated
+ * to belong to the user's organization. Only use after checking access!
  */
 export async function getAgendaItemAttachmentsByItems(
     agendaItemIds: number[],
@@ -95,15 +115,45 @@ export async function getAgendaItemAttachmentsByItems(
     }
 
     await requireAuth();
+    const db = await getDb();
 
+    // Security check: Verify all agenda items belong to user's organizations
+    const userOrgIds = await getUserOrganizationIds();
+    
+    const agendaItemsCheck = await db
+        .select({
+            id: agendaItems.id,
+        })
+        .from(agendaItems)
+        .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(
+            and(
+                inArray(agendaItems.id, agendaItemIds),
+                inArray(properties.organizationId, userOrgIds)
+            )
+        );
+
+    // Only fetch attachments for validated agenda items
+    const validatedIds = agendaItemsCheck.map(item => item.id);
+    
+    if (validatedIds.length === 0) {
+        return new Map();
+    }
+
+    // Fetch all attachments in one query using inArray
+    const results = await db
+        .select()
+        .from(agendaItemAttachments)
+        .where(inArray(agendaItemAttachments.agendaItemId, validatedIds))
+        .orderBy(agendaItemAttachments.createdAt);
+
+    // Group by agenda item ID
     const attachmentsMap = new Map<number, AgendaItemAttachment[]>();
-
-    // Fetch attachments for each item individually
-    for (const itemId of agendaItemIds) {
-        const attachments = await getAgendaItemAttachments(itemId);
-        if (attachments.length > 0) {
-            attachmentsMap.set(itemId, attachments);
-        }
+    for (const attachment of results) {
+        const existing = attachmentsMap.get(attachment.agendaItemId) || [];
+        existing.push(attachment);
+        attachmentsMap.set(attachment.agendaItemId, existing);
     }
 
     return attachmentsMap;

@@ -38,11 +38,23 @@ export async function uploadToR2(
         // Convert File to ArrayBuffer
         const arrayBuffer = await file.arrayBuffer();
 
+        // Sanitize filename for Content-Disposition header to prevent header injection
+        // Remove/replace characters that could break HTTP headers: control chars, quotes, backslashes, semicolons
+        const sanitizedFileName = file.name
+            .replace(/[\x00-\x1F\x7F]/g, '') // Remove control characters
+            .replace(/[\\]/g, '') // Remove backslashes
+            .replace(/["]/g, "'") // Replace double quotes with single quotes
+            .replace(/[;]/g, ','); // Replace semicolons with commas
+
+        // Use RFC 5987 encoding for better international filename support
+        const encodedFileName = encodeURIComponent(file.name);
+
         // Upload to R2
         const result = await env.BUCKET.put(key, arrayBuffer, {
             httpMetadata: {
                 contentType: file.type,
-                contentDisposition: "attachment", // Force download, prevent execution
+                // Set filename using both ASCII fallback and UTF-8 encoded filename
+                contentDisposition: `attachment; filename="${sanitizedFileName}"; filename*=UTF-8''${encodedFileName}`,
                 cacheControl: "public, max-age=31536000", // 1 year
             },
             customMetadata: {
@@ -60,7 +72,7 @@ export async function uploadToR2(
         }
 
         // Return public URL of R2 (should be using custom domain)
-        const publicUrl = `https://${(env as CloudflareEnv).CLOUDFLARE_R2_URL}/${key}`;
+        const publicUrl = `${(env as CloudflareEnv).CLOUDFLARE_R2_URL}/${key}`;
 
         return {
             success: true,

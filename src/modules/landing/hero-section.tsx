@@ -22,6 +22,10 @@ export function HeroSection() {
                         repeat: Number.POSITIVE_INFINITY,
                         ease: "linear",
                     }}
+                    style={{
+                        willChange: "transform",
+                        transform: "translateZ(0)",
+                    }}
                 />
                 <motion.div
                     className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
@@ -33,6 +37,10 @@ export function HeroSection() {
                         duration: 25,
                         repeat: Number.POSITIVE_INFINITY,
                         ease: "linear",
+                    }}
+                    style={{
+                        willChange: "transform",
+                        transform: "translateZ(0)",
                     }}
                 />
             </div>
