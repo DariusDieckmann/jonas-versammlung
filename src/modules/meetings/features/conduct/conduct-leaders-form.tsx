@@ -155,6 +155,7 @@ export function ConductLeadersForm({
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeLeader(index)}
+                                        disabled={isSubmitting}
                                     >
                                         <Trash2 className="h-4 w-4 text-red-600" />
                                     </Button>
@@ -178,6 +179,7 @@ export function ConductLeadersForm({
                                             )
                                         }
                                         required
+                                        disabled={isSubmitting}
                                     />
                                 </div>
 
@@ -190,6 +192,7 @@ export function ConductLeadersForm({
                                         onValueChange={(value) =>
                                             updateLeader(index, "role", value)
                                         }
+                                        disabled={isSubmitting}
                                     >
                                         <SelectTrigger id={`role-${index}`}>
                                             <SelectValue />
@@ -215,6 +218,7 @@ export function ConductLeadersForm({
                         variant="outline"
                         onClick={addLeader}
                         className="w-full"
+                        disabled={isSubmitting}
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Weitere Person hinzufügen

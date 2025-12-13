@@ -97,16 +97,15 @@ export function ConductVotingForm({
 
             const result = await castVotesBatch(resolutionId, votesData);
 
-            if (!result.success) {
+            if (result.success) {
+                // Calculate result
+                await calculateResolutionResult(resolutionId);
+
+                // Mark as complete and move to next
+                onComplete();
+            } else {
                 alert(result.error || "Fehler beim Speichern der Abstimmung");
-                return;
             }
-
-            // Calculate result
-            await calculateResolutionResult(resolutionId);
-
-            // Mark as complete and move to next
-            onComplete();
         } catch (error) {
             console.error("Error submitting votes:", error);
             alert("Fehler beim Speichern der Abstimmung");

@@ -41,9 +41,10 @@ export default function OrganizationSettingsPage() {
     const [myPendingInvitations, setMyPendingInvitations] = useState<PendingInvitation[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [isCurrentUserOwner, setIsCurrentUserOwner] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const loadOrganizations = useCallback(async () => {
-        
+        setIsLoading(true);
         try {
             // Load user session and organizations in parallel
             const [session, orgs] = await Promise.all([
@@ -88,12 +89,41 @@ export default function OrganizationSettingsPage() {
             }
         } catch (error) {
             console.error("Error loading organizations:", error);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
     useEffect(() => {
         loadOrganizations();
     }, [loadOrganizations]);
+
+    // Show loading state while fetching data
+    if (isLoading) {
+        return (
+            <div className="container max-w-2xl mx-auto py-8">
+                <div className="mb-8">
+                    <Link href={dashboardRoutes.dashboard}>
+                        <Button variant="ghost" className="mb-4">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Zurück zum Dashboard
+                        </Button>
+                    </Link>
+                    <h1 className="text-3xl font-bold">
+                        Organisationseinstellungen
+                    </h1>
+                </div>
+                <Card>
+                    <CardContent className="py-12">
+                        <div className="flex flex-col items-center justify-center text-center">
+                            <FileText className="h-12 w-12 text-gray-400 mb-4 animate-pulse" />
+                            <p className="text-gray-600">Lade Daten...</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     // User has no organization - show creation form
     if (organizations.length === 0) {

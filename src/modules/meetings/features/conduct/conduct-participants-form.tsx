@@ -137,7 +137,7 @@ export function ConductParticipantsForm({
                 }
             }, 500); // Wait 500ms after user stops typing
         },
-        [],
+        [initialParticipants],
     );
 
     const totalShares = participants.reduce((sum, p) => sum + p.shares, 0);

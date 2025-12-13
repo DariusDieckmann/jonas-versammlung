@@ -25,6 +25,15 @@ export async function POST(
             );
         }
 
+        // Check access and get agenda item data early (fail fast on unauthorized requests)
+        const agendaItemData = await getAgendaItem(agendaItemIdNum);
+        if (!agendaItemData) {
+            return NextResponse.json(
+                { error: "Tagesordnungspunkt nicht gefunden" },
+                { status: 404 },
+            );
+        }
+
         // Check if max files limit reached
         const existingAttachments =
             await getAgendaItemAttachments(agendaItemIdNum);
@@ -53,15 +62,6 @@ export async function POST(
             return NextResponse.json(
                 { error: validation.error },
                 { status: 400 },
-            );
-        }
-
-        // Get meeting ID from agenda item
-        const agendaItemData = await getAgendaItem(agendaItemIdNum);
-        if (!agendaItemData) {
-            return NextResponse.json(
-                { error: "Tagesordnungspunkt nicht gefunden" },
-                { status: 404 },
             );
         }
 

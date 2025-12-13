@@ -4,7 +4,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
+import { getUserOrganizationIds, requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import {
@@ -118,7 +118,7 @@ export async function getAgendaItemAttachmentsByItems(
     const db = await getDb();
 
     // Security check: Verify all agenda items belong to user's organizations
-    const userOrgIds = await import("@/modules/organizations/shared/organization-permissions.action").then(m => m.getUserOrganizationIds());
+    const userOrgIds = await getUserOrganizationIds();
     
     const agendaItemsCheck = await db
         .select({

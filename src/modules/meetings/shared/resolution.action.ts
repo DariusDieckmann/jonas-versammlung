@@ -3,7 +3,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
+import { getUserOrganizationIds, requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
@@ -113,7 +113,6 @@ export async function getResolutionsByAgendaItems(
     const db = await getDb();
 
     // Security check: Verify all agenda items belong to user's organizations
-    const { getUserOrganizationIds } = await import("@/modules/organizations/shared/organization-permissions.action");
     const userOrgIds = await getUserOrganizationIds();
     
     const validatedResolutions = await db

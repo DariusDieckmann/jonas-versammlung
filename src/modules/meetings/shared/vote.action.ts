@@ -55,6 +55,11 @@ export async function castVotesBatch(
     votesData: Array<{ participantId: number; voteChoice: VoteChoice }>,
 ): Promise<{ success: boolean; error?: string }> {
     try {
+        // Early return if no votes to cast
+        if (votesData.length === 0) {
+            return { success: true };
+        }
+
         await requireAuth();
         const db = await getDb();
 
@@ -118,18 +123,19 @@ export async function castVotesBatch(
             }
         }
 
-        // Execute updates
-        for (const update of updates) {
-            await db
+        // Execute updates in parallel and inserts in batch
+        const updatePromises = updates.map((update) =>
+            db
                 .update(votes)
                 .set({ vote: update.vote })
-                .where(eq(votes.id, update.id));
-        }
+                .where(eq(votes.id, update.id))
+        );
 
-        // Execute inserts in batch if there are any
-        if (inserts.length > 0) {
-            await db.insert(votes).values(inserts);
-        }
+        const insertPromise = inserts.length > 0 
+            ? db.insert(votes).values(inserts)
+            : Promise.resolve();
+
+        await Promise.all([...updatePromises, insertPromise]);
 
         revalidatePath(conductRoutes.agendaItems(resolution[0].meetingId));
         return { success: true };
