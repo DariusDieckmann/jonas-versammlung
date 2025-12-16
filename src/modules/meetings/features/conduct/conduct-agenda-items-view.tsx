@@ -69,11 +69,6 @@ export function ConductAgendaItemsView({
         ),
     );
 
-    // Update completed items when completedAgendaItemIds changes (e.g., after navigation back)
-    useEffect(() => {
-        setCompletedItems(new Set(completedAgendaItemIds));
-    }, [completedAgendaItemIds]);
-
     // Filter only present and represented participants for voting (memoized)
     const votingParticipants = useMemo(
         () =>
