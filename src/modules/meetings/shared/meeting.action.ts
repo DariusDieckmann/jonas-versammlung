@@ -2,7 +2,7 @@
 
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getDb } from "@/db";
+import { getDb, meetingParticipants } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
     getUserOrganizationIds,
@@ -19,6 +19,7 @@ import {
     type UpdateMeeting,
     updateMeetingSchema,
 } from "./schemas/meeting.schema";
+import { createParticipantsFromOwners } from "./meeting-participant.action";
 
 /**
  * Get all meetings for the user's properties
@@ -292,34 +293,23 @@ export async function startMeeting(
             };
         }
 
-        // Import schemas to delete existing data
-        const { meetingLeaders } = await import(
-            "./schemas/meeting-leader.schema"
-        );
-        const { meetingParticipants } = await import(
-            "./schemas/meeting-participant.schema"
-        );
-
-        // Delete existing participants to allow fresh start
-        // This ensures we get a clean snapshot of current data
-        await db
-            .delete(meetingParticipants)
+        // Check if participants already exist
+        const existingParticipants = await db
+            .select()
+            .from(meetingParticipants)
             .where(eq(meetingParticipants.meetingId, meetingId));
 
-        // Import here to avoid circular dependency
-        const { createParticipantsFromOwners } = await import(
-            "./meeting-participant.action"
-        );
-
-        // Create participant snapshot before starting
-        const participantResult = await createParticipantsFromOwners(meetingId);
-        if (!participantResult.success) {
-            return {
-                success: false,
-                error:
-                    participantResult.error ||
-                    "Fehler beim Erstellen der Teilnehmerliste",
-            };
+        // Only create participant snapshot if none exist yet
+        if (existingParticipants.length === 0) {
+            const participantResult = await createParticipantsFromOwners(meetingId);
+            if (!participantResult.success) {
+                return {
+                    success: false,
+                    error:
+                        participantResult.error ||
+                        "Fehler beim Erstellen der Teilnehmerliste",
+                };
+            }
         }
 
         await db
