@@ -258,7 +258,7 @@ export async function deleteMeeting(
 }
 
 /**
- * Start a meeting - sets status to in-progress
+ * Start a meeting - sets status to in-progress and creates participant snapshot
  */
 export async function startMeeting(
     meetingId: number,
@@ -283,6 +283,30 @@ export async function startMeeting(
         }
 
         await requireMember(existing[0].property.organizationId);
+
+        // Check if meeting is already in-progress or completed
+        if (existing[0].meeting.status !== "planned") {
+            return {
+                success: false,
+                error: "Versammlung wurde bereits gestartet",
+            };
+        }
+
+        // Import here to avoid circular dependency
+        const { createParticipantsFromOwners } = await import(
+            "./meeting-participant.action"
+        );
+
+        // Create participant snapshot before starting
+        const participantResult = await createParticipantsFromOwners(meetingId);
+        if (!participantResult.success) {
+            return {
+                success: false,
+                error:
+                    participantResult.error ||
+                    "Fehler beim Erstellen der Teilnehmerliste",
+            };
+        }
 
         await db
             .update(meetings)
