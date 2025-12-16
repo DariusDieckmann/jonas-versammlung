@@ -15,6 +15,7 @@ export const properties = sqliteTable("properties", {
     yearBuilt: integer("year_built"),
     numberOfUnits: integer("number_of_units"),
     totalArea: integer("total_area"), // in m²
+    mea: integer("mea").notNull().default(1000), // MEA (Miteigentumsanteile)
     notes: text("notes"),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
@@ -65,6 +66,11 @@ export const insertPropertySchema = createInsertSchema(properties, {
         .min(1, "Fläche muss größer als 0 sein")
         .optional()
         .nullable(),
+    mea: z
+        .number()
+        .int()
+        .min(1, "MEA muss mindestens 1 sein")
+        .max(100000, "MEA darf maximal 100000 sein"),
     notes: z
         .string()
         .max(2000, "Notizen dürfen maximal 2000 Zeichen lang sein")
