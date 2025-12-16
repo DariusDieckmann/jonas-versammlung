@@ -50,6 +50,9 @@ export function ConductVotingForm({
     useEffect(() => {
         async function initResolution() {
             setIsInitializing(true);
+            // Reset votes when switching to a new agenda item
+            setVotes(new Map());
+            
             const result = await createResolution(agendaItem.id, {
                 majorityType: "simple",
             });

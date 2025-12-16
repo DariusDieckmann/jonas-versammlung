@@ -47,9 +47,11 @@ export default async function ConductAgendaItemsPage({
     // Load existing resolutions to mark completed items
     const agendaItemIds = agendaItems.map((item) => item.id);
     const resolutionsMap = await getResolutionsByAgendaItems(agendaItemIds);
-
-    // Convert Map to array of agenda item IDs that have resolutions
-    const completedAgendaItemIds = Array.from(resolutionsMap.keys());
+    
+    // Only include agenda items with resolutions that have a result (actual votes were cast)
+    const completedAgendaItemIds = Array.from(resolutionsMap.entries())
+        .filter(([_, resolution]) => resolution.result !== null)
+        .map(([agendaItemId]) => agendaItemId);
 
     return (
         <ConductAgendaItemsClient
