@@ -90,7 +90,7 @@ export function ConductSummaryClient({
                                                 </Badge>
                                                 {item.requiresResolution && (
                                                     <Badge variant="secondary">
-                                                        Abstimmung
+                                                        Abstimmung ({item.majorityType === "qualified" ? "75%" : "50%"})
                                                     </Badge>
                                                 )}
                                             </div>

@@ -359,7 +359,7 @@ export default async function MeetingDetailPage({
                                                         className="ml-2"
                                                     >
                                                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                        Beschluss
+                                                        Beschluss ({item.majorityType === "qualified" ? "75%" : "50%"})
                                                     </Badge>
                                                 )}
                                             </div>

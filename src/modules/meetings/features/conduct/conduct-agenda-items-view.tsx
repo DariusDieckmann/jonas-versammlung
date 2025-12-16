@@ -229,7 +229,7 @@ export function ConductAgendaItemsView({
                                                         variant="outline"
                                                         className="text-xs"
                                                     >
-                                                        Beschluss
+                                                        Beschluss ({item.majorityType === "qualified" ? "75%" : "50%"})
                                                     </Badge>
                                                 )}
                                             </div>
@@ -261,7 +261,7 @@ export function ConductAgendaItemsView({
                                     {selectedItem.requiresResolution && (
                                         <Badge variant="default">
                                             <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            Beschluss erforderlich
+                                            Beschluss ({selectedItem.majorityType === "qualified" ? "75%" : "50%"})
                                         </Badge>
                                     )}
                                 </div>
