@@ -140,7 +140,7 @@ export async function createUnit(
             };
         }
 
-        // Validate that total MEA doesn't exceed 1000
+        // Validate that total MEA doesn't exceed property's total MEA
         const existingUnits = await db
             .select()
             .from(units)
@@ -152,10 +152,10 @@ export async function createUnit(
         );
         const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
-        if (newTotalMEA > 1000) {
+        if (newTotalMEA > property.mea) {
             return {
                 success: false,
-                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit ${property.mea.toLocaleString()} überschreiten. Verfügbar: ${property.mea - currentTotalMEA} MEA`,
             };
         }
 
@@ -207,8 +207,23 @@ export async function updateUnit(
 
         const validatedData = updateUnitSchema.parse(data);
 
-        // Validate that total MEA doesn't exceed 1000 (if ownershipShares is being changed)
+        // Validate that total MEA doesn't exceed property's total MEA (if ownershipShares is being changed)
         if (validatedData.ownershipShares !== undefined) {
+            // Get property to check its total MEA
+            const property = await db.query.properties.findFirst({
+                where: and(
+                    eq(properties.id, existing[0].propertyId),
+                    eq(properties.organizationId, existing[0].organizationId),
+                ),
+            });
+
+            if (!property) {
+                return {
+                    success: false,
+                    error: "Liegenschaft nicht gefunden",
+                };
+            }
+
             const existingUnits = await db
                 .select()
                 .from(units)
@@ -220,10 +235,10 @@ export async function updateUnit(
 
             const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
-            if (newTotalMEA > 1000) {
+            if (newTotalMEA > property.mea) {
                 return {
                     success: false,
-                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit ${property.mea.toLocaleString()} überschreiten. Verfügbar: ${property.mea - currentTotalMEA} MEA`,
                 };
             }
         }

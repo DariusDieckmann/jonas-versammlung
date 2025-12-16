@@ -194,6 +194,7 @@ export default async function PropertyDetailPage({
                     <CardContent>
                         <PropertyUnitsList
                             propertyId={property.id}
+                            propertyMea={property.mea}
                             initialUnitsWithOwners={unitsWithOwners}
                         />
                     </CardContent>
