@@ -52,7 +52,7 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
             yearBuilt: initialData?.yearBuilt || undefined,
             numberOfUnits: initialData?.numberOfUnits || undefined,
             totalArea: initialData?.totalArea || undefined,
-            mea: initialData?.mea,
+            mea: initialData?.mea || (undefined as any),
             notes: initialData?.notes || "",
         },
     });
@@ -271,34 +271,36 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                         </div>
 
                         {/* MEA */}
-                        <FormField
-                            control={form.control}
-                            name="mea"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>MEA (Miteigentumsanteile) *</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="z.B. 1000"
-                                            {...field}
-                                            value={field.value ?? ""}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    e.target.value
-                                                        ? Number(e.target.value)
-                                                        : undefined,
-                                                )
-                                            }
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Gesamtsumme der Miteigentumsanteile für diese Liegenschaft
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid md:grid-cols-3 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="mea"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>MEA *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="1000"
+                                                {...field}
+                                                value={field.value || ""}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value
+                                                            ? Number(
+                                                                  e.target
+                                                                      .value,
+                                                              )
+                                                            : null,
+                                                    )
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
                         {/* Notizen */}
                         <FormField
