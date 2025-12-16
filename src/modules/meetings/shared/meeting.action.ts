@@ -292,6 +292,20 @@ export async function startMeeting(
             };
         }
 
+        // Import schemas to delete existing data
+        const { meetingLeaders } = await import(
+            "./schemas/meeting-leader.schema"
+        );
+        const { meetingParticipants } = await import(
+            "./schemas/meeting-participant.schema"
+        );
+
+        // Delete existing participants to allow fresh start
+        // This ensures we get a clean snapshot of current data
+        await db
+            .delete(meetingParticipants)
+            .where(eq(meetingParticipants.meetingId, meetingId));
+
         // Import here to avoid circular dependency
         const { createParticipantsFromOwners } = await import(
             "./meeting-participant.action"
@@ -312,6 +326,8 @@ export async function startMeeting(
             .update(meetings)
             .set({
                 status: "in-progress",
+                leadersConfirmedAt: null,
+                participantsConfirmedAt: null,
             })
             .where(eq(meetings.id, meetingId));
 
