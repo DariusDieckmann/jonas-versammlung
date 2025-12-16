@@ -2,8 +2,10 @@ import { notFound, redirect } from "next/navigation";
 import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import conductRoutes from "../../shared/conduct.route";
+import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getMeeting } from "../../shared/meeting.action";
+import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { ConductAgendaItemsClient } from "./conduct-agenda-items-client";
@@ -53,12 +55,20 @@ export default async function ConductAgendaItemsPage({
         .filter(([_, resolution]) => resolution.result !== null)
         .map(([agendaItemId]) => agendaItemId);
 
+    // Get attachments for files sidebar and per agenda item
+    const meetingAttachments = await getMeetingAttachments(meetingId);
+    const agendaItemAttachments = await getAgendaItemAttachmentsByItems(
+        agendaItemIds,
+    );
+
     return (
         <ConductAgendaItemsClient
             meeting={meeting}
             agendaItems={agendaItemsWithResolvedPlaceholders}
             participants={participants}
             completedAgendaItemIds={completedAgendaItemIds}
+            meetingAttachments={meetingAttachments}
+            agendaItemAttachments={agendaItemAttachments}
         />
     );
 }

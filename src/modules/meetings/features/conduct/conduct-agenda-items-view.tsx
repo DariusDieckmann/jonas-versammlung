@@ -20,7 +20,9 @@ import conductRoutes from "../../shared/conduct.route";
 import meetingsRoutes from "../../shared/meetings.route";
 import { markAgendaItemCompleted } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
+import { ConductAgendaItemAttachmentsDisplay } from "./conduct-agenda-item-attachments-display";
 import { ConductVotingForm } from "./conduct-voting-form";
 
 interface ConductAgendaItemsViewProps {
@@ -28,6 +30,7 @@ interface ConductAgendaItemsViewProps {
     agendaItems: AgendaItem[];
     participants: MeetingParticipant[];
     completedAgendaItemIds: number[];
+    agendaItemAttachments: Map<number, AgendaItemAttachment[]>;
 }
 
 export function ConductAgendaItemsView({
@@ -35,6 +38,7 @@ export function ConductAgendaItemsView({
     agendaItems,
     participants,
     completedAgendaItemIds,
+    agendaItemAttachments,
 }: ConductAgendaItemsViewProps) {
     const router = useRouter();
     
@@ -305,6 +309,13 @@ export function ConductAgendaItemsView({
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* Display attachments for this agenda item */}
+                        <ConductAgendaItemAttachmentsDisplay
+                            attachments={
+                                agendaItemAttachments.get(selectedItem.id) || []
+                            }
+                        />
 
                         {selectedItem.requiresResolution ? (
                             <ConductVotingForm

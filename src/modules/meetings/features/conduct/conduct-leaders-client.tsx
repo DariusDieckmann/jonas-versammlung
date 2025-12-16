@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import conductRoutes from "../../shared/conduct.route";
 import { confirmLeaders } from "../../shared/meeting.action";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
+import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 import { ConductLayout } from "./conduct-layout";
 import { ConductLeadersForm } from "./conduct-leaders-form";
@@ -12,11 +13,13 @@ import { ConductLeadersForm } from "./conduct-leaders-form";
 interface ConductLeadersClientProps {
     meeting: Meeting;
     existingLeaders: MeetingLeader[];
+    meetingAttachments: MeetingAttachment[];
 }
 
 export function ConductLeadersClient({
     meeting,
     existingLeaders,
+    meetingAttachments,
 }: ConductLeadersClientProps) {
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
@@ -47,6 +50,7 @@ export function ConductLeadersClient({
             onNext={handleNext}
             nextLabel={isSubmitting ? "Wird gespeichert..." : "Weiter"}
             nextDisabled={isSubmitting}
+            meetingAttachments={meetingAttachments}
         >
             <ConductLeadersForm
                 meetingId={meeting.id}
