@@ -10,6 +10,7 @@ import {
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
 import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
+import { units } from "@/modules/units/shared/schemas/unit.schema";
 import propertiesRoutes from "./properties.route";
 import {
     type InsertProperty,
@@ -138,6 +139,26 @@ export async function updateProperty(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updatePropertySchema.parse(data);
+
+        // If MEA is being updated, check that the new value isn't less than allocated MEA
+        if (validatedData.mea !== undefined) {
+            const existingUnits = await db
+                .select()
+                .from(units)
+                .where(eq(units.propertyId, propertyId));
+
+            const allocatedMEA = existingUnits.reduce(
+                (sum, unit) => sum + unit.ownershipShares,
+                0,
+            );
+
+            if (validatedData.mea < allocatedMEA) {
+                return {
+                    success: false,
+                    error: `Der neue MEA-Wert (${validatedData.mea.toLocaleString()}) darf nicht kleiner sein als die bereits vergebenen MEA (${allocatedMEA.toLocaleString()}). Bitte passe zuerst die Einheiten an.`,
+                };
+            }
+        }
 
         await db
             .update(properties)
