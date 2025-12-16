@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import conductRoutes from "../../shared/conduct.route";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getMeeting } from "../../shared/meeting.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
@@ -21,8 +22,19 @@ export default async function ConductAgendaItemsPage({
         notFound();
     }
 
-    const agendaItems = await getAgendaItems(meetingId);
+    // Validate: Step 1 must be completed (leaders must be confirmed)
+    if (!meeting.leadersConfirmedAt) {
+        redirect(conductRoutes.leaders(meetingId));
+    }
+
+    // Validate: Step 2 must be completed (participants must be confirmed)
+    if (!meeting.participantsConfirmedAt) {
+        redirect(conductRoutes.participants(meetingId));
+    }
+
     const participants = await getMeetingParticipants(meetingId);
+
+    const agendaItems = await getAgendaItems(meetingId);
 
     // Replace placeholders in agenda item descriptions only (not titles)
     const agendaItemsWithResolvedPlaceholders = agendaItems.map((item) => ({

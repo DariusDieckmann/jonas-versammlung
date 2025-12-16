@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import conductRoutes from "../../shared/conduct.route";
+import { confirmLeaders } from "../../shared/meeting.action";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
 import { ConductLayout } from "./conduct-layout";
@@ -32,7 +33,9 @@ export function ConductLeadersClient({
         }
     };
 
-    const handleSuccess = () => {
+    const handleSuccess = async () => {
+        // Mark leaders step as confirmed
+        await confirmLeaders(meeting.id);
         router.push(conductRoutes.participants(meeting.id));
     };
 

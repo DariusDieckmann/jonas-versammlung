@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import conductRoutes from "../../shared/conduct.route";
 import { getMeeting } from "../../shared/meeting.action";
 import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import { ConductParticipantsClient } from "./conduct-participants-client";
@@ -16,6 +17,11 @@ export default async function ConductParticipantsPage({
 
     if (!meeting) {
         notFound();
+    }
+
+    // Validate: Step 1 must be completed (leaders must be confirmed)
+    if (!meeting.leadersConfirmedAt) {
+        redirect(conductRoutes.leaders(meetingId));
     }
 
     // Get participants (created when meeting was started)

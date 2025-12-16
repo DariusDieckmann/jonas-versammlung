@@ -427,3 +427,97 @@ export async function getUpcomingOpenMeetings(): Promise<
         propertyName: r.property.name,
     }));
 }
+
+/**
+ * Confirm leaders step - marks the leaders step as completed
+ */
+export async function confirmLeaders(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Get meeting with property to check organization
+        const existing = await db
+            .select({
+                meeting: meetings,
+                property: properties,
+            })
+            .from(meetings)
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(meetings.id, meetingId))
+            .limit(1);
+
+        if (!existing.length) {
+            return { success: false, error: "Versammlung nicht gefunden" };
+        }
+
+        await requireMember(existing[0].property.organizationId);
+
+        await db
+            .update(meetings)
+            .set({
+                leadersConfirmedAt: new Date(),
+            })
+            .where(eq(meetings.id, meetingId));
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error confirming leaders:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Bestätigen der Leiter",
+        };
+    }
+}
+
+/**
+ * Confirm participants step - marks the participants step as completed
+ */
+export async function confirmParticipants(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Get meeting with property to check organization
+        const existing = await db
+            .select({
+                meeting: meetings,
+                property: properties,
+            })
+            .from(meetings)
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(meetings.id, meetingId))
+            .limit(1);
+
+        if (!existing.length) {
+            return { success: false, error: "Versammlung nicht gefunden" };
+        }
+
+        await requireMember(existing[0].property.organizationId);
+
+        await db
+            .update(meetings)
+            .set({
+                participantsConfirmedAt: new Date(),
+            })
+            .where(eq(meetings.id, meetingId));
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error confirming participants:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Bestätigen der Teilnehmer",
+        };
+    }
+}

@@ -91,19 +91,33 @@ export default async function MeetingDetailPage({
         );
     }
 
-    // Determine which step to resume to
+    // Determine which step to resume to based on confirmed steps
     let resumeRoute = conductRoutes.leaders(meetingId);
     if (meeting.status === "in-progress") {
-        const leaders = await getMeetingLeaders(meetingId);
-        const participants = await getMeetingParticipants(meetingId);
+        // Check completed agenda items to determine if user has started working on agenda
+        const agendaItemsWithResolutions = agendaItems.filter(
+            (item) => item.requiresResolution,
+        );
+        const completedResolutions = agendaItemsWithResolutions.length > 0 
+            ? await getResolutionsByAgendaItems(
+                agendaItemsWithResolutions.map((item) => item.id),
+            )
+            : new Map();
+        
+        const hasStartedAgenda = completedResolutions.size > 0;
 
-        if (leaders.length > 0 && participants.length > 0) {
-            // Both leaders and participants are done, go to agenda items
+        // Determine the furthest completed step based on confirmation timestamps
+        if (hasStartedAgenda) {
+            // User has already started working on agenda items
             resumeRoute = conductRoutes.agendaItems(meetingId);
-        } else if (leaders.length > 0) {
-            // Leaders are done, go to participants
+        } else if (meeting.participantsConfirmedAt) {
+            // Participants step was confirmed, go to agenda items
+            resumeRoute = conductRoutes.agendaItems(meetingId);
+        } else if (meeting.leadersConfirmedAt) {
+            // Leaders step was confirmed, go to participants
             resumeRoute = conductRoutes.participants(meetingId);
         }
+        // else: stay at leaders (default)
     }
 
     async function handleDelete() {

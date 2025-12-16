@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import conductRoutes from "../../shared/conduct.route";
+import { confirmParticipants } from "../../shared/meeting.action";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductLayout } from "./conduct-layout";
@@ -20,8 +21,10 @@ export function ConductParticipantsClient({
     const router = useRouter();
     const [isNavigating, setIsNavigating] = useState(false);
 
-    const handleFinish = () => {
+    const handleFinish = async () => {
         setIsNavigating(true);
+        // Mark participants step as confirmed
+        await confirmParticipants(meeting.id);
         router.push(conductRoutes.agendaItems(meeting.id));
     };
 

@@ -1,1 +1,0 @@
-ALTER TABLE `properties` ADD `mea` integer DEFAULT 1000 NOT NULL;

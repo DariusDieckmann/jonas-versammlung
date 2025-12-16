@@ -18,6 +18,9 @@ export const meetings = sqliteTable("meetings", {
     status: text("status", { enum: ["planned", "in-progress", "completed"] })
         .notNull()
         .default("planned"),
+    // Conduct progress tracking
+    leadersConfirmedAt: integer("leaders_confirmed_at", { mode: "timestamp" }),
+    participantsConfirmedAt: integer("participants_confirmed_at", { mode: "timestamp" }),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .$defaultFn(() => new Date()),

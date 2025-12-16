@@ -37,15 +37,25 @@ export function ConductAgendaItemsView({
     completedAgendaItemIds,
 }: ConductAgendaItemsViewProps) {
     const router = useRouter();
-    const [selectedItemId, setSelectedItemId] = useState<number | null>(
-        agendaItems.length > 0 ? agendaItems[0].id : null,
-    );
-    const [isCompletingItem, setIsCompletingItem] = useState(false);
-
+    
     // Initialize completedItems from existing resolutions
     const [completedItems, setCompletedItems] = useState<Set<number>>(() => {
         return new Set(completedAgendaItemIds);
     });
+
+    // Initialize selectedItemId to first uncompleted item, or first item if all completed
+    const [selectedItemId, setSelectedItemId] = useState<number | null>(() => {
+        if (agendaItems.length === 0) return null;
+        
+        // Find first uncompleted item
+        const firstUncompleted = agendaItems.find(
+            (item) => !completedAgendaItemIds.includes(item.id)
+        );
+        
+        return firstUncompleted ? firstUncompleted.id : agendaItems[0].id;
+    });
+    
+    const [isCompletingItem, setIsCompletingItem] = useState(false);
 
     // Track edited values for each item
     const [editedItems, setEditedItems] = useState<
