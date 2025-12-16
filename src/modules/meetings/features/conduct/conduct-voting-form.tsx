@@ -54,7 +54,7 @@ export function ConductVotingForm({
             setVotes(new Map());
             
             const result = await createResolution(agendaItem.id, {
-                majorityType: "simple",
+                majorityType: agendaItem.majorityType || "simple",
             });
 
             if (result.success && result.data) {

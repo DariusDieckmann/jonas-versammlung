@@ -14,6 +14,9 @@ export const agendaItems = sqliteTable("agenda_items", {
     requiresResolution: integer("requires_resolution", { mode: "boolean" })
         .notNull()
         .default(false),
+    majorityType: text("majority_type", {
+        enum: ["simple", "qualified"],
+    }), // simple = 50%, qualified = 75%
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .$defaultFn(() => new Date()),
@@ -36,6 +39,7 @@ export const insertAgendaItemSchema = createInsertSchema(agendaItems, {
         .nullable(),
     orderIndex: z.number().int().min(0, "Reihenfolge muss positiv sein"),
     requiresResolution: z.boolean().default(false),
+    majorityType: z.enum(["simple", "qualified"]).optional().nullable(),
 }).omit({
     id: true,
     createdAt: true,

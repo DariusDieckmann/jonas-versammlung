@@ -45,8 +45,9 @@ export function MeetingFormWithAgenda({
                   title: item.title,
                   description: item.description || "",
                   requiresResolution: item.requiresResolution,
+                  majorityType: item.majorityType,
               }))
-            : [{ title: "", description: "", requiresResolution: false }],
+            : [{ title: "", description: "", requiresResolution: false, majorityType: null }],
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [initialAgendaItemsIds] = useState<number[]>(

@@ -207,12 +207,12 @@ export async function calculateResolutionResult(
         let result: "accepted" | "rejected" | "postponed" = "rejected";
 
         if (resolution[0].majorityType === "simple") {
-            // Simple majority: more yes than no
+            // Simple majority: more yes than no (> 50%)
             result = yesShares > noShares ? "accepted" : "rejected";
         } else if (resolution[0].majorityType === "qualified") {
-            // Qualified majority: 2/3 of votes
+            // Qualified majority: 75% of votes
             result =
-                yesShares >= (totalShares * 2) / 3 ? "accepted" : "rejected";
+                yesShares >= (totalShares * 0.75) ? "accepted" : "rejected";
         } else if (resolution[0].majorityType === "unanimous") {
             // Unanimous: all votes yes
             result = votesNo === 0 && votesYes > 0 ? "accepted" : "rejected";
