@@ -154,6 +154,16 @@ export default async function PropertyDetailPage({
                                     </div>
                                 </div>
                             )}
+
+                            <div>
+                                <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                                    <Building2 className="h-4 w-4" />
+                                    <span>MEA (Miteigentumsanteile)</span>
+                                </div>
+                                <div className="text-lg font-medium">
+                                    {property.mea.toLocaleString()}
+                                </div>
+                            </div>
                         </div>
 
                         {property.notes && (
