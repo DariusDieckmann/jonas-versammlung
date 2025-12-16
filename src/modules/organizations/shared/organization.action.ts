@@ -25,6 +25,7 @@ import {
     updateOrganizationSchema,
 } from "./schemas/organization.schema";
 import settingsRoutes from "./settings.route";
+import { inviteOrganizationMember } from "./invitation.action";
 
 /**
  * Get all organizations for the current user
@@ -239,7 +240,6 @@ export async function addOrganizationMember(
     role: OrganizationRoleType = OrganizationRole.MEMBER,
 ): Promise<{ success: boolean; error?: string }> {
     // Redirect to invitation system
-    const { inviteOrganizationMember } = await import("./invitation.action");
     return inviteOrganizationMember(email, role);
 }
 
