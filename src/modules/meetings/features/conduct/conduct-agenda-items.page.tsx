@@ -34,9 +34,12 @@ export default async function ConductAgendaItemsPage({
         redirect(conductRoutes.participants(meetingId));
     }
 
-    const participants = await getMeetingParticipants(meetingId);
-
-    const agendaItems = await getAgendaItems(meetingId);
+    // Optimization: Fetch all independent data in parallel
+    const [participants, agendaItems, meetingAttachments] = await Promise.all([
+        getMeetingParticipants(meetingId),
+        getAgendaItems(meetingId),
+        getMeetingAttachments(meetingId),
+    ]);
 
     // Replace placeholders in agenda item descriptions only (not titles)
     const agendaItemsWithResolvedPlaceholders = agendaItems.map((item) => ({
@@ -48,18 +51,18 @@ export default async function ConductAgendaItemsPage({
 
     // Load existing resolutions to mark completed items
     const agendaItemIds = agendaItems.map((item) => item.id);
-    const resolutionsMap = await getResolutionsByAgendaItems(agendaItemIds);
-    
+
+    // Optimization: Fetch resolutions and attachments in parallel (they depend on agendaItemIds)
+    const [resolutionsMap, agendaItemAttachments] = await Promise.all([
+        getResolutionsByAgendaItems(agendaItemIds),
+        getAgendaItemAttachmentsByItems(agendaItemIds),
+    ]);
+
     // Only include agenda items with resolutions that have a result (actual votes were cast)
     const completedAgendaItemIds = Array.from(resolutionsMap.entries())
         .filter(([_, resolution]) => resolution.result !== null)
         .map(([agendaItemId]) => agendaItemId);
 
-    // Get attachments for files sidebar and per agenda item
-    const meetingAttachments = await getMeetingAttachments(meetingId);
-    const agendaItemAttachments = await getAgendaItemAttachmentsByItems(
-        agendaItemIds,
-    );
 
     return (
         <ConductAgendaItemsClient

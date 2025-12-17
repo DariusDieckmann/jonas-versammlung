@@ -1,18 +1,21 @@
-import { CalendarDays, FileText, Plus } from "lucide-react";
+import { CalendarDays, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import settingsRoutes from "@/modules/organizations/shared/settings.route";
 import { getProperties } from "@/modules/properties/shared/property.action";
 import { getMeetings } from "../../shared/meeting.action";
-import meetingsRoutes from "../../shared/meetings.route";
 import { MeetingsList } from "./meetings-list";
 import { NewMeetingButton } from "./new-meeting-button";
 
 export default async function MeetingsListPage() {
     await requireAuth();
-    const meetings = await getMeetings();
-    const properties = await getProperties();
+
+    // Optimization: Fetch meetings and properties in parallel
+    const [meetings, properties] = await Promise.all([
+        getMeetings(),
+        getProperties(),
+    ]);
 
     return (
         <div className="container mx-auto py-8 px-4">

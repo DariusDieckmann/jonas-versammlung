@@ -160,9 +160,14 @@ export async function updateOwner(
         const validatedData = updateOwnerSchema.parse(data);
 
         // Note: unitId cannot be changed via update (security)
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof owners.$inferInsert>;
+
         await db
             .update(owners)
-            .set(validatedData)
+            .set(updateData)
             .where(eq(owners.id, ownerId));
 
         // Get unit to find propertyId for revalidation

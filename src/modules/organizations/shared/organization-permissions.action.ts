@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -122,8 +123,11 @@ export async function getUserRole(
 /**
  * Get all organization IDs that the current user is a member of
  * Used for efficient bulk permission checks
+ *
+ * Note: This uses React's cache() to deduplicate calls within a single request.
+ * This is important because multiple actions may call this function during one page render.
  */
-export async function getUserOrganizationIds(): Promise<number[]> {
+export const getUserOrganizationIds = cache(async (): Promise<number[]> => {
     try {
         const currentUser = await requireAuth();
         const db = await getDb();
@@ -138,4 +142,4 @@ export async function getUserOrganizationIds(): Promise<number[]> {
         console.error("Error getting user organization IDs:", error);
         return [];
     }
-}
+});

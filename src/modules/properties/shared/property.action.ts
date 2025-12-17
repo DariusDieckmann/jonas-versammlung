@@ -160,9 +160,14 @@ export async function updateProperty(
             }
         }
 
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof properties.$inferInsert>;
+
         await db
             .update(properties)
-            .set(validatedData)
+            .set(updateData)
             .where(eq(properties.id, propertyId));
 
         revalidatePath(propertiesRoutes.list);

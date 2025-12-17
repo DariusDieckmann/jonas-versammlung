@@ -93,8 +93,17 @@ export async function getMeetingsByProperty(
 
 /**
  * Get a single meeting by ID
+ * @param includeProperty If true, also returns the property data (avoids extra query)
  */
-export async function getMeeting(meetingId: number): Promise<Meeting | null> {
+export async function getMeeting(meetingId: number): Promise<Meeting | null>;
+export async function getMeeting(
+    meetingId: number,
+    includeProperty: true,
+): Promise<{ meeting: Meeting; property: typeof properties.$inferSelect } | null>;
+export async function getMeeting(
+    meetingId: number,
+    includeProperty?: boolean,
+): Promise<Meeting | { meeting: Meeting; property: typeof properties.$inferSelect } | null> {
     await requireAuth();
     const db = await getDb();
 
@@ -113,6 +122,10 @@ export async function getMeeting(meetingId: number): Promise<Meeting | null> {
     }
 
     await requireMember(result[0].property.organizationId);
+
+    if (includeProperty) {
+        return result[0];
+    }
 
     return result[0].meeting;
 }
@@ -194,9 +207,14 @@ export async function updateMeeting(
 
         const validatedData = updateMeetingSchema.parse(data);
 
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof meetings.$inferInsert>;
+
         await db
             .update(meetings)
-            .set(validatedData)
+            .set(updateData)
             .where(eq(meetings.id, meetingId));
 
         revalidatePath(meetingsRoutes.list);

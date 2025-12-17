@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateAgendaItem } from "../../shared/agenda-item.action";
+import { updateAgendaItemContent } from "../../shared/agenda-item.action";
 import conductRoutes from "../../shared/conduct.route";
 import meetingsRoutes from "../../shared/meetings.route";
 import { markAgendaItemCompleted } from "../../shared/resolution.action";
@@ -126,7 +126,9 @@ export function ConductAgendaItemsView({
                     edited.description !== (originalItem.description || "");
 
                 if (hasChanges) {
-                    await updateAgendaItem(itemId, {
+                    // Use dedicated content update function to safely update only title/description
+                    // This prevents accidental overwriting of requiresResolution or majorityType
+                    await updateAgendaItemContent(itemId, {
                         title: edited.title,
                         description: edited.description || null,
                     });
