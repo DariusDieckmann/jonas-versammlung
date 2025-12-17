@@ -33,16 +33,14 @@ import conductRoutes from "../../shared/conduct.route";
 import {
     deleteMeeting,
     getMeeting,
-    startMeeting,
 } from "../../shared/meeting.action";
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
-import { getMeetingLeaders } from "../../shared/meeting-leader.action";
-import { getMeetingParticipants } from "../../shared/meeting-participant.action";
 import meetingsRoutes from "../../shared/meetings.route";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { BackToMeetingsButton } from "./back-to-meetings-button";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
+import { StartMeetingButton } from "./start-meeting-button";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -128,11 +126,6 @@ export default async function MeetingDetailPage({
         }
     }
 
-    async function handleStart() {
-        "use server";
-        await startMeeting(meetingId);
-    }
-
     const formatDate = (dateStr: string) => {
         const date = new Date(dateStr);
         return date.toLocaleDateString("de-DE", {
@@ -198,16 +191,7 @@ export default async function MeetingDetailPage({
                     <div className="flex gap-2">
                         {meeting.status === "planned" && (
                             <>
-                                <form action={handleStart}>
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        type="submit"
-                                    >
-                                        <Play className="mr-2 h-4 w-4" />
-                                        Starten
-                                    </Button>
-                                </form>
+                                <StartMeetingButton meetingId={meetingId} />
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
                                     <Button variant="outline" size="sm">
                                         <Edit className="mr-2 h-4 w-4" />

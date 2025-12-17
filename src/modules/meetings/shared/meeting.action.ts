@@ -2,7 +2,6 @@
 
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getDb, meetingParticipants } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
@@ -11,7 +10,6 @@ import {
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import conductRoutes from "./conduct.route";
 import meetingsRoutes from "./meetings.route";
 import {
     type InsertMeeting,
@@ -262,9 +260,10 @@ export async function deleteMeeting(
 
 /**
  * Start a meeting - sets status to in-progress and creates participant snapshot
- * Redirects to the conduct flow or back to detail page on error
  */
-export async function startMeeting(meetingId: number): Promise<never> {
+export async function startMeeting(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
     try {
         await requireAuth();
         const db = await getDb();
@@ -281,16 +280,17 @@ export async function startMeeting(meetingId: number): Promise<never> {
             .limit(1);
 
         if (!existing.length) {
-            console.error("Meeting not found:", meetingId);
-            redirect(meetingsRoutes.list);
+            return { success: false, error: "Versammlung nicht gefunden" };
         }
 
         await requireMember(existing[0].property.organizationId);
 
         // Check if meeting is already in-progress or completed
         if (existing[0].meeting.status !== "planned") {
-            console.warn("Meeting already started:", meetingId);
-            redirect(meetingsRoutes.detail(meetingId));
+            return {
+                success: false,
+                error: "Versammlung wurde bereits gestartet",
+            };
         }
 
         // Check if participants already exist
@@ -303,8 +303,12 @@ export async function startMeeting(meetingId: number): Promise<never> {
         if (existingParticipants.length === 0) {
             const participantResult = await createParticipantsFromOwners(meetingId);
             if (!participantResult.success) {
-                console.error("Failed to create participants:", participantResult.error);
-                redirect(meetingsRoutes.detail(meetingId));
+                return {
+                    success: false,
+                    error:
+                        participantResult.error ||
+                        "Fehler beim Erstellen der Teilnehmerliste",
+                };
             }
         }
 
@@ -318,14 +322,16 @@ export async function startMeeting(meetingId: number): Promise<never> {
             .where(eq(meetings.id, meetingId));
 
         revalidatePath(meetingsRoutes.detail(meetingId));
-        redirect(conductRoutes.leaders(meetingId));
+        return { success: true };
     } catch (error) {
-        // Re-throw redirect errors (Next.js uses errors for redirects)
-        if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-            throw error;
-        }
         console.error("Error starting meeting:", error);
-        redirect(meetingsRoutes.detail(meetingId));
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Starten der Versammlung",
+        };
     }
 }
 
