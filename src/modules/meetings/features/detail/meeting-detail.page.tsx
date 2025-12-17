@@ -130,11 +130,7 @@ export default async function MeetingDetailPage({
 
     async function handleStart() {
         "use server";
-        const result = await startMeeting(meetingId);
-        console.log("Start meeting result:", result);
-        if (result.success) {
-            redirect(conductRoutes.leaders(meetingId));
-        }
+        await startMeeting(meetingId);
     }
 
     const formatDate = (dateStr: string) => {
