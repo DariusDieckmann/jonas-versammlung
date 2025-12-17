@@ -27,6 +27,7 @@ import {
     castVotesBatch,
     getVotes,
 } from "../../shared/vote.action";
+import toast from "react-hot-toast";
 
 interface ConductVotingFormProps {
     agendaItem: AgendaItem;
@@ -107,11 +108,11 @@ export function ConductVotingForm({
                 // Mark as complete and move to next
                 onComplete();
             } else {
-                alert(result.error || "Fehler beim Speichern der Abstimmung");
+                toast.error(result.error || "Fehler beim Speichern der Abstimmung");
             }
         } catch (error) {
             console.error("Error submitting votes:", error);
-            alert("Fehler beim Speichern der Abstimmung");
+            toast.error("Fehler beim Speichern der Abstimmung");
         } finally {
             setIsSubmitting(false);
         }

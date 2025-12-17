@@ -27,6 +27,7 @@ import {
 } from "@/lib/file-validation";
 import { deleteMeetingAttachment } from "../../shared/meeting-attachment.action";
 import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
+import toast from "react-hot-toast";
 
 interface MeetingAttachmentsProps {
     meetingId: number;
@@ -110,7 +111,7 @@ export function MeetingAttachments({
         if (result.success) {
             router.refresh();
         } else {
-            alert(result.error || "Fehler beim Löschen");
+            toast.error(result.error || "Fehler beim Löschen");
         }
     };
 

@@ -20,6 +20,7 @@ import {
 } from "@/lib/file-validation";
 import { deleteAgendaItemAttachment } from "../../shared/agenda-item-attachment.action";
 import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
+import toast from "react-hot-toast";
 
 interface AgendaItemAttachmentsProps {
     agendaItemId: number;
@@ -102,13 +103,13 @@ export function AgendaItemAttachments({
         if (result.success) {
             router.refresh();
         } else {
-            alert(result.error || "Fehler beim Löschen");
+            toast.error(result.error || "Fehler beim Löschen");
         }
     };
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center jajustify-between">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Paperclip className="h-4 w-4" />
                     <span>Dateien ({attachments.length})</span>

@@ -24,6 +24,7 @@ import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-atta
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductAgendaItemAttachmentsDisplay } from "./conduct-agenda-item-attachments-display";
 import { ConductVotingForm } from "./conduct-voting-form";
+import toast from "react-hot-toast";
 
 interface ConductAgendaItemsViewProps {
     meetingId: number;
@@ -137,7 +138,7 @@ export function ConductAgendaItemsView({
             if (item && !item.requiresResolution) {
                 const result = await markAgendaItemCompleted(itemId);
                 if (!result.success) {
-                    alert(result.error || "Fehler beim Markieren als erledigt");
+                    toast.error(result.error || "Fehler beim Markieren als erledigt");
                     setIsCompletingItem(false);
                     return;
                 }

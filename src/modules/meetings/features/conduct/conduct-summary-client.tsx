@@ -17,6 +17,7 @@ import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 import type { Resolution } from "../../shared/schemas/resolution.schema";
 import { ConductLayout } from "./conduct-layout";
+import toast from "react-hot-toast";
 
 interface ConductSummaryClientProps {
     meeting: Meeting;
@@ -40,7 +41,7 @@ export function ConductSummaryClient({
         if (result.success) {
             router.push(meetingsRoutes.detail(meeting.id));
         } else {
-            alert(result.error || "Fehler beim Abschließen der Versammlung");
+            toast.error(result.error || "Fehler beim Abschließen der Versammlung");
             setIsCompleting(false);
         }
     };
