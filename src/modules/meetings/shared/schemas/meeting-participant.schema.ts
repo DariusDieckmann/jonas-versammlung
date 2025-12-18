@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { meetings } from "./meeting.schema";
 
@@ -33,7 +33,10 @@ export const meetingParticipants = sqliteTable("meeting_participants", {
         .notNull()
         .$defaultFn(() => new Date())
         .$onUpdate(() => new Date()),
-});
+}, (table) => ({
+    // Index for meeting-based participant lookups
+    meetingIdx: index("idx_meeting_participants_meeting").on(table.meetingId),
+}));
 
 // Zod schemas
 export const insertMeetingParticipantSchema = createInsertSchema(

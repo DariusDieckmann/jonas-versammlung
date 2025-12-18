@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
@@ -24,7 +24,10 @@ export const properties = sqliteTable("properties", {
         .notNull()
         .$defaultFn(() => new Date())
         .$onUpdate(() => new Date()),
-});
+}, (table) => ({
+    // Index for organization-based property lookups
+    orgIdx: index("idx_properties_org").on(table.organizationId),
+}));
 
 // Validation schemas
 export const insertPropertySchema = createInsertSchema(properties, {

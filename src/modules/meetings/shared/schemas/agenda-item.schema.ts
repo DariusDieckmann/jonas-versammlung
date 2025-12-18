@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { meetings } from "./meeting.schema";
@@ -24,7 +24,14 @@ export const agendaItems = sqliteTable("agenda_items", {
         .notNull()
         .$defaultFn(() => new Date())
         .$onUpdate(() => new Date()),
-});
+}, (table) => ({
+    // Index for meeting-based agenda item lookups
+    meetingIdx: index("idx_agenda_items_meeting").on(table.meetingId),
+    // Index for order-based sorting
+    orderIdx: index("idx_agenda_items_order").on(table.orderIndex),
+    // Composite index for ordered retrieval by meeting
+    meetingOrderIdx: index("idx_agenda_items_meeting_order").on(table.meetingId, table.orderIndex),
+}));
 
 // Validation schemas
 export const insertAgendaItemSchema = createInsertSchema(agendaItems, {

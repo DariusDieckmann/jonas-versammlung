@@ -66,26 +66,30 @@ export async function isMember(organizationId: number): Promise<boolean> {
 /**
  * Require that the current user is an owner of the organization
  * Throws an error if not
+ *
+ * Note: This uses React's cache() to deduplicate calls within a single request.
  */
-export async function requireOwner(organizationId: number): Promise<void> {
+export const requireOwner = cache(async (organizationId: number): Promise<void> => {
     const isUserOwner = await isOwner(organizationId);
 
     if (!isUserOwner) {
         throw new Error("Nur Owner haben Zugriff auf diese Funktion");
     }
-}
+});
 
 /**
  * Require that the current user is a member of the organization
  * Throws an error if not
+ *
+ * Note: This uses React's cache() to deduplicate calls within a single request.
  */
-export async function requireMember(organizationId: number): Promise<void> {
+export const requireMember = cache(async (organizationId: number): Promise<void> => {
     const isUserMember = await isMember(organizationId);
 
     if (!isUserMember) {
         throw new Error("Du bist kein Mitglied dieser Organisation");
     }
-}
+});
 
 /**
  * Get the current user's role in the organization

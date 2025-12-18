@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
@@ -28,7 +28,16 @@ export const meetings = sqliteTable("meetings", {
         .notNull()
         .$defaultFn(() => new Date())
         .$onUpdate(() => new Date()),
-});
+}, (table) => ({
+    // Index for property-based meeting lookups
+    propertyIdx: index("idx_meetings_property").on(table.propertyId),
+    // Index for status filtering
+    statusIdx: index("idx_meetings_status").on(table.status),
+    // Index for date-based queries
+    dateIdx: index("idx_meetings_date").on(table.date),
+    // Composite index for upcoming open meetings query
+    statusDateIdx: index("idx_meetings_status_date").on(table.status, table.date),
+}));
 
 // Validation schemas
 export const insertMeetingSchema = createInsertSchema(meetings, {

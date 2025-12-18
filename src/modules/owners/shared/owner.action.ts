@@ -97,19 +97,23 @@ export async function createOwner(
         const validatedData = insertOwnerSchema.parse(data);
 
         // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: and(
+        const unitResult = await db
+            .select()
+            .from(units)
+            .where(and(
                 eq(units.id, data.unitId),
                 eq(units.organizationId, organization.id),
-            ),
-        });
+            ))
+            .limit(1);
 
-        if (!unit) {
+        if (!unitResult.length) {
             return {
                 success: false,
                 error: "Einheit nicht gefunden",
             };
         }
+
+        const unit = unitResult[0];
 
         const result = await db
             .insert(owners)
@@ -171,12 +175,14 @@ export async function updateOwner(
             .where(eq(owners.id, ownerId));
 
         // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: eq(units.id, existing[0].unitId),
-        });
+        const unitResult = await db
+            .select()
+            .from(units)
+            .where(eq(units.id, existing[0].unitId))
+            .limit(1);
 
-        if (unit) {
-            revalidatePath(propertiesRoutes.detail(unit.propertyId));
+        if (unitResult.length) {
+            revalidatePath(propertiesRoutes.detail(unitResult[0].propertyId));
         }
 
         return { success: true };
@@ -216,14 +222,16 @@ export async function deleteOwner(
         await requireOwner(existing[0].organizationId);
 
         // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: eq(units.id, existing[0].unitId),
-        });
+        const unitResult = await db
+            .select()
+            .from(units)
+            .where(eq(units.id, existing[0].unitId))
+            .limit(1);
 
         await db.delete(owners).where(eq(owners.id, ownerId));
 
-        if (unit) {
-            revalidatePath(propertiesRoutes.detail(unit.propertyId));
+        if (unitResult.length) {
+            revalidatePath(propertiesRoutes.detail(unitResult[0].propertyId));
         }
 
         return { success: true };

@@ -126,19 +126,23 @@ export async function createUnit(
         const validatedData = insertUnitSchema.parse(data);
 
         // SECURITY: Verify that the property belongs to the user's organization
-        const property = await db.query.properties.findFirst({
-            where: and(
+        const propertyResult = await db
+            .select()
+            .from(properties)
+            .where(and(
                 eq(properties.id, data.propertyId),
                 eq(properties.organizationId, organization.id),
-            ),
-        });
+            ))
+            .limit(1);
 
-        if (!property) {
+        if (!propertyResult.length) {
             return {
                 success: false,
                 error: "Liegenschaft nicht gefunden",
             };
         }
+
+        const property = propertyResult[0];
 
         // Validate that total MEA doesn't exceed property's total MEA
         const existingUnits = await db
@@ -210,19 +214,23 @@ export async function updateUnit(
         // Validate that total MEA doesn't exceed property's total MEA (if ownershipShares is being changed)
         if (validatedData.ownershipShares !== undefined) {
             // Get property to check its total MEA
-            const property = await db.query.properties.findFirst({
-                where: and(
+            const propertyResult = await db
+                .select()
+                .from(properties)
+                .where(and(
                     eq(properties.id, existing[0].propertyId),
                     eq(properties.organizationId, existing[0].organizationId),
-                ),
-            });
+                ))
+                .limit(1);
 
-            if (!property) {
+            if (!propertyResult.length) {
                 return {
                     success: false,
                     error: "Liegenschaft nicht gefunden",
                 };
             }
+
+            const property = propertyResult[0];
 
             const existingUnits = await db
                 .select()
