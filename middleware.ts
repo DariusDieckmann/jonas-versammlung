@@ -3,20 +3,33 @@ import { getAuthInstance as getAuth } from "@/modules/auth/shared/utils/auth-uti
 
 export async function middleware(request: NextRequest) {
     try {
-        // Validate session
+        // Add timeout to prevent hanging requests
+        const timeoutPromise = new Promise<null>((_, reject) =>
+            setTimeout(() => reject(new Error("Session validation timeout")), 5000)
+        );
+
+        // Validate session with timeout
         const auth = await getAuth();
-        const session = await auth.api.getSession({
-            headers: request.headers,
-        });
+        const session = await Promise.race([
+            auth.api.getSession({
+                headers: request.headers,
+            }),
+            timeoutPromise,
+        ]);
 
         if (!session) {
-            return NextResponse.redirect(new URL("/login", request.url));
+            const loginUrl = new URL("/login", request.url);
+            loginUrl.searchParams.set("from", request.nextUrl.pathname);
+            return NextResponse.redirect(loginUrl);
         }
 
         return NextResponse.next();
-    } catch (_error) {
-        // If session validation fails, redirect to login
-        return NextResponse.redirect(new URL("/login", request.url));
+    } catch (error) {
+        // If session validation fails or times out, redirect to login
+        console.error("Middleware authentication error:", error);
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("from", request.nextUrl.pathname);
+        return NextResponse.redirect(loginUrl);
     }
 }
 
