@@ -13,6 +13,7 @@ export const agendaItemTemplates = sqliteTable("agenda_item_templates", {
     requiresResolution: integer("requires_resolution", { mode: "boolean" })
         .notNull()
         .default(false),
+    majorityType: text("majority_type", { enum: ["simple", "qualified"] }),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .$defaultFn(() => new Date()),
@@ -35,6 +36,7 @@ export const insertAgendaItemTemplateSchema = createInsertSchema(
             .max(5000, "Beschreibung darf maximal 5000 Zeichen lang sein")
             .optional()
             .nullable(),
+        majorityType: z.enum(["simple", "qualified"]).nullable().optional(),
         requiresResolution: z.boolean().default(false),
     },
 ).omit({

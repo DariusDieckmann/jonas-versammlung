@@ -109,7 +109,7 @@ export function AgendaItemAttachments({
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center jajustify-between">
+            <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Paperclip className="h-4 w-4" />
                     <span>Dateien ({attachments.length})</span>

@@ -75,7 +75,9 @@ export function AgendaItemsFormSection({
                 title: template.title,
                 description: template.description || "",
                 requiresResolution: template.requiresResolution,
-                majorityType: (template.requiresResolution ? "simple" : null) as "simple" | "qualified" | null,
+                majorityType: template.requiresResolution
+                    ? (template.majorityType || "simple")
+                    : null,
             },
         ];
         updateItems(newItems);
