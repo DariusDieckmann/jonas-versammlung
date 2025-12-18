@@ -16,9 +16,6 @@
     "observability": {
         "enabled": true
     },
-    "limits": {
-        "cpu_ms": 50000
-    },
     "vars": {
         "NEXTJS_ENV": "production"
     },
