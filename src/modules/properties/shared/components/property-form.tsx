@@ -53,7 +53,7 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
             yearBuilt: initialData?.yearBuilt || undefined,
             numberOfUnits: initialData?.numberOfUnits || undefined,
             totalArea: initialData?.totalArea || undefined,
-            mea: initialData?.mea || (undefined as any),
+            mea: initialData?.mea || undefined,
             notes: initialData?.notes || "",
         },
     });
