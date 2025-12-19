@@ -126,21 +126,25 @@ export async function createUnit(
         const validatedData = insertUnitSchema.parse(data);
 
         // SECURITY: Verify that the property belongs to the user's organization
-        const property = await db.query.properties.findFirst({
-            where: and(
+        const propertyResult = await db
+            .select()
+            .from(properties)
+            .where(and(
                 eq(properties.id, data.propertyId),
                 eq(properties.organizationId, organization.id),
-            ),
-        });
+            ))
+            .limit(1);
 
-        if (!property) {
+        if (!propertyResult.length) {
             return {
                 success: false,
                 error: "Liegenschaft nicht gefunden",
             };
         }
 
-        // Validate that total MEA doesn't exceed 1000
+        const property = propertyResult[0];
+
+        // Validate that total MEA doesn't exceed property's total MEA
         const existingUnits = await db
             .select()
             .from(units)
@@ -152,10 +156,10 @@ export async function createUnit(
         );
         const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
-        if (newTotalMEA > 1000) {
+        if (newTotalMEA > property.mea) {
             return {
                 success: false,
-                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit ${property.mea.toLocaleString()} überschreiten. Verfügbar: ${property.mea - currentTotalMEA} MEA`,
             };
         }
 
@@ -207,8 +211,27 @@ export async function updateUnit(
 
         const validatedData = updateUnitSchema.parse(data);
 
-        // Validate that total MEA doesn't exceed 1000 (if ownershipShares is being changed)
+        // Validate that total MEA doesn't exceed property's total MEA (if ownershipShares is being changed)
         if (validatedData.ownershipShares !== undefined) {
+            // Get property to check its total MEA
+            const propertyResult = await db
+                .select()
+                .from(properties)
+                .where(and(
+                    eq(properties.id, existing[0].propertyId),
+                    eq(properties.organizationId, existing[0].organizationId),
+                ))
+                .limit(1);
+
+            if (!propertyResult.length) {
+                return {
+                    success: false,
+                    error: "Liegenschaft nicht gefunden",
+                };
+            }
+
+            const property = propertyResult[0];
+
             const existingUnits = await db
                 .select()
                 .from(units)
@@ -220,17 +243,22 @@ export async function updateUnit(
 
             const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
-            if (newTotalMEA > 1000) {
+            if (newTotalMEA > property.mea) {
                 return {
                     success: false,
-                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit ${property.mea.toLocaleString()} überschreiten. Verfügbar: ${property.mea - currentTotalMEA} MEA`,
                 };
             }
         }
 
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof units.$inferInsert>;
+
         await db
             .update(units)
-            .set(validatedData)
+            .set(updateData)
             .where(eq(units.id, unitId));
 
         revalidatePath(propertiesRoutes.detail(existing[0].propertyId));

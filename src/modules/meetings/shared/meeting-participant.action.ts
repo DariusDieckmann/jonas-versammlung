@@ -170,9 +170,14 @@ export async function updateMeetingParticipant(
 
         const validatedData = updateMeetingParticipantSchema.parse(data);
 
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof meetingParticipants.$inferInsert>;
+
         await db
             .update(meetingParticipants)
-            .set(validatedData)
+            .set(updateData)
             .where(eq(meetingParticipants.id, participantId));
 
         revalidatePath(

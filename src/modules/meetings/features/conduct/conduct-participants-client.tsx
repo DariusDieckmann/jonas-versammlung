@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import conductRoutes from "../../shared/conduct.route";
+import { confirmParticipants } from "../../shared/meeting.action";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
+import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductLayout } from "./conduct-layout";
 import { ConductParticipantsForm } from "./conduct-participants-form";
@@ -11,17 +13,21 @@ import { ConductParticipantsForm } from "./conduct-participants-form";
 interface ConductParticipantsClientProps {
     meeting: Meeting;
     participants: MeetingParticipant[];
+    meetingAttachments: MeetingAttachment[];
 }
 
 export function ConductParticipantsClient({
     meeting,
     participants,
+    meetingAttachments,
 }: ConductParticipantsClientProps) {
     const router = useRouter();
     const [isNavigating, setIsNavigating] = useState(false);
 
-    const handleFinish = () => {
+    const handleFinish = async () => {
         setIsNavigating(true);
+        // Mark participants step as confirmed
+        await confirmParticipants(meeting.id);
         router.push(conductRoutes.agendaItems(meeting.id));
     };
 
@@ -33,6 +39,7 @@ export function ConductParticipantsClient({
             onNext={handleFinish}
             nextLabel={isNavigating ? "Lädt..." : "Weiter"}
             nextDisabled={isNavigating}
+            meetingAttachments={meetingAttachments}
         >
             <ConductParticipantsForm initialParticipants={participants} />
         </ConductLayout>

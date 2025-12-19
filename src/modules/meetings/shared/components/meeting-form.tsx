@@ -33,6 +33,7 @@ import meetingsRoutes from "../../shared/meetings.route";
 import { createMeeting, updateMeeting } from "../meeting.action";
 import type { AgendaItem } from "../schemas/agenda-item.schema";
 import { insertMeetingSchema, type Meeting } from "../schemas/meeting.schema";
+import toast from "react-hot-toast";
 
 type FormData = z.infer<typeof insertMeetingSchema>;
 
@@ -84,7 +85,7 @@ export function MeetingForm({
                     router.push(meetingsRoutes.detail(initialData.id));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Aktualisieren");
+                    toast.error(result.error || "Fehler beim Aktualisieren");
                 }
             } else {
                 // Create meeting first
@@ -93,12 +94,12 @@ export function MeetingForm({
                     router.push(meetingsRoutes.detail(result.meetingId));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Erstellen");
+                    toast.error(result.error || "Fehler beim Erstellen");
                 }
             }
         } catch (error) {
             console.error("Form submission error:", error);
-            alert("Ein Fehler ist aufgetreten");
+            toast.error("Ein Fehler ist aufgetreten");
         } finally {
             setInternalIsSubmitting(false);
         }

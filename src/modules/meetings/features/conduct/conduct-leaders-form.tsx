@@ -26,6 +26,7 @@ import {
     deleteMeetingLeaders,
 } from "../../shared/meeting-leader.action";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
+import toast from "react-hot-toast";
 
 interface LeaderFormData {
     name: string;
@@ -97,7 +98,7 @@ export function ConductLeadersForm({
             // Validate: at least one leader with name
             const validLeaders = leaders.filter((l) => l.name.trim() !== "");
             if (validLeaders.length === 0) {
-                alert("Bitte mindestens einen Leiter eintragen");
+                toast.error("Bitte mindestens einen Leiter eintragen");
                 setIsSubmitting(false);
                 onSubmittingChange?.(false);
                 return;
@@ -119,11 +120,11 @@ export function ConductLeadersForm({
                     router.push(conductRoutes.participants(meetingId));
                 }
             } else {
-                alert(result.error || "Fehler beim Speichern");
+                toast.error(result.error || "Fehler beim Speichern");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Ein Fehler ist aufgetreten");
+            toast.error("Ein Fehler ist aufgetreten");
         } finally {
             setIsSubmitting(false);
             onSubmittingChange?.(false);

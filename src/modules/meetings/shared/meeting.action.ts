@@ -2,7 +2,7 @@
 
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { getDb } from "@/db";
+import { getDb, meetingParticipants } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import {
     getUserOrganizationIds,
@@ -19,6 +19,7 @@ import {
     type UpdateMeeting,
     updateMeetingSchema,
 } from "./schemas/meeting.schema";
+import { createParticipantsFromOwners } from "./meeting-participant.action";
 
 /**
  * Get all meetings for the user's properties
@@ -92,8 +93,17 @@ export async function getMeetingsByProperty(
 
 /**
  * Get a single meeting by ID
+ * @param includeProperty If true, also returns the property data (avoids extra query)
  */
-export async function getMeeting(meetingId: number): Promise<Meeting | null> {
+export async function getMeeting(meetingId: number): Promise<Meeting | null>;
+export async function getMeeting(
+    meetingId: number,
+    includeProperty: true,
+): Promise<{ meeting: Meeting; property: typeof properties.$inferSelect } | null>;
+export async function getMeeting(
+    meetingId: number,
+    includeProperty?: boolean,
+): Promise<Meeting | { meeting: Meeting; property: typeof properties.$inferSelect } | null> {
     await requireAuth();
     const db = await getDb();
 
@@ -112,6 +122,10 @@ export async function getMeeting(meetingId: number): Promise<Meeting | null> {
     }
 
     await requireMember(result[0].property.organizationId);
+
+    if (includeProperty) {
+        return result[0];
+    }
 
     return result[0].meeting;
 }
@@ -193,9 +207,14 @@ export async function updateMeeting(
 
         const validatedData = updateMeetingSchema.parse(data);
 
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof meetings.$inferInsert>;
+
         await db
             .update(meetings)
-            .set(validatedData)
+            .set(updateData)
             .where(eq(meetings.id, meetingId));
 
         revalidatePath(meetingsRoutes.list);
@@ -258,7 +277,7 @@ export async function deleteMeeting(
 }
 
 /**
- * Start a meeting - sets status to in-progress
+ * Start a meeting - sets status to in-progress and creates participant snapshot
  */
 export async function startMeeting(
     meetingId: number,
@@ -284,10 +303,39 @@ export async function startMeeting(
 
         await requireMember(existing[0].property.organizationId);
 
+        // Check if meeting is already in-progress or completed
+        if (existing[0].meeting.status !== "planned") {
+            return {
+                success: false,
+                error: "Versammlung wurde bereits gestartet",
+            };
+        }
+
+        // Check if participants already exist
+        const existingParticipants = await db
+            .select()
+            .from(meetingParticipants)
+            .where(eq(meetingParticipants.meetingId, meetingId));
+
+        // Only create participant snapshot if none exist yet
+        if (existingParticipants.length === 0) {
+            const participantResult = await createParticipantsFromOwners(meetingId);
+            if (!participantResult.success) {
+                return {
+                    success: false,
+                    error:
+                        participantResult.error ||
+                        "Fehler beim Erstellen der Teilnehmerliste",
+                };
+            }
+        }
+
         await db
             .update(meetings)
             .set({
                 status: "in-progress",
+                leadersConfirmedAt: null,
+                participantsConfirmedAt: null,
             })
             .where(eq(meetings.id, meetingId));
 
@@ -402,4 +450,98 @@ export async function getUpcomingOpenMeetings(): Promise<
         ...r.meeting,
         propertyName: r.property.name,
     }));
+}
+
+/**
+ * Confirm leaders step - marks the leaders step as completed
+ */
+export async function confirmLeaders(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Get meeting with property to check organization
+        const existing = await db
+            .select({
+                meeting: meetings,
+                property: properties,
+            })
+            .from(meetings)
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(meetings.id, meetingId))
+            .limit(1);
+
+        if (!existing.length) {
+            return { success: false, error: "Versammlung nicht gefunden" };
+        }
+
+        await requireMember(existing[0].property.organizationId);
+
+        await db
+            .update(meetings)
+            .set({
+                leadersConfirmedAt: new Date(),
+            })
+            .where(eq(meetings.id, meetingId));
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error confirming leaders:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Bestätigen der Leiter",
+        };
+    }
+}
+
+/**
+ * Confirm participants step - marks the participants step as completed
+ */
+export async function confirmParticipants(
+    meetingId: number,
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        await requireAuth();
+        const db = await getDb();
+
+        // Get meeting with property to check organization
+        const existing = await db
+            .select({
+                meeting: meetings,
+                property: properties,
+            })
+            .from(meetings)
+            .innerJoin(properties, eq(meetings.propertyId, properties.id))
+            .where(eq(meetings.id, meetingId))
+            .limit(1);
+
+        if (!existing.length) {
+            return { success: false, error: "Versammlung nicht gefunden" };
+        }
+
+        await requireMember(existing[0].property.organizationId);
+
+        await db
+            .update(meetings)
+            .set({
+                participantsConfirmedAt: new Date(),
+            })
+            .where(eq(meetings.id, meetingId));
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error confirming participants:", error);
+        return {
+            success: false,
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Fehler beim Bestätigen der Teilnehmer",
+        };
+    }
 }

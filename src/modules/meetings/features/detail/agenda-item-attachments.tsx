@@ -20,6 +20,7 @@ import {
 } from "@/lib/file-validation";
 import { deleteAgendaItemAttachment } from "../../shared/agenda-item-attachment.action";
 import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
+import toast from "react-hot-toast";
 
 interface AgendaItemAttachmentsProps {
     agendaItemId: number;
@@ -102,7 +103,7 @@ export function AgendaItemAttachments({
         if (result.success) {
             router.refresh();
         } else {
-            alert(result.error || "Fehler beim Löschen");
+            toast.error(result.error || "Fehler beim Löschen");
         }
     };
 

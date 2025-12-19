@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { meetings } from "./meeting.schema";
@@ -14,6 +14,9 @@ export const agendaItems = sqliteTable("agenda_items", {
     requiresResolution: integer("requires_resolution", { mode: "boolean" })
         .notNull()
         .default(false),
+    majorityType: text("majority_type", {
+        enum: ["simple", "qualified"],
+    }), // simple = 50%, qualified = 75%
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .$defaultFn(() => new Date()),
@@ -21,7 +24,14 @@ export const agendaItems = sqliteTable("agenda_items", {
         .notNull()
         .$defaultFn(() => new Date())
         .$onUpdate(() => new Date()),
-});
+}, (table) => ({
+    // Index for meeting-based agenda item lookups
+    meetingIdx: index("idx_agenda_items_meeting").on(table.meetingId),
+    // Index for order-based sorting
+    orderIdx: index("idx_agenda_items_order").on(table.orderIndex),
+    // Composite index for ordered retrieval by meeting
+    meetingOrderIdx: index("idx_agenda_items_meeting_order").on(table.meetingId, table.orderIndex),
+}));
 
 // Validation schemas
 export const insertAgendaItemSchema = createInsertSchema(agendaItems, {
@@ -36,6 +46,7 @@ export const insertAgendaItemSchema = createInsertSchema(agendaItems, {
         .nullable(),
     orderIndex: z.number().int().min(0, "Reihenfolge muss positiv sein"),
     requiresResolution: z.boolean().default(false),
+    majorityType: z.enum(["simple", "qualified"]).optional().nullable(),
 }).omit({
     id: true,
     createdAt: true,

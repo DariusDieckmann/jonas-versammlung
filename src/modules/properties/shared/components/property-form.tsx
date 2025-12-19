@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +53,7 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
             yearBuilt: initialData?.yearBuilt || undefined,
             numberOfUnits: initialData?.numberOfUnits || undefined,
             totalArea: initialData?.totalArea || undefined,
+            mea: initialData?.mea || undefined,
             notes: initialData?.notes || "",
         },
     });
@@ -63,23 +65,25 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
             if (isEditing && initialData) {
                 const result = await updateProperty(initialData.id, data);
                 if (result.success) {
+                    toast.success("Liegenschaft erfolgreich aktualisiert");
                     router.push(propertiesRoutes.detail(initialData.id));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Aktualisieren");
+                    toast.error(result.error || "Fehler beim Aktualisieren");
                 }
             } else {
                 const result = await createProperty(data);
                 if (result.success && result.propertyId) {
+                    toast.success("Liegenschaft erfolgreich erstellt");
                     router.push(propertiesRoutes.detail(result.propertyId));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Erstellen");
+                    toast.error(result.error || "Fehler beim Erstellen");
                 }
             }
         } catch (error) {
             console.error("Form submission error:", error);
-            alert("Ein Fehler ist aufgetreten");
+            toast.error("Ein unerwarteter Fehler ist aufgetreten");
         } finally {
             setIsSubmitting(false);
         }
@@ -249,6 +253,38 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                             <Input
                                                 type="number"
                                                 placeholder="1500"
+                                                {...field}
+                                                value={field.value || ""}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value
+                                                            ? Number(
+                                                                  e.target
+                                                                      .value,
+                                                              )
+                                                            : null,
+                                                    )
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* MEA */}
+                        <div className="grid md:grid-cols-3 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="mea"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>MEA *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="1000"
                                                 {...field}
                                                 value={field.value || ""}
                                                 onChange={(e) =>

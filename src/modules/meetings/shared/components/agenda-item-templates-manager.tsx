@@ -47,10 +47,16 @@ export function AgendaItemTemplatesManager({
     const [editingTemplate, setEditingTemplate] =
         useState<AgendaItemTemplate | null>(null);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        title: string;
+        description: string;
+        requiresResolution: boolean;
+        majorityType: "simple" | "qualified" | null;
+    }>({
         title: "",
         description: "",
         requiresResolution: false,
+        majorityType: null,
     });
 
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -60,6 +66,7 @@ export function AgendaItemTemplatesManager({
             title: "",
             description: "",
             requiresResolution: false,
+            majorityType: null,
         });
     };
 
@@ -126,6 +133,7 @@ export function AgendaItemTemplatesManager({
             title: template.title,
             description: template.description || "",
             requiresResolution: template.requiresResolution,
+            majorityType: template.majorityType || null,
         });
         setIsEditOpen(true);
     };
@@ -190,6 +198,11 @@ export function AgendaItemTemplatesManager({
                                                 <Badge variant="outline">
                                                     <CheckCircle2 className="h-3 w-3 mr-1" />
                                                     Beschluss
+                                                </Badge>
+                                            )}
+                                            {template.majorityType && (
+                                                <Badge variant="secondary">
+                                                    {template.majorityType === "qualified" ? "75%" : "50%"}
                                                 </Badge>
                                             )}
                                         </div>
@@ -271,23 +284,48 @@ export function AgendaItemTemplatesManager({
                                 />
                             </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="create-resolution"
-                                checked={formData.requiresResolution}
-                                onCheckedChange={(checked) =>
-                                    setFormData({
-                                        ...formData,
-                                        requiresResolution: checked === true,
-                                    })
-                                }
-                            />
-                            <Label
-                                htmlFor="create-resolution"
-                                className="font-normal cursor-pointer"
-                            >
-                                Erfordert Beschlussfassung
+                        <div className="space-y-2">
+                            <Label className="text-sm font-semibold">
+                                Beschlussfassung
                             </Label>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="create-resolution-simple"
+                                    checked={formData.majorityType === "simple"}
+                                    onCheckedChange={(checked) =>
+                                        setFormData({
+                                            ...formData,
+                                            requiresResolution: checked === true,
+                                            majorityType: checked === true ? "simple" : null,
+                                        })
+                                    }
+                                />
+                                <Label
+                                    htmlFor="create-resolution-simple"
+                                    className="text-sm font-normal cursor-pointer"
+                                >
+                                    Erfordert 50% Mehrheit
+                                </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="create-resolution-qualified"
+                                    checked={formData.majorityType === "qualified"}
+                                    onCheckedChange={(checked) =>
+                                        setFormData({
+                                            ...formData,
+                                            requiresResolution: checked === true,
+                                            majorityType: checked === true ? "qualified" : null,
+                                        })
+                                    }
+                                />
+                                <Label
+                                    htmlFor="create-resolution-qualified"
+                                    className="text-sm font-normal cursor-pointer"
+                                >
+                                    Erfordert 75% Mehrheit
+                                </Label>
+                            </div>
                         </div>
                         <div className="flex gap-2 justify-end">
                             <Button
@@ -352,23 +390,48 @@ export function AgendaItemTemplatesManager({
                                 />
                             </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="edit-resolution"
-                                checked={formData.requiresResolution}
-                                onCheckedChange={(checked) =>
-                                    setFormData({
-                                        ...formData,
-                                        requiresResolution: checked === true,
-                                    })
-                                }
-                            />
-                            <Label
-                                htmlFor="edit-resolution"
-                                className="font-normal cursor-pointer"
-                            >
-                                Erfordert Beschlussfassung
+                        <div className="space-y-2">
+                            <Label className="text-sm font-semibold">
+                                Beschlussfassung
                             </Label>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="edit-resolution-simple"
+                                    checked={formData.majorityType === "simple"}
+                                    onCheckedChange={(checked) =>
+                                        setFormData({
+                                            ...formData,
+                                            requiresResolution: checked === true,
+                                            majorityType: checked === true ? "simple" : null,
+                                        })
+                                    }
+                                />
+                                <Label
+                                    htmlFor="edit-resolution-simple"
+                                    className="text-sm font-normal cursor-pointer"
+                                >
+                                    Erfordert 50% Mehrheit
+                                </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="edit-resolution-qualified"
+                                    checked={formData.majorityType === "qualified"}
+                                    onCheckedChange={(checked) =>
+                                        setFormData({
+                                            ...formData,
+                                            requiresResolution: checked === true,
+                                            majorityType: checked === true ? "qualified" : null,
+                                        })
+                                    }
+                                />
+                                <Label
+                                    htmlFor="edit-resolution-qualified"
+                                    className="text-sm font-normal cursor-pointer"
+                                >
+                                    Erfordert 75% Mehrheit
+                                </Label>
+                            </div>
                         </div>
                         <div className="flex gap-2 justify-end">
                             <Button

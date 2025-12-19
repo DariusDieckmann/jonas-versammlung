@@ -1,0 +1,1 @@
+ALTER TABLE `agenda_item_templates` ADD `majority_type` text;

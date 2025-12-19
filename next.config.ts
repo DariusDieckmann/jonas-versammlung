@@ -4,10 +4,8 @@ import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 const nextConfig = {
     // Compiler optimizations
     compiler: {
-        // Remove console logs in production
-        removeConsole: process.env.NODE_ENV === "production" ? {
-            exclude: ["error", "warn"],
-        } : false,
+        // Keep console logs in production for Cloudflare observability
+        removeConsole: false,
     },
     
     // Experimental features for better performance
