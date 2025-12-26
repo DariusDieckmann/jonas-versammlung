@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
-import { Navigation } from "@/components/navigation";
+import { AuthPageLayout } from "@/components/layouts/auth-page-layout";
 import authRoutes from "@/modules/auth/shared/auth.route";
 import { getSession } from "@/modules/auth/shared/utils/auth-utils";
+
+export const dynamic = 'force-dynamic';
 
 export default async function ProtectedLayout({
     children,
@@ -14,10 +16,5 @@ export default async function ProtectedLayout({
         redirect(authRoutes.login);
     }
 
-    return (
-        <>
-            <Navigation />
-            {children}
-        </>
-    );
+    return <AuthPageLayout>{children}</AuthPageLayout>;
 }

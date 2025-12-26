@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronRight, FileText, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { ChevronRight, FileText, Library, Plus, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,22 +14,34 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PlaceholderPicker } from "@/components/ui/placeholder-picker";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { AgendaItemTemplate } from "../schemas/agenda-item-template.schema";
 
 export interface AgendaItemFormData {
     title: string;
     description: string;
     requiresResolution: boolean;
+    majorityType?: "simple" | "qualified" | null;
 }
 
 interface AgendaItemsFormSectionProps {
     value: AgendaItemFormData[];
     onChange: (items: AgendaItemFormData[]) => void;
+    templates?: AgendaItemTemplate[];
 }
 
 export function AgendaItemsFormSection({
     value,
     onChange,
+    templates = [],
 }: AgendaItemsFormSectionProps) {
     const [items, setItems] = useState<AgendaItemFormData[]>(
         value.length > 0
@@ -37,6 +49,7 @@ export function AgendaItemsFormSection({
             : [{ title: "", description: "", requiresResolution: false }],
     );
     const [selectedIndex, setSelectedIndex] = useState<number>(0);
+    const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     const updateItems = (newItems: AgendaItemFormData[]) => {
         setItems(newItems);
@@ -46,10 +59,29 @@ export function AgendaItemsFormSection({
     const addItem = () => {
         const newItems = [
             ...items,
-            { title: "", description: "", requiresResolution: false },
+            { title: "", description: "", requiresResolution: false, majorityType: null },
         ];
         updateItems(newItems);
         setSelectedIndex(newItems.length - 1); // Select the newly added item
+    };
+
+    const addItemFromTemplate = (templateId: string) => {
+        const template = templates.find((t) => t.id === Number(templateId));
+        if (!template) return;
+
+        const newItems = [
+            ...items,
+            {
+                title: template.title,
+                description: template.description || "",
+                requiresResolution: template.requiresResolution,
+                majorityType: template.requiresResolution
+                    ? (template.majorityType || "simple")
+                    : null,
+            },
+        ];
+        updateItems(newItems);
+        setSelectedIndex(newItems.length - 1);
     };
 
     const removeItem = (index: number) => {
@@ -68,7 +100,7 @@ export function AgendaItemsFormSection({
     const updateItem = (
         index: number,
         field: keyof AgendaItemFormData,
-        value: string | boolean,
+        value: string | boolean | "simple" | "qualified" | null,
     ) => {
         const newItems = [...items];
         newItems[index] = { ...newItems[index], [field]: value };
@@ -91,6 +123,28 @@ export function AgendaItemsFormSection({
         ];
         updateItems(newItems);
         setSelectedIndex(targetIndex); // Follow the moved item
+    };
+
+    const insertPlaceholderInDescription = (placeholder: string) => {
+        if (descriptionTextareaRef.current) {
+            const textarea = descriptionTextareaRef.current;
+            const start = textarea.selectionStart || 0;
+            const end = textarea.selectionEnd || 0;
+            const currentValue = items[selectedIndex].description;
+            const newValue =
+                currentValue.substring(0, start) +
+                placeholder +
+                currentValue.substring(end);
+            updateItem(selectedIndex, "description", newValue);
+            // Set focus back and move cursor
+            setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(
+                    start + placeholder.length,
+                    start + placeholder.length,
+                );
+            }, 0);
+        }
     };
 
     const selectedItem = items[selectedIndex];
@@ -127,12 +181,12 @@ export function AgendaItemsFormSection({
                                             <span className="text-xs font-semibold text-gray-500">
                                                 TOP {index + 1}
                                             </span>
-                                            {item.requiresResolution && (
+                                            {item.majorityType && (
                                                 <Badge
                                                     variant="outline"
                                                     className="text-[10px] py-0 px-1.5"
                                                 >
-                                                    Beschluss
+                                                    {item.majorityType === "qualified" ? "75%" : "50%"}
                                                 </Badge>
                                             )}
                                         </div>
@@ -155,17 +209,53 @@ export function AgendaItemsFormSection({
                             ))}
                         </div>
 
-                        {/* Add Button */}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={addItem}
-                            className="w-full"
-                            size="sm"
-                        >
-                            <Plus className="mr-2 h-4 w-4" />
-                            TOP hinzufügen
-                        </Button>
+                        {/* Add Buttons */}
+                        <div className="space-y-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={addItem}
+                                className="w-full"
+                                size="sm"
+                            >
+                                <Plus className="mr-2 h-4 w-4" />
+                                TOP hinzufügen
+                            </Button>
+
+                            {templates.length > 0 && (
+                                <Select
+                                    value=""
+                                    onValueChange={addItemFromTemplate}
+                                >
+                                    <SelectTrigger className="w-full h-9">
+                                        <SelectValue placeholder="Aus Vorlage hinzufügen..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {templates.map((template) => (
+                                            <SelectItem
+                                                key={template.id}
+                                                value={template.id.toString()}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <Library className="h-3 w-3" />
+                                                    <span>
+                                                        {template.title}
+                                                    </span>
+                                                    {template.requiresResolution && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-[10px] py-0 px-1"
+                                                        >
+                                                            Beschluss
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        </div>
                     </div>
 
                     {/* Right Side - Detail View (70%) */}
@@ -260,43 +350,94 @@ export function AgendaItemsFormSection({
                                     >
                                         Beschreibung
                                     </Label>
-                                    <Textarea
-                                        id="agenda-description"
-                                        placeholder="Zusätzliche Details oder Kontext..."
-                                        value={selectedItem.description}
-                                        onChange={(e) =>
-                                            updateItem(
-                                                selectedIndex,
-                                                "description",
-                                                e.target.value,
-                                            )
-                                        }
-                                        rows={6}
-                                        className="text-sm"
-                                    />
+                                    <div className="space-y-2">
+                                        <Textarea
+                                            id="agenda-description"
+                                            ref={descriptionTextareaRef}
+                                            placeholder="Zusätzliche Details oder Kontext..."
+                                            value={selectedItem.description}
+                                            onChange={(e) =>
+                                                updateItem(
+                                                    selectedIndex,
+                                                    "description",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            rows={6}
+                                            className="text-sm"
+                                        />
+                                        <PlaceholderPicker
+                                            onSelect={
+                                                insertPlaceholderInDescription
+                                            }
+                                        />
+                                    </div>
                                 </div>
 
-                                {/* Requires Resolution */}
-                                <div className="flex items-center space-x-2">
-                                    <Checkbox
-                                        id="agenda-resolution"
-                                        checked={
-                                            selectedItem.requiresResolution
-                                        }
-                                        onCheckedChange={(checked) =>
-                                            updateItem(
-                                                selectedIndex,
-                                                "requiresResolution",
-                                                checked === true,
-                                            )
-                                        }
-                                    />
-                                    <Label
-                                        htmlFor="agenda-resolution"
-                                        className="text-sm font-normal cursor-pointer"
-                                    >
-                                        Erfordert Beschlussfassung
-                                    </Label>
+                                {/* Majority Type Options */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="agenda-resolution-simple"
+                                            checked={
+                                                selectedItem.majorityType === "simple"
+                                            }
+                                            onCheckedChange={(checked) => {
+                                                const newItems = [...items];
+                                                if (checked === true) {
+                                                    newItems[selectedIndex] = {
+                                                        ...newItems[selectedIndex],
+                                                        requiresResolution: true,
+                                                        majorityType: "simple",
+                                                    };
+                                                } else {
+                                                    newItems[selectedIndex] = {
+                                                        ...newItems[selectedIndex],
+                                                        requiresResolution: false,
+                                                        majorityType: null,
+                                                    };
+                                                }
+                                                updateItems(newItems);
+                                            }}
+                                        />
+                                        <Label
+                                            htmlFor="agenda-resolution-simple"
+                                            className="text-sm font-normal cursor-pointer"
+                                        >
+                                            Erfordert 50% Mehrheit
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="agenda-resolution-qualified"
+                                            checked={
+                                                selectedItem.majorityType === "qualified"
+                                            }
+                                            onCheckedChange={(checked) => {
+                                                const newItems = [...items];
+                                                if (checked === true) {
+                                                    newItems[selectedIndex] = {
+                                                        ...newItems[selectedIndex],
+                                                        requiresResolution: true,
+                                                        majorityType: "qualified",
+                                                    };
+                                                } else {
+                                                    newItems[selectedIndex] = {
+                                                        ...newItems[selectedIndex],
+                                                        requiresResolution: false,
+                                                        majorityType: null,
+                                                    };
+                                                }
+                                                updateItems(newItems);
+                                            }}
+                                        />
+                                        <Label
+                                            htmlFor="agenda-resolution-qualified"
+                                            className="text-sm font-normal cursor-pointer"
+                                        >
+                                            Erfordert 75% Mehrheit
+                                        </Label>
+                                    </div>
                                 </div>
                             </div>
                         )}

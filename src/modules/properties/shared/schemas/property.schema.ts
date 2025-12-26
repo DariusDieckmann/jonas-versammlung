@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
@@ -9,17 +9,25 @@ export const properties = sqliteTable("properties", {
         .notNull()
         .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    street: text("street").notNull(),
-    houseNumber: text("house_number").notNull(),
+    address: text("address").notNull(),
     postalCode: text("postal_code").notNull(),
     city: text("city").notNull(),
     yearBuilt: integer("year_built"),
     numberOfUnits: integer("number_of_units"),
     totalArea: integer("total_area"), // in m²
+    mea: integer("mea").notNull().default(1000), // MEA (Miteigentumsanteile)
     notes: text("notes"),
-    createdAt: text("created_at").notNull(),
-    updatedAt: text("updated_at").notNull(),
-});
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
+}, (table) => ({
+    // Index for organization-based property lookups
+    orgIdx: index("idx_properties_org").on(table.organizationId),
+}));
 
 // Validation schemas
 export const insertPropertySchema = createInsertSchema(properties, {
@@ -27,14 +35,10 @@ export const insertPropertySchema = createInsertSchema(properties, {
         .string()
         .min(2, "Name muss mindestens 2 Zeichen lang sein")
         .max(200, "Name darf maximal 200 Zeichen lang sein"),
-    street: z
+    address: z
         .string()
-        .min(2, "Straße muss mindestens 2 Zeichen lang sein")
-        .max(200, "Straße darf maximal 200 Zeichen lang sein"),
-    houseNumber: z
-        .string()
-        .min(1, "Hausnummer ist erforderlich")
-        .max(10, "Hausnummer darf maximal 10 Zeichen lang sein"),
+        .min(3, "Adresse muss mindestens 3 Zeichen lang sein")
+        .max(250, "Adresse darf maximal 250 Zeichen lang sein"),
     postalCode: z
         .string()
         .min(5, "PLZ muss mindestens 5 Zeichen lang sein")
@@ -65,6 +69,11 @@ export const insertPropertySchema = createInsertSchema(properties, {
         .min(1, "Fläche muss größer als 0 sein")
         .optional()
         .nullable(),
+    mea: z
+        .number()
+        .int()
+        .min(1, "MEA muss mindestens 1 sein")
+        .max(100000, "MEA darf maximal 100000 sein"),
     notes: z
         .string()
         .max(2000, "Notizen dürfen maximal 2000 Zeichen lang sein")

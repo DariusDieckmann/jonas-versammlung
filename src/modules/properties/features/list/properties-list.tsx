@@ -25,7 +25,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import type { Property } from "../../shared/schemas/property.schema";
 
 interface PropertiesListProps {
@@ -112,8 +112,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                     <CardDescription className="flex items-start gap-2">
                                         <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                         <span>
-                                            {property.street}{" "}
-                                            {property.houseNumber}
+                                            {property.address}
                                             <br />
                                             {property.postalCode}{" "}
                                             {property.city}
@@ -144,8 +143,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                                 <span className="font-medium">
                                                     Fläche:
                                                 </span>{" "}
-                                                {property.totalArea}{" "}
-                                                m²
+                                                {property.totalArea} m²
                                             </div>
                                         )}
                                     </div>
@@ -188,9 +186,7 @@ export function PropertiesList({ properties }: PropertiesListProps) {
                                             {property.name}
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        {property.street} {property.houseNumber}
-                                    </TableCell>
+                                    <TableCell>{property.address}</TableCell>
                                     <TableCell>
                                         {property.postalCode} {property.city}
                                     </TableCell>

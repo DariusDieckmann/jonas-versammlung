@@ -1,6 +1,6 @@
 import ConductAgendaItemsPage from "@/modules/meetings/features/conduct/conduct-agenda-items.page";
 
-export default async function Page({
+export default async function ConductAgendaItemsRoute({
     params,
 }: {
     params: Promise<{ meetingId: string }>;

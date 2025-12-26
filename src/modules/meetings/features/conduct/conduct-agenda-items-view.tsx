@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Circle, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,19 +15,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
-import { updateAgendaItem } from "../../shared/agenda-item.action";
+import { updateAgendaItemContent } from "../../shared/agenda-item.action";
+import conductRoutes from "../../shared/conduct.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import { markAgendaItemCompleted } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
+import { ConductAgendaItemAttachmentsDisplay } from "./conduct-agenda-item-attachments-display";
 import { ConductVotingForm } from "./conduct-voting-form";
+import toast from "react-hot-toast";
 
 interface ConductAgendaItemsViewProps {
     meetingId: number;
     agendaItems: AgendaItem[];
     participants: MeetingParticipant[];
     completedAgendaItemIds: number[];
+    agendaItemAttachments: Map<number, AgendaItemAttachment[]>;
 }
 
 export function ConductAgendaItemsView({
@@ -35,16 +39,28 @@ export function ConductAgendaItemsView({
     agendaItems,
     participants,
     completedAgendaItemIds,
+    agendaItemAttachments,
 }: ConductAgendaItemsViewProps) {
     const router = useRouter();
-    const [selectedItemId, setSelectedItemId] = useState<number | null>(
-        agendaItems.length > 0 ? agendaItems[0].id : null,
-    );
-
+    
     // Initialize completedItems from existing resolutions
     const [completedItems, setCompletedItems] = useState<Set<number>>(() => {
         return new Set(completedAgendaItemIds);
     });
+
+    // Initialize selectedItemId to first uncompleted item, or first item if all completed
+    const [selectedItemId, setSelectedItemId] = useState<number | null>(() => {
+        if (agendaItems.length === 0) return null;
+        
+        // Find first uncompleted item
+        const firstUncompleted = agendaItems.find(
+            (item) => !completedAgendaItemIds.includes(item.id)
+        );
+        
+        return firstUncompleted ? firstUncompleted.id : agendaItems[0].id;
+    });
+    
+    const [isCompletingItem, setIsCompletingItem] = useState(false);
 
     // Track edited values for each item
     const [editedItems, setEditedItems] = useState<
@@ -58,16 +74,15 @@ export function ConductAgendaItemsView({
         ),
     );
 
-    // Update completed items when completedAgendaItemIds changes (e.g., after navigation back)
-    useEffect(() => {
-        setCompletedItems(new Set(completedAgendaItemIds));
-    }, [completedAgendaItemIds]);
-
-    // Filter only present and represented participants for voting
-    const votingParticipants = participants.filter(
-        (p) =>
-            p.attendanceStatus === "present" ||
-            p.attendanceStatus === "represented",
+    // Filter only present and represented participants for voting (memoized)
+    const votingParticipants = useMemo(
+        () =>
+            participants.filter(
+                (p) =>
+                    p.attendanceStatus === "present" ||
+                    p.attendanceStatus === "represented",
+            ),
+        [participants]
     );
 
     const selectedItem = agendaItems.find((item) => item.id === selectedItemId);
@@ -98,44 +113,55 @@ export function ConductAgendaItemsView({
     };
 
     const handleItemComplete = async (itemId: number) => {
-        // Save changes before completing
-        const edited = editedItems.get(itemId);
-        const originalItem = agendaItems.find((i) => i.id === itemId);
+        setIsCompletingItem(true);
 
-        if (edited && originalItem) {
-            const hasChanges =
-                edited.title !== originalItem.title ||
-                edited.description !== (originalItem.description || "");
+        try {
+            // Save changes before completing
+            const edited = editedItems.get(itemId);
+            const originalItem = agendaItems.find((i) => i.id === itemId);
 
-            if (hasChanges) {
-                await updateAgendaItem(itemId, {
-                    title: edited.title,
-                    description: edited.description || null,
-                });
+            if (edited && originalItem) {
+                const hasChanges =
+                    edited.title !== originalItem.title ||
+                    edited.description !== (originalItem.description || "");
+
+                if (hasChanges) {
+                    // Use dedicated content update function to safely update only title/description
+                    // This prevents accidental overwriting of requiresResolution or majorityType
+                    await updateAgendaItemContent(itemId, {
+                        title: edited.title,
+                        description: edited.description || null,
+                    });
+                }
             }
-        }
 
-        // For items without voting, mark as completed in DB
-        const item = agendaItems.find((i) => i.id === itemId);
-        if (item && !item.requiresResolution) {
-            const result = await markAgendaItemCompleted(itemId);
-            if (!result.success) {
-                alert(result.error || "Fehler beim Markieren als erledigt");
-                return;
+            // For items without voting, mark as completed in DB
+            const item = agendaItems.find((i) => i.id === itemId);
+            if (item && !item.requiresResolution) {
+                const result = await markAgendaItemCompleted(itemId);
+                if (!result.success) {
+                    toast.error(result.error || "Fehler beim Markieren als erledigt");
+                    setIsCompletingItem(false);
+                    return;
+                }
             }
-        }
 
-        setCompletedItems((prev) => new Set([...prev, itemId]));
+            setCompletedItems((prev) => new Set([...prev, itemId]));
 
-        // Move to next item
-        const currentIndex = agendaItems.findIndex(
-            (item) => item.id === itemId,
-        );
-        if (currentIndex < agendaItems.length - 1) {
-            setSelectedItemId(agendaItems[currentIndex + 1].id);
-        } else {
-            // All items done - go to summary page
-            router.push(conductRoutes.summary(meetingId));
+            // Move to next item
+            const currentIndex = agendaItems.findIndex(
+                (item) => item.id === itemId,
+            );
+            if (currentIndex < agendaItems.length - 1) {
+                setSelectedItemId(agendaItems[currentIndex + 1].id);
+                setIsCompletingItem(false);
+            } else {
+                // All items done - go to summary page (keep loading state)
+                router.push(conductRoutes.summary(meetingId));
+            }
+        } catch (error) {
+            console.error("Error completing item:", error);
+            setIsCompletingItem(false);
         }
     };
 
@@ -206,7 +232,7 @@ export function ConductAgendaItemsView({
                                                         variant="outline"
                                                         className="text-xs"
                                                     >
-                                                        Beschluss
+                                                        Beschluss ({item.majorityType === "qualified" ? "75%" : "50%"})
                                                     </Badge>
                                                 )}
                                             </div>
@@ -238,7 +264,7 @@ export function ConductAgendaItemsView({
                                     {selectedItem.requiresResolution && (
                                         <Badge variant="default">
                                             <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            Beschluss erforderlich
+                                            Beschluss ({selectedItem.majorityType === "qualified" ? "75%" : "50%"})
                                         </Badge>
                                     )}
                                 </div>
@@ -287,6 +313,13 @@ export function ConductAgendaItemsView({
                             </CardContent>
                         </Card>
 
+                        {/* Display attachments for this agenda item */}
+                        <ConductAgendaItemAttachmentsDisplay
+                            attachments={
+                                agendaItemAttachments.get(selectedItem.id) || []
+                            }
+                        />
+
                         {selectedItem.requiresResolution ? (
                             <ConductVotingForm
                                 agendaItem={selectedItem}
@@ -294,6 +327,7 @@ export function ConductAgendaItemsView({
                                 onComplete={() =>
                                     handleItemComplete(selectedItem.id)
                                 }
+                                isCompletingItem={isCompletingItem}
                             />
                         ) : (
                             <Card>
@@ -306,8 +340,11 @@ export function ConductAgendaItemsView({
                                         onClick={() =>
                                             handleItemComplete(selectedItem.id)
                                         }
+                                        disabled={isCompletingItem}
                                     >
-                                        Als erledigt markieren
+                                        {isCompletingItem
+                                            ? "Wird gespeichert..."
+                                            : "Als erledigt markieren"}
                                     </Button>
                                 </CardContent>
                             </Card>

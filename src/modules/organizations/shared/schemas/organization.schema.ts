@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { user } from "@/modules/auth/shared/schemas/auth.schema";
@@ -9,12 +9,13 @@ export const organizations = sqliteTable("organizations", {
     createdBy: text("created_by")
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
-    createdAt: text("created_at")
+    createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
-    updatedAt: text("updated_at")
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
 });
 
 export const organizationMembers = sqliteTable("organization_members", {
@@ -26,10 +27,17 @@ export const organizationMembers = sqliteTable("organization_members", {
         .notNull()
         .references(() => user.id, { onDelete: "cascade" }),
     role: text("role").notNull().default("member"), // 'owner' or 'member'
-    joinedAt: text("joined_at")
+    joinedAt: integer("joined_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
-});
+        .$defaultFn(() => new Date()),
+}, (table) => ({
+    // Composite index for user-organization lookups (most critical!)
+    userOrgIdx: index("idx_org_members_user_org").on(table.userId, table.organizationId),
+    // Index for organization-based queries
+    orgIdx: index("idx_org_members_org").on(table.organizationId),
+    // Index for role-based filtering
+    roleIdx: index("idx_org_members_role").on(table.role),
+}));
 
 // Zod schemas for validation
 export const insertOrganizationSchema = createInsertSchema(organizations, {

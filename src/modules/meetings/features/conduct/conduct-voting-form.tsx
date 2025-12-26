@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -22,34 +22,58 @@ import { createResolution } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import type { VoteChoice } from "../../shared/schemas/vote.schema";
-import { calculateResolutionResult, castVote } from "../../shared/vote.action";
+import {
+    calculateResolutionResult,
+    castVotesBatch,
+    getVotes,
+} from "../../shared/vote.action";
+import toast from "react-hot-toast";
 
 interface ConductVotingFormProps {
     agendaItem: AgendaItem;
     participants: MeetingParticipant[];
     onComplete: () => void;
+    isCompletingItem?: boolean;
 }
 
 export function ConductVotingForm({
     agendaItem,
     participants,
     onComplete,
+    isCompletingItem = false,
 }: ConductVotingFormProps) {
     const [votes, setVotes] = useState<Map<number, VoteChoice>>(new Map());
     const [resolutionId, setResolutionId] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isInitializing, setIsInitializing] = useState(true);
 
-    // Initialize resolution on mount
+    // Initialize resolution and load existing votes on mount
     useEffect(() => {
         async function initResolution() {
             setIsInitializing(true);
+            // Reset votes when switching to a new agenda item
+            setVotes(new Map());
+            
             const result = await createResolution(agendaItem.id, {
-                majorityType: "simple",
+                majorityType: agendaItem.majorityType || "simple",
             });
 
             if (result.success && result.data) {
                 setResolutionId(result.data.id);
+
+                // Load existing votes if any
+                try {
+                    const existingVotes = await getVotes(result.data.id);
+                    if (existingVotes.length > 0) {
+                        const votesMap = new Map<number, VoteChoice>();
+                        for (const vote of existingVotes) {
+                            votesMap.set(vote.participantId, vote.vote);
+                        }
+                        setVotes(votesMap);
+                    }
+                } catch (error) {
+                    console.error("Error loading existing votes:", error);
+                }
             }
             setIsInitializing(false);
         }
@@ -67,36 +91,49 @@ export function ConductVotingForm({
         setIsSubmitting(true);
 
         try {
-            // Cast all votes
-            for (const [participantId, vote] of votes.entries()) {
-                await castVote(resolutionId, participantId, vote);
+            // Cast all votes in a single batch to avoid N+1 problem
+            const votesData = Array.from(votes.entries()).map(
+                ([participantId, voteChoice]) => ({
+                    participantId,
+                    voteChoice,
+                }),
+            );
+
+            const result = await castVotesBatch(resolutionId, votesData);
+
+            if (result.success) {
+                // Calculate result
+                await calculateResolutionResult(resolutionId);
+
+                // Mark as complete and move to next
+                onComplete();
+            } else {
+                toast.error(result.error || "Fehler beim Speichern der Abstimmung");
             }
-
-            // Calculate result
-            await calculateResolutionResult(resolutionId);
-
-            // Mark as complete and move to next
-            onComplete();
         } catch (error) {
             console.error("Error submitting votes:", error);
-            alert("Fehler beim Speichern der Abstimmung");
+            toast.error("Fehler beim Speichern der Abstimmung");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Calculate current totals
-    const yesShares = participants
-        .filter((p) => votes.get(p.id) === "yes")
-        .reduce((sum, p) => sum + p.shares, 0);
+    // Calculate current totals (memoized to avoid recalculation on every render)
+    const voteTotals = useMemo(() => {
+        const yesShares = participants
+            .filter((p) => votes.get(p.id) === "yes")
+            .reduce((sum, p) => sum + p.shares, 0);
 
-    const noShares = participants
-        .filter((p) => votes.get(p.id) === "no")
-        .reduce((sum, p) => sum + p.shares, 0);
+        const noShares = participants
+            .filter((p) => votes.get(p.id) === "no")
+            .reduce((sum, p) => sum + p.shares, 0);
 
-    const abstainShares = participants
-        .filter((p) => votes.get(p.id) === "abstain")
-        .reduce((sum, p) => sum + p.shares, 0);
+        const abstainShares = participants
+            .filter((p) => votes.get(p.id) === "abstain")
+            .reduce((sum, p) => sum + p.shares, 0);
+
+        return { yesShares, noShares, abstainShares };
+    }, [participants, votes]);
 
     const votedCount = votes.size;
 
@@ -126,7 +163,7 @@ export function ConductVotingForm({
                     <div>
                         <div className="text-sm text-gray-600 mb-1">Ja</div>
                         <div className="text-2xl font-bold text-green-600">
-                            {yesShares} MEA
+                            {voteTotals.yesShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
                             {
@@ -140,7 +177,7 @@ export function ConductVotingForm({
                     <div>
                         <div className="text-sm text-gray-600 mb-1">Nein</div>
                         <div className="text-2xl font-bold text-red-600">
-                            {noShares} MEA
+                            {voteTotals.noShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
                             {
@@ -156,7 +193,7 @@ export function ConductVotingForm({
                             Enthaltung
                         </div>
                         <div className="text-2xl font-bold text-gray-600">
-                            {abstainShares} MEA
+                            {voteTotals.abstainShares} MEA
                         </div>
                         <div className="text-xs text-gray-500">
                             {
@@ -269,10 +306,12 @@ export function ConductVotingForm({
                     </div>
                     <Button
                         onClick={handleSubmit}
-                        disabled={isSubmitting || votedCount === 0}
+                        disabled={
+                            isSubmitting || isCompletingItem || votedCount === 0
+                        }
                         size="lg"
                     >
-                        {isSubmitting
+                        {isSubmitting || isCompletingItem
                             ? "Wird gespeichert..."
                             : "Abstimmung speichern"}
                         <Check className="ml-2 h-4 w-4" />

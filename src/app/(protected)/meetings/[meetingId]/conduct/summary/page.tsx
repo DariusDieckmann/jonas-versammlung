@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { ConductSummaryClient } from "@/modules/meetings/features/conduct/conduct-summary-client";
 import { getAgendaItems } from "@/modules/meetings/shared/agenda-item.action";
@@ -9,7 +10,7 @@ interface ConductSummaryPageProps {
     params: Promise<{ meetingId: string }>;
 }
 
-export default async function ConductSummaryPage({
+export default async function ConductSummaryRoute({
     params,
 }: ConductSummaryPageProps) {
     const { meetingId } = await params;
@@ -23,6 +24,13 @@ export default async function ConductSummaryPage({
     }
 
     const agendaItems = await getAgendaItems(id);
+    // Platzhalter replace
+    const agendaItemsWithResolvedPlaceholders = agendaItems.map((item) => ({
+        ...item,
+        description: item.description
+            ? replacePlaceholders(item.description, meeting)
+            : null,
+    }));
 
     // Get resolutions for agenda items that require them
     const itemsWithResolutions = agendaItems.filter(
@@ -35,7 +43,7 @@ export default async function ConductSummaryPage({
     return (
         <ConductSummaryClient
             meeting={meeting}
-            agendaItems={agendaItems}
+            agendaItems={agendaItemsWithResolvedPlaceholders}
             resolutions={resolutions}
         />
     );

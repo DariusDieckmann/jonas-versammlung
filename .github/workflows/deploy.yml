@@ -6,15 +6,13 @@ on:
       - main
       - develop
       - 'feature/**'
-  pull_request:
-    branches: [main]
 
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '8'
 
 jobs:
-  # Deploy preview for pull requests and feature branches
+  # Deploy preview for push to main and feature branches
   deploy-preview:
     name: Deploy Preview
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/feature/')

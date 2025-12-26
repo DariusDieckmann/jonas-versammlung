@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import legalRoutes from "@/lib/legal.route";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/modules/auth/shared/utils/auth-client";
 import dashboardRoutes from "@/modules/dashboard/shared/dashboard.route";
@@ -34,9 +35,9 @@ export function LoginForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Welcome</CardTitle>
+                    <CardTitle className="text-xl">Willkommen</CardTitle>
                     <CardDescription>
-                        Sign in with your account to continue
+                        Melden Sie sich an, um fortzufahren
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -56,7 +57,7 @@ export function LoginForm({
                                 fill="currentColor"
                             />
                         </svg>
-                        Sign in with Google
+                        Mit Google anmelden
                     </Button>
                     <Button
                         type="button"
@@ -75,14 +76,26 @@ export function LoginForm({
                             <path fill="#05a6f0" d="M1 12h10v10H1z" />
                             <path fill="#ffba08" d="M12 12h10v10H12z" />
                         </svg>
-                        Sign in with Microsoft
+                        Mit Microsoft anmelden
                     </Button>
                 </CardContent>
             </Card>
-            <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-                By clicking continue, you agree to our{" "}
-                <a href="#">Terms of Service</a> and{" "}
-                <a href="#">Privacy Policy</a>.
+            <div className="text-muted-foreground text-center text-xs text-balance">
+                Durch die Anmeldung stimmen Sie unseren{" "}
+                <a
+                    href={legalRoutes.agb}
+                    className="underline underline-offset-4 hover:text-primary"
+                >
+                    AGB
+                </a>{" "}
+                und unserer{" "}
+                <a
+                    href={legalRoutes.datenschutz}
+                    className="underline underline-offset-4 hover:text-primary"
+                >
+                    Datenschutzerklärung
+                </a>{" "}
+                zu.
             </div>
         </div>
     );

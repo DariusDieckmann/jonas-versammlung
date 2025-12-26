@@ -2,7 +2,7 @@ import { Building2, Plus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import { getProperties } from "../../shared/property.action";
 import { PropertiesList } from "./properties-list";
 

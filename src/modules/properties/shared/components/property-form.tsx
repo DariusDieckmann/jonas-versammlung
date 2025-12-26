@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,12 +25,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import propertiesRoutes from "../../properties.route";
 import { createProperty, updateProperty } from "../../shared/property.action";
 import {
     insertPropertySchema,
     type Property,
 } from "../../shared/schemas/property.schema";
+import propertiesRoutes from "../properties.route";
 
 type FormData = z.infer<typeof insertPropertySchema>;
 
@@ -46,13 +47,13 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
         resolver: zodResolver(insertPropertySchema),
         defaultValues: {
             name: initialData?.name || "",
-            street: initialData?.street || "",
-            houseNumber: initialData?.houseNumber || "",
+            address: initialData?.address || "",
             postalCode: initialData?.postalCode || "",
             city: initialData?.city || "",
             yearBuilt: initialData?.yearBuilt || undefined,
             numberOfUnits: initialData?.numberOfUnits || undefined,
             totalArea: initialData?.totalArea || undefined,
+            mea: initialData?.mea || undefined,
             notes: initialData?.notes || "",
         },
     });
@@ -64,23 +65,25 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
             if (isEditing && initialData) {
                 const result = await updateProperty(initialData.id, data);
                 if (result.success) {
+                    toast.success("Liegenschaft erfolgreich aktualisiert");
                     router.push(propertiesRoutes.detail(initialData.id));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Aktualisieren");
+                    toast.error(result.error || "Fehler beim Aktualisieren");
                 }
             } else {
                 const result = await createProperty(data);
                 if (result.success && result.propertyId) {
+                    toast.success("Liegenschaft erfolgreich erstellt");
                     router.push(propertiesRoutes.detail(result.propertyId));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Erstellen");
+                    toast.error(result.error || "Fehler beim Erstellen");
                 }
             }
         } catch (error) {
             console.error("Form submission error:", error);
-            alert("Ein Fehler ist aufgetreten");
+            toast.error("Ein unerwarteter Fehler ist aufgetreten");
         } finally {
             setIsSubmitting(false);
         }
@@ -125,41 +128,24 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                         />
 
                         {/* Adresse */}
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="street"
-                                render={({ field }) => (
-                                    <FormItem className="md:col-span-2">
-                                        <FormLabel>Straße *</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Musterstraße"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="houseNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Hausnummer *</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="42a"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>
+                                        Adresse (Straße und Hausnummer) *
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="z.B. Musterstraße 42a"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <FormField
@@ -252,9 +238,6 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                                 }
                                             />
                                         </FormControl>
-                                        <FormDescription>
-                                            Wohnungen/Gewerbe
-                                        </FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -270,6 +253,38 @@ export function PropertyForm({ initialData }: PropertyFormProps) {
                                             <Input
                                                 type="number"
                                                 placeholder="1500"
+                                                {...field}
+                                                value={field.value || ""}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value
+                                                            ? Number(
+                                                                  e.target
+                                                                      .value,
+                                                              )
+                                                            : null,
+                                                    )
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* MEA */}
+                        <div className="grid md:grid-cols-3 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="mea"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>MEA *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="1000"
                                                 {...field}
                                                 value={field.value || ""}
                                                 onChange={(e) =>

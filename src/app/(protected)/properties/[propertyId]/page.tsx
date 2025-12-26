@@ -5,7 +5,10 @@ interface PageProps {
     searchParams: Promise<{ from?: string; meetingId?: string }>;
 }
 
-export default async function Page({ params, searchParams }: PageProps) {
+export default async function PropertyDetailRoute({
+    params,
+    searchParams,
+}: PageProps) {
     const { propertyId } = await params;
     const search = await searchParams;
     return (

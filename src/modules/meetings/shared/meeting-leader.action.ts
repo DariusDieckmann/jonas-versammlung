@@ -6,7 +6,7 @@ import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertMeetingLeaderSchema,
@@ -70,20 +70,15 @@ export async function createMeetingLeaders(
 
         await requireMember(meeting[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
-        for (const leader of leaders) {
-            const validatedData = insertMeetingLeaderSchema.parse({
+       
+        const validatedLeaders = leaders.map((leader) =>
+            insertMeetingLeaderSchema.parse({
                 meetingId,
                 ...leader,
-            });
+            }),
+        );
 
-            await db.insert(meetingLeaders).values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            });
-        }
+        await db.insert(meetingLeaders).values(validatedLeaders);
 
         revalidatePath(meetingsRoutes.detail(meetingId));
         return { success: true };

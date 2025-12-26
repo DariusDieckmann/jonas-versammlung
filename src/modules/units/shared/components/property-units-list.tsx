@@ -34,11 +34,13 @@ interface UnitWithOwners extends Unit {
 
 interface PropertyUnitsListProps {
     propertyId: number;
+    propertyMea: number;
     initialUnitsWithOwners: UnitWithOwners[];
 }
 
 export function PropertyUnitsList({
     propertyId,
+    propertyMea,
     initialUnitsWithOwners,
 }: PropertyUnitsListProps) {
     const [units, setUnits] = useState<UnitWithOwners[]>(
@@ -127,7 +129,7 @@ export function PropertyUnitsList({
                                                     sum + unit.ownershipShares
                                                 );
                                             }, 0)}
-                                            /1000)
+                                            /{propertyMea})
                                         </span>
                                     </div>
                                 </TableHead>

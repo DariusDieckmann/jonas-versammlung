@@ -1,6 +1,6 @@
 import ConductLeadersPage from "@/modules/meetings/features/conduct/conduct-leaders.page";
 
-export default async function Page({
+export default async function ConductLeadersRoute({
     params,
 }: {
     params: Promise<{ meetingId: string }>;

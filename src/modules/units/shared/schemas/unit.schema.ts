@@ -1,4 +1,4 @@
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { organizations } from "@/modules/organizations/shared/schemas/organization.schema";
@@ -17,13 +17,21 @@ export const units = sqliteTable("units", {
     area: real("area"),
     ownershipShares: integer("ownership_shares").notNull(),
     notes: text("notes"),
-    createdAt: text("created_at")
+    createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
-    updatedAt: text("updated_at")
+        .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
         .notNull()
-        .$defaultFn(() => new Date().toISOString()),
-});
+        .$defaultFn(() => new Date())
+        .$onUpdate(() => new Date()),
+}, (table) => ({
+    // Index for property-based unit lookups
+    propertyIdx: index("idx_units_property").on(table.propertyId),
+    // Index for organization-based queries
+    orgIdx: index("idx_units_org").on(table.organizationId),
+    // Composite index for security checks
+    propertyOrgIdx: index("idx_units_property_org").on(table.propertyId, table.organizationId),
+}));
 
 // Validation schemas
 export const insertUnitSchema = createInsertSchema(units, {

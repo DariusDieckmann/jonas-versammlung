@@ -9,11 +9,12 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
+import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
 import {
     type Owner,
     owners,
 } from "@/modules/owners/shared/schemas/owner.schema";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import {
     type InsertUnit,
@@ -25,102 +26,55 @@ import {
 } from "./schemas/unit.schema";
 
 /**
- * Get all units for a specific property
- */
-export async function getUnitsByProperty(propertyId: number): Promise<Unit[]> {
-    await requireAuth();
-    const db = await getDb();
-
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
-    const result = await db
-        .select()
-        .from(units)
-        .where(
-            and(
-                eq(units.organizationId, organization.id),
-                eq(units.propertyId, propertyId),
-            ),
-        )
-        .orderBy(units.name);
-
-    return result;
-}
-
-/**
  * Get all units with their owners for a specific property
  */
 export async function getUnitsWithOwners(
     propertyId: number,
 ): Promise<Array<Unit & { owners: Owner[] }>> {
-    await requireAuth();
+    const currentUser = await requireAuth();
     const db = await getDb();
 
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
-    // Get all units for the property
-    const unitsResult = await db
-        .select()
+    const result = await db
+        .select({
+            unit: units,
+            owner: owners,
+        })
         .from(units)
+        .innerJoin(
+            organizationMembers,
+            eq(units.organizationId, organizationMembers.organizationId),
+        )
+        .leftJoin(owners, eq(owners.unitId, units.id))
         .where(
             and(
-                eq(units.organizationId, organization.id),
                 eq(units.propertyId, propertyId),
+                eq(organizationMembers.userId, currentUser.id),
             ),
         )
-        .orderBy(units.name);
+        .orderBy(units.name, owners.lastName, owners.firstName);
 
-    // Get all owners for these units
-    const unitIds = unitsResult.map((u) => u.id);
-
-    if (unitIds.length === 0) {
+    if (result.length === 0) {
         return [];
     }
 
-    const ownersResult = await db
-        .select()
-        .from(owners)
-        .where(
-            and(
-                eq(owners.organizationId, organization.id),
-                inArray(owners.unitId, unitIds),
-            ),
-        )
-        .orderBy(owners.lastName, owners.firstName);
+    // Group by unitId and collect owners
+    const unitsMap = new Map<number, Unit & { owners: Owner[] }>();
 
-    // Group owners by unitId
-    const ownersByUnit = ownersResult.reduce(
-        (acc, owner) => {
-            if (!acc[owner.unitId]) {
-                acc[owner.unitId] = [];
-            }
-            acc[owner.unitId].push(owner);
-            return acc;
-        },
-        {} as Record<number, Owner[]>,
-    );
+    for (const row of result) {
+        if (!unitsMap.has(row.unit.id)) {
+            unitsMap.set(row.unit.id, {
+                ...row.unit,
+                owners: [],
+            });
+        }
 
-    // Combine units with their owners
-    return unitsResult.map((unit) => ({
-        ...unit,
-        owners: ownersByUnit[unit.id] || [],
-    }));
+        // Add owner if exists (LEFT JOIN can return null for owner)
+        if (row.owner) {
+            unitsMap.get(row.unit.id)!.owners.push(row.owner);
+        }
+    }
+
+    return Array.from(unitsMap.values());
 }
 
 /**
@@ -172,21 +126,25 @@ export async function createUnit(
         const validatedData = insertUnitSchema.parse(data);
 
         // SECURITY: Verify that the property belongs to the user's organization
-        const property = await db.query.properties.findFirst({
-            where: and(
+        const propertyResult = await db
+            .select()
+            .from(properties)
+            .where(and(
                 eq(properties.id, data.propertyId),
                 eq(properties.organizationId, organization.id),
-            ),
-        });
+            ))
+            .limit(1);
 
-        if (!property) {
+        if (!propertyResult.length) {
             return {
                 success: false,
                 error: "Liegenschaft nicht gefunden",
             };
         }
 
-        // Validate that total MEA doesn't exceed 1000
+        const property = propertyResult[0];
+
+        // Validate that total MEA doesn't exceed property's total MEA
         const existingUnits = await db
             .select()
             .from(units)
@@ -198,21 +156,18 @@ export async function createUnit(
         );
         const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
-        if (newTotalMEA > 1000) {
+        if (newTotalMEA > property.mea) {
             return {
                 success: false,
-                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit ${property.mea.toLocaleString()} überschreiten. Verfügbar: ${property.mea - currentTotalMEA} MEA`,
             };
         }
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(units)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -256,8 +211,27 @@ export async function updateUnit(
 
         const validatedData = updateUnitSchema.parse(data);
 
-        // Validate that total MEA doesn't exceed 1000 (if ownershipShares is being changed)
+        // Validate that total MEA doesn't exceed property's total MEA (if ownershipShares is being changed)
         if (validatedData.ownershipShares !== undefined) {
+            // Get property to check its total MEA
+            const propertyResult = await db
+                .select()
+                .from(properties)
+                .where(and(
+                    eq(properties.id, existing[0].propertyId),
+                    eq(properties.organizationId, existing[0].organizationId),
+                ))
+                .limit(1);
+
+            if (!propertyResult.length) {
+                return {
+                    success: false,
+                    error: "Liegenschaft nicht gefunden",
+                };
+            }
+
+            const property = propertyResult[0];
+
             const existingUnits = await db
                 .select()
                 .from(units)
@@ -269,22 +243,22 @@ export async function updateUnit(
 
             const newTotalMEA = currentTotalMEA + validatedData.ownershipShares;
 
-            if (newTotalMEA > 1000) {
+            if (newTotalMEA > property.mea) {
                 return {
                     success: false,
-                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit 1.000 überschreiten. Verfügbar: ${1000 - currentTotalMEA} MEA`,
+                    error: `Die Summe der MEA würde ${newTotalMEA} betragen und damit ${property.mea.toLocaleString()} überschreiten. Verfügbar: ${property.mea - currentTotalMEA} MEA`,
                 };
             }
         }
 
-        const now = new Date().toISOString();
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof units.$inferInsert>;
 
         await db
             .update(units)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(updateData)
             .where(eq(units.id, unitId));
 
         revalidatePath(propertiesRoutes.detail(existing[0].propertyId));

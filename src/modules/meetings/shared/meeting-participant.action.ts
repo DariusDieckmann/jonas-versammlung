@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
@@ -8,7 +8,7 @@ import { requireMember } from "@/modules/organizations/shared/organization-permi
 import { owners } from "@/modules/owners/shared/schemas/owner.schema";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
-import meetingsRoutes from "../meetings.route";
+import meetingsRoutes from "./meetings.route";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertMeetingParticipantSchema,
@@ -91,29 +91,16 @@ export async function createParticipantsFromOwners(
             };
         }
 
-        // First: Get all units for this property
-        const propertyUnits = await db
-            .select()
-            .from(units)
-            .where(eq(units.propertyId, propertyId));
-
-        if (propertyUnits.length === 0) {
-            return {
-                success: false,
-                error: "Keine Einheiten für diese Liegenschaft gefunden",
-            };
-        }
-
-        // Second: Get all owners for these units
-        const unitIds = propertyUnits.map((u) => u.id);
+        // Optimized: Single query with JOIN instead of two separate queries
+        // Get all owners with their units for this property in one go
         const allOwners = await db
             .select({
                 owner: owners,
                 unit: units,
             })
-            .from(owners)
-            .innerJoin(units, eq(owners.unitId, units.id))
-            .where(inArray(owners.unitId, unitIds));
+            .from(units)
+            .innerJoin(owners, eq(owners.unitId, units.id))
+            .where(eq(units.propertyId, propertyId));
 
         if (allOwners.length === 0) {
             return {
@@ -123,9 +110,7 @@ export async function createParticipantsFromOwners(
         }
 
         // Create snapshot of participants
-        const now = new Date().toISOString();
-
-        for (const { owner, unit } of allOwners) {
+        const participantsData = allOwners.map(({ owner, unit }) => {
             const participantData = {
                 meetingId,
                 ownerName: `${owner.firstName} ${owner.lastName}`,
@@ -136,15 +121,11 @@ export async function createParticipantsFromOwners(
                 notes: null,
             };
 
-            const validatedData =
-                insertMeetingParticipantSchema.parse(participantData);
+            return insertMeetingParticipantSchema.parse(participantData);
+        });
 
-            await db.insert(meetingParticipants).values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            });
-        }
+        // Single batch insert instead of N individual inserts
+        await db.insert(meetingParticipants).values(participantsData);
 
         // Don't revalidate here as this is called during render
         // The page component will fetch the newly created participants immediately after
@@ -189,12 +170,14 @@ export async function updateMeetingParticipant(
 
         const validatedData = updateMeetingParticipantSchema.parse(data);
 
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof meetingParticipants.$inferInsert>;
+
         await db
             .update(meetingParticipants)
-            .set({
-                ...validatedData,
-                updatedAt: new Date().toISOString(),
-            })
+            .set(updateData)
             .where(eq(meetingParticipants.id, participantId));
 
         revalidatePath(

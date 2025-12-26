@@ -1,16 +1,21 @@
-import { CalendarDays, Plus } from "lucide-react";
+import { CalendarDays, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
+import settingsRoutes from "@/modules/organizations/shared/settings.route";
 import { getProperties } from "@/modules/properties/shared/property.action";
-import meetingsRoutes from "../../meetings.route";
 import { getMeetings } from "../../shared/meeting.action";
 import { MeetingsList } from "./meetings-list";
+import { NewMeetingButton } from "./new-meeting-button";
 
 export default async function MeetingsListPage() {
     await requireAuth();
-    const meetings = await getMeetings();
-    const properties = await getProperties();
+
+    // Optimization: Fetch meetings and properties in parallel
+    const [meetings, properties] = await Promise.all([
+        getMeetings(),
+        getProperties(),
+    ]);
 
     return (
         <div className="container mx-auto py-8 px-4">
@@ -24,14 +29,15 @@ export default async function MeetingsListPage() {
                         Verwalte Eigentümerversammlungen
                     </p>
                 </div>
-                {meetings.length > 0 && (
-                    <Link href={meetingsRoutes.new}>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Neue Versammlung
+                <div className="flex gap-2">
+                    <Link href={settingsRoutes.templates}>
+                        <Button variant="outline">
+                            <FileText className="mr-2 h-4 w-4" />
+                            TOP-Vorlagen
                         </Button>
                     </Link>
-                )}
+                    {meetings.length > 0 && <NewMeetingButton />}
+                </div>
             </div>
 
             <MeetingsList meetings={meetings} properties={properties} />

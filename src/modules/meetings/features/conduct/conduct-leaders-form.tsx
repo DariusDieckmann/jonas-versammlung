@@ -20,12 +20,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import conductRoutes from "../../conduct.route";
+import conductRoutes from "../../shared/conduct.route";
 import {
     createMeetingLeaders,
     deleteMeetingLeaders,
 } from "../../shared/meeting-leader.action";
 import type { MeetingLeader } from "../../shared/schemas/meeting-leader.schema";
+import toast from "react-hot-toast";
 
 interface LeaderFormData {
     name: string;
@@ -37,6 +38,7 @@ interface ConductLeadersFormProps {
     existingLeaders: MeetingLeader[];
     onSuccess?: () => void;
     formRef?: React.RefObject<HTMLFormElement | null>;
+    onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
 const LEADER_ROLES = [
@@ -51,6 +53,7 @@ export function ConductLeadersForm({
     existingLeaders,
     onSuccess,
     formRef,
+    onSubmittingChange,
 }: ConductLeadersFormProps) {
     const router = useRouter();
 
@@ -64,7 +67,7 @@ export function ConductLeadersForm({
             : [{ name: "", role: "Versammlungsleiter" }];
 
     const [leaders, setLeaders] = useState<LeaderFormData[]>(initialLeaders);
-    const [, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const addLeader = () => {
         setLeaders([...leaders, { name: "", role: "Protokollführer" }]);
@@ -89,13 +92,15 @@ export function ConductLeadersForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        onSubmittingChange?.(true);
 
         try {
             // Validate: at least one leader with name
             const validLeaders = leaders.filter((l) => l.name.trim() !== "");
             if (validLeaders.length === 0) {
-                alert("Bitte mindestens einen Leiter eintragen");
+                toast.error("Bitte mindestens einen Leiter eintragen");
                 setIsSubmitting(false);
+                onSubmittingChange?.(false);
                 return;
             }
 
@@ -115,13 +120,14 @@ export function ConductLeadersForm({
                     router.push(conductRoutes.participants(meetingId));
                 }
             } else {
-                alert(result.error || "Fehler beim Speichern");
+                toast.error(result.error || "Fehler beim Speichern");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Ein Fehler ist aufgetreten");
+            toast.error("Ein Fehler ist aufgetreten");
         } finally {
             setIsSubmitting(false);
+            onSubmittingChange?.(false);
         }
     };
 
@@ -137,7 +143,7 @@ export function ConductLeadersForm({
                 <CardContent className="space-y-4">
                     {leaders.map((leader, index) => (
                         <div
-                            key={`leader-${index}-${leader.name}`}
+                            key={index}
                             className="p-4 border rounded-lg space-y-3"
                         >
                             <div className="flex items-center justify-between">
@@ -150,6 +156,7 @@ export function ConductLeadersForm({
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeLeader(index)}
+                                        disabled={isSubmitting}
                                     >
                                         <Trash2 className="h-4 w-4 text-red-600" />
                                     </Button>
@@ -173,6 +180,7 @@ export function ConductLeadersForm({
                                             )
                                         }
                                         required
+                                        disabled={isSubmitting}
                                     />
                                 </div>
 
@@ -185,6 +193,7 @@ export function ConductLeadersForm({
                                         onValueChange={(value) =>
                                             updateLeader(index, "role", value)
                                         }
+                                        disabled={isSubmitting}
                                     >
                                         <SelectTrigger id={`role-${index}`}>
                                             <SelectValue />
@@ -210,6 +219,7 @@ export function ConductLeadersForm({
                         variant="outline"
                         onClick={addLeader}
                         className="w-full"
+                        disabled={isSubmitting}
                     >
                         <Plus className="mr-2 h-4 w-4" />
                         Weitere Person hinzufügen

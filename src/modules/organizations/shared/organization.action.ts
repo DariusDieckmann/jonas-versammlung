@@ -25,6 +25,7 @@ import {
     updateOrganizationSchema,
 } from "./schemas/organization.schema";
 import settingsRoutes from "./settings.route";
+import { inviteOrganizationMember } from "./invitation.action";
 
 /**
  * Get all organizations for the current user
@@ -151,12 +152,14 @@ export async function updateOrganization(
         const validatedData = updateOrganizationSchema.parse(data);
 
         // Update organization
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof organizations.$inferInsert>;
+
         await db
             .update(organizations)
-            .set({
-                ...validatedData,
-                updatedAt: new Date().toISOString(),
-            })
+            .set(updateData)
             .where(eq(organizations.id, organizationId));
 
         revalidatePath(dashboardRoutes.dashboard);
@@ -234,73 +237,15 @@ export async function getOrganizationMembers(
 }
 
 /**
- * Add a member to an organization by email
+ * Add a member to an organization by email (DEPRECATED - use inviteOrganizationMember instead)
+ * This function now uses the invitation system
  */
 export async function addOrganizationMember(
-    organizationId: number,
     email: string,
     role: OrganizationRoleType = OrganizationRole.MEMBER,
 ): Promise<{ success: boolean; error?: string }> {
-    try {
-        await requireOwner(organizationId);
-        const db = await getDb();
-
-        // Find user by email (silently fail if not found for security)
-        const userToAdd = await db
-            .select()
-            .from(user)
-            .where(eq(user.email, email))
-            .limit(1);
-
-        if (!userToAdd.length) {
-            // Don't reveal if user exists or not - return success
-            return {
-                success: true,
-                error: undefined,
-            };
-        }
-
-        // Check if user is already a member
-        const existingMembership = await db
-            .select()
-            .from(organizationMembers)
-            .where(
-                and(
-                    eq(organizationMembers.organizationId, organizationId),
-                    eq(organizationMembers.userId, userToAdd[0].id),
-                ),
-            )
-            .limit(1);
-
-        if (existingMembership.length) {
-            return { success: false, error: "Benutzer ist bereits Mitglied" };
-        }
-
-        // Validate input
-        const validatedData = insertOrganizationMemberSchema.parse({
-            organizationId,
-            userId: userToAdd[0].id,
-            role,
-        });
-
-        // Add member
-        await db
-            .insert(organizationMembers)
-            .values(validatedData as NewOrganizationMember);
-
-        revalidatePath(dashboardRoutes.dashboard);
-        revalidatePath(settingsRoutes.organization);
-        return { success: true };
-    } catch (error) {
-        console.error("Error adding organization member:", error);
-        return {
-            success: false,
-            error:
-                error instanceof Error
-                    ? error.message
-                    : "Fehler beim Hinzufügen des Mitglieds",
-        };
-    }
+    // Redirect to invitation system
+    return inviteOrganizationMember(email, role);
 }
 
 /**

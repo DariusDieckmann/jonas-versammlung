@@ -18,11 +18,12 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatDateTime, formatNumber } from "@/lib/utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import { PropertyUnitsList } from "@/modules/units/shared/components/property-units-list";
 import { getUnitsWithOwners } from "@/modules/units/shared/unit.action";
-import propertiesRoutes from "../../properties.route";
+import propertiesRoutes from "../../shared/properties.route";
 import { deleteProperty, getProperty } from "../../shared/property.action";
 
 interface PropertyDetailPageProps {
@@ -82,8 +83,8 @@ export default async function PropertyDetailPage({
                         </h1>
                         <p className="text-gray-600 mt-2 flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
-                            {property.street} {property.houseNumber},{" "}
-                            {property.postalCode} {property.city}
+                            {property.address}, {property.postalCode}{" "}
+                            {property.city}
                         </p>
                     </div>
 
@@ -150,10 +151,20 @@ export default async function PropertyDetailPage({
                                         <span>Gesamtfläche</span>
                                     </div>
                                     <div className="text-lg font-medium">
-                                        {property.totalArea.toLocaleString()} m²
+                                        {formatNumber(property.totalArea)} m²
                                     </div>
                                 </div>
                             )}
+
+                            <div>
+                                <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                                    <Building2 className="h-4 w-4" />
+                                    <span>MEA (Miteigentumsanteile)</span>
+                                </div>
+                                <div className="text-lg font-medium">
+                                    {formatNumber(property.mea)}
+                                </div>
+                            </div>
                         </div>
 
                         {property.notes && (
@@ -184,6 +195,7 @@ export default async function PropertyDetailPage({
                     <CardContent>
                         <PropertyUnitsList
                             propertyId={property.id}
+                            propertyMea={property.mea}
                             initialUnitsWithOwners={unitsWithOwners}
                         />
                     </CardContent>
@@ -199,30 +211,14 @@ export default async function PropertyDetailPage({
                             <div>
                                 <span className="text-gray-500">Erstellt:</span>
                                 <br />
-                                {new Date(
-                                    property.createdAt,
-                                ).toLocaleDateString("de-DE", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
+                                {formatDateTime(property.createdAt)}
                             </div>
                             <div>
                                 <span className="text-gray-500">
                                     Zuletzt aktualisiert:
                                 </span>
                                 <br />
-                                {new Date(
-                                    property.updatedAt,
-                                ).toLocaleDateString("de-DE", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
+                                {formatDateTime(property.updatedAt)}
                             </div>
                         </div>
                     </CardContent>

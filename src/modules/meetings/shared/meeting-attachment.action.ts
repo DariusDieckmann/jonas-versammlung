@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
+import { deleteFromR2 } from "@/lib/r2";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
@@ -40,8 +41,6 @@ export async function createMeetingAttachment(
 
         await requireMember(meeting[0].property.organizationId);
 
-        const now = new Date().toISOString();
-
         const validatedData = insertMeetingAttachmentSchema.parse({
             ...data,
             uploadedBy: user.id,
@@ -49,10 +48,7 @@ export async function createMeetingAttachment(
 
         const result = await db
             .insert(meetingAttachments)
-            .values({
-                ...validatedData,
-                createdAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };
@@ -74,9 +70,10 @@ export async function getMeetingAttachments(
     await requireAuth();
     const db = await getDb();
 
-    // Check access
+    // Check access - verify meeting belongs to user's organization
     const meeting = await db
         .select({
+            meeting: meetings,
             property: properties,
         })
         .from(meetings)
@@ -85,7 +82,7 @@ export async function getMeetingAttachments(
         .limit(1);
 
     if (!meeting.length) {
-        return [];
+        throw new Error("Versammlung nicht gefunden");
     }
 
     await requireMember(meeting[0].property.organizationId);
@@ -127,12 +124,11 @@ export async function deleteMeetingAttachment(
 
         await requireMember(attachment[0].property.organizationId);
 
-        // TODO: Delete from R2 bucket
-        // await deleteFromR2(attachment[0].attachment.r2Key);
-
         await db
             .delete(meetingAttachments)
             .where(eq(meetingAttachments.id, attachmentId));
+
+        await deleteFromR2(attachment[0].attachment.r2Key);
 
         return { success: true };
     } catch (error) {

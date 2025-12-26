@@ -9,7 +9,9 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import propertiesRoutes from "../properties.route";
+import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
+import { units } from "@/modules/units/shared/schemas/unit.schema";
+import propertiesRoutes from "./properties.route";
 import {
     type InsertProperty,
     insertPropertySchema,
@@ -23,26 +25,23 @@ import {
  * Get all properties for the user's organization
  */
 export async function getProperties(): Promise<Property[]> {
-    await requireAuth();
+    const currentUser = await requireAuth();
     const db = await getDb();
-
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
+   
+    // This avoids the separate getUserOrganizations() call
     const result = await db
-        .select()
+        .select({
+            property: properties,
+        })
         .from(properties)
-        .where(eq(properties.organizationId, organization.id))
+        .innerJoin(
+            organizationMembers,
+            eq(properties.organizationId, organizationMembers.organizationId),
+        )
+        .where(eq(organizationMembers.userId, currentUser.id))
         .orderBy(properties.name);
 
-    return result;
+    return result.map((r) => r.property);
 }
 
 /**
@@ -93,14 +92,11 @@ export async function createProperty(
 
         const validatedData = insertPropertySchema.parse(data);
 
-        const now = new Date().toISOString();
         const result = await db
             .insert(properties)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -143,14 +139,35 @@ export async function updateProperty(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updatePropertySchema.parse(data);
-        const now = new Date().toISOString();
+
+        // If MEA is being updated, check that the new value isn't less than allocated MEA
+        if (validatedData.mea !== undefined) {
+            const existingUnits = await db
+                .select()
+                .from(units)
+                .where(eq(units.propertyId, propertyId));
+
+            const allocatedMEA = existingUnits.reduce(
+                (sum, unit) => sum + unit.ownershipShares,
+                0,
+            );
+
+            if (validatedData.mea < allocatedMEA) {
+                return {
+                    success: false,
+                    error: `Der neue MEA-Wert (${validatedData.mea.toLocaleString()}) darf nicht kleiner sein als die bereits vergebenen MEA (${allocatedMEA.toLocaleString()}). Bitte passe zuerst die Einheiten an.`,
+                };
+            }
+        }
+
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof properties.$inferInsert>;
 
         await db
             .update(properties)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(updateData)
             .where(eq(properties.id, propertyId));
 
         revalidatePath(propertiesRoutes.list);

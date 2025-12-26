@@ -9,7 +9,8 @@ import {
     Table as TableIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
-import meetingsRoutes from "../../meetings.route";
+import meetingsRoutes from "../../shared/meetings.route";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
 
 interface MeetingsListProps {
@@ -49,7 +50,9 @@ const statusLabels = {
 };
 
 export function MeetingsList({ meetings, properties }: MeetingsListProps) {
+    const router = useRouter();
     const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+    const [isNavigating, setIsNavigating] = useState(false);
 
     // Load view mode from localStorage on mount
     useEffect(() => {
@@ -65,8 +68,11 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
         localStorage.setItem("meetings-view-mode", mode);
     };
 
-    // Create a map of property IDs to property names
-    const propertyMap = new Map(properties.map((p) => [p.id, p]));
+    // Create a map of property IDs to property names (memoized to avoid recreation on every render)
+    const propertyMap = useMemo(
+        () => new Map(properties.map((p) => [p.id, p])),
+        [properties]
+    );
 
     if (meetings.length === 0) {
         return (
@@ -79,12 +85,18 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
                     Erstelle deine erste Versammlung um zu beginnen
                 </p>
                 <div className="mt-6">
-                    <Link href={meetingsRoutes.new}>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Erste Versammlung erstellen
-                        </Button>
-                    </Link>
+                    <Button
+                        onClick={() => {
+                            setIsNavigating(true);
+                            router.push(meetingsRoutes.new);
+                        }}
+                        disabled={isNavigating}
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        {isNavigating
+                            ? "Lädt..."
+                            : "Erste Versammlung erstellen"}
+                    </Button>
                 </div>
             </div>
         );
@@ -133,11 +145,14 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
                     {meetings.map((meeting) => {
                         const property = propertyMap.get(meeting.propertyId);
                         return (
-                            <Link
+                            <Card
                                 key={meeting.id}
-                                href={meetingsRoutes.detail(meeting.id)}
+                                className="hover:shadow-lg transition-shadow cursor-pointer h-full"
+                                onClick={() => {
+                                    setIsNavigating(true);
+                                    router.push(meetingsRoutes.detail(meeting.id));
+                                }}
                             >
-                                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
                                             <CardTitle className="flex items-center gap-2 flex-1">
@@ -185,7 +200,6 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
                                         </div>
                                     </CardContent>
                                 </Card>
-                            </Link>
                         );
                     })}
                 </div>
@@ -215,10 +229,12 @@ export function MeetingsList({ meetings, properties }: MeetingsListProps) {
                                         key={meeting.id}
                                         className="cursor-pointer hover:bg-muted/50"
                                         onClick={() => {
-                                            window.location.href =
+                                            setIsNavigating(true);
+                                            router.push(
                                                 meetingsRoutes.detail(
                                                     meeting.id,
-                                                );
+                                                )
+                                            );
                                         }}
                                     >
                                         <TableCell className="font-medium">

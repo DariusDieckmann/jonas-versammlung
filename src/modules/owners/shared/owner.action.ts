@@ -9,7 +9,8 @@ import {
     requireMember,
     requireOwner,
 } from "@/modules/organizations/shared/organization-permissions.action";
-import propertiesRoutes from "@/modules/properties/properties.route";
+import { organizationMembers } from "@/modules/organizations/shared/schemas/organization.schema";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { units } from "@/modules/units/shared/schemas/unit.schema";
 import {
     type InsertOwner,
@@ -21,60 +22,30 @@ import {
 } from "./schemas/owner.schema";
 
 /**
- * Get all owners for the user's organization
- */
-export async function getOwners(): Promise<Owner[]> {
-    await requireAuth();
-    const db = await getDb();
-
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
-    const result = await db
-        .select()
-        .from(owners)
-        .where(eq(owners.organizationId, organization.id))
-        .orderBy(owners.lastName, owners.firstName);
-
-    return result;
-}
-
-/**
  * Get owners for a specific unit
  */
 export async function getOwnersByUnit(unitId: number): Promise<Owner[]> {
-    await requireAuth();
+    const currentUser = await requireAuth();
     const db = await getDb();
 
-    // Get user's organization
-    const organizations = await getUserOrganizations();
-    const organization = organizations[0];
-
-    if (!organization) {
-        return [];
-    }
-
-    await requireMember(organization.id);
-
     const result = await db
-        .select()
+        .select({
+            owner: owners,
+        })
         .from(owners)
+        .innerJoin(
+            organizationMembers,
+            eq(owners.organizationId, organizationMembers.organizationId),
+        )
         .where(
             and(
-                eq(owners.organizationId, organization.id),
                 eq(owners.unitId, unitId),
+                eq(organizationMembers.userId, currentUser.id),
             ),
         )
         .orderBy(owners.lastName, owners.firstName);
 
-    return result;
+    return result.map((r) => r.owner);
 }
 
 /**
@@ -126,28 +97,29 @@ export async function createOwner(
         const validatedData = insertOwnerSchema.parse(data);
 
         // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: and(
+        const unitResult = await db
+            .select()
+            .from(units)
+            .where(and(
                 eq(units.id, data.unitId),
                 eq(units.organizationId, organization.id),
-            ),
-        });
+            ))
+            .limit(1);
 
-        if (!unit) {
+        if (!unitResult.length) {
             return {
                 success: false,
                 error: "Einheit nicht gefunden",
             };
         }
 
-        const now = new Date().toISOString();
+        const unit = unitResult[0];
+
         const result = await db
             .insert(owners)
             .values({
                 ...validatedData,
                 organizationId: organization.id,
-                createdAt: now,
-                updatedAt: now,
             })
             .returning();
 
@@ -190,24 +162,27 @@ export async function updateOwner(
         await requireMember(existing[0].organizationId);
 
         const validatedData = updateOwnerSchema.parse(data);
-        const now = new Date().toISOString();
 
         // Note: unitId cannot be changed via update (security)
+        // Remove undefined values to prevent overwriting existing fields with NULL
+        const updateData = Object.fromEntries(
+            Object.entries(validatedData).filter(([_, value]) => value !== undefined)
+        ) as Partial<typeof owners.$inferInsert>;
+
         await db
             .update(owners)
-            .set({
-                ...validatedData,
-                updatedAt: now,
-            })
+            .set(updateData)
             .where(eq(owners.id, ownerId));
 
         // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: eq(units.id, existing[0].unitId),
-        });
+        const unitResult = await db
+            .select()
+            .from(units)
+            .where(eq(units.id, existing[0].unitId))
+            .limit(1);
 
-        if (unit) {
-            revalidatePath(propertiesRoutes.detail(unit.propertyId));
+        if (unitResult.length) {
+            revalidatePath(propertiesRoutes.detail(unitResult[0].propertyId));
         }
 
         return { success: true };
@@ -247,14 +222,16 @@ export async function deleteOwner(
         await requireOwner(existing[0].organizationId);
 
         // Get unit to find propertyId for revalidation
-        const unit = await db.query.units.findFirst({
-            where: eq(units.id, existing[0].unitId),
-        });
+        const unitResult = await db
+            .select()
+            .from(units)
+            .where(eq(units.id, existing[0].unitId))
+            .limit(1);
 
         await db.delete(owners).where(eq(owners.id, ownerId));
 
-        if (unit) {
-            revalidatePath(propertiesRoutes.detail(unit.propertyId));
+        if (unitResult.length) {
+            revalidatePath(propertiesRoutes.detail(unitResult[0].propertyId));
         }
 
         return { success: true };

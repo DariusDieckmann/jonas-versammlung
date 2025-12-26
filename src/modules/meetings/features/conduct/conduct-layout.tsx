@@ -1,9 +1,12 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
+import conductRoutes from "../../shared/conduct.route";
+import meetingsRoutes from "../../shared/meetings.route";
+import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
+import type { MeetingAttachment } from "../../shared/schemas/meeting-attachment.schema";
+import { ConductFilesSidebar } from "./conduct-files-sidebar";
 
 interface ConductLayoutProps {
     meeting: Meeting;
@@ -12,6 +15,9 @@ interface ConductLayoutProps {
     onNext?: () => void;
     nextLabel?: string;
     nextDisabled?: boolean;
+    meetingAttachments?: MeetingAttachment[];
+    agendaItemAttachments?: Map<number, AgendaItemAttachment[]>;
+    agendaItems?: Array<{ id: number; title: string }>;
     children: React.ReactNode;
 }
 
@@ -29,6 +35,9 @@ export function ConductLayout({
     onNext,
     nextLabel = "Weiter",
     nextDisabled = false,
+    meetingAttachments = [],
+    agendaItemAttachments = new Map(),
+    agendaItems = [],
     children,
 }: ConductLayoutProps) {
     const maxWidthClass = `max-w-${maxWidth}`;
@@ -50,14 +59,19 @@ export function ConductLayout({
 
     return (
         <div className={`container mx-auto py-8 px-4 ${maxWidthClass}`}>
-            {/* Top: Back to Overview */}
-            <div className="mb-6">
+            {/* Top: Back to Overview and Files Button */}
+            <div className="mb-6 flex items-center justify-between">
                 <Link href={meetingsRoutes.detail(meeting.id)}>
                     <Button variant="ghost">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Zurück zur Übersicht
                     </Button>
                 </Link>
+                <ConductFilesSidebar
+                    meetingAttachments={meetingAttachments}
+                    agendaItemAttachments={agendaItemAttachments}
+                    agendaItems={agendaItems}
+                />
             </div>
 
             {/* Header with Progress */}

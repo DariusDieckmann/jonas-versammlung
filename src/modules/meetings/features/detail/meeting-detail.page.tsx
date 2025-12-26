@@ -1,6 +1,5 @@
 import {
     AlertCircle,
-    ArrowLeft,
     Building2,
     CalendarDays,
     CheckCircle2,
@@ -25,24 +24,23 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { replacePlaceholders } from "@/lib/placeholder-utils";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import propertiesRoutes from "@/modules/properties/properties.route";
-import { getProperty } from "@/modules/properties/shared/property.action";
-import conductRoutes from "../../conduct.route";
-import meetingsRoutes from "../../meetings.route";
+import propertiesRoutes from "@/modules/properties/shared/properties.route";
 import { getAgendaItems } from "../../shared/agenda-item.action";
 import { getAgendaItemAttachmentsByItems } from "../../shared/agenda-item-attachment.action";
+import conductRoutes from "../../shared/conduct.route";
 import {
     deleteMeeting,
     getMeeting,
-    startMeeting,
 } from "../../shared/meeting.action";
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
-import { getMeetingLeaders } from "../../shared/meeting-leader.action";
-import { getMeetingParticipants } from "../../shared/meeting-participant.action";
+import meetingsRoutes from "../../shared/meetings.route";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
+import { BackToMeetingsButton } from "./back-to-meetings-button";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
+import { StartMeetingButton } from "./start-meeting-button";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -64,46 +62,56 @@ export default async function MeetingDetailPage({
     meetingId,
 }: MeetingDetailPageProps) {
     await requireAuth();
-    const meeting = await getMeeting(meetingId);
 
-    if (!meeting) {
+    // Optimization: Get meeting with property in one query instead of two
+    const meetingWithProperty = await getMeeting(meetingId, true);
+
+    if (!meetingWithProperty) {
         notFound();
     }
 
-    // Get property information and agenda items
-    const property = await getProperty(meeting.propertyId);
-    const agendaItems = await getAgendaItems(meetingId);
-    const attachments = await getMeetingAttachments(meetingId);
+    const { meeting, property } = meetingWithProperty;
 
-    // Get agenda item attachments
-    const agendaItemAttachments = await getAgendaItemAttachmentsByItems(
-        agendaItems.map((item) => item.id),
-    );
+    // Optimization: Fetch independent data in parallel
+    const [agendaItems, attachments] = await Promise.all([
+        getAgendaItems(meetingId),
+        getMeetingAttachments(meetingId),
+    ]);
 
-    // Get resolutions if meeting is completed
-    let resolutions = new Map();
-    if (meeting.status === "completed") {
-        const itemsWithResolutions = agendaItems.filter(
-            (item) => item.requiresResolution,
-        );
-        resolutions = await getResolutionsByAgendaItems(
-            itemsWithResolutions.map((item) => item.id),
-        );
-    }
+    // Optimization: Only filter items with resolutions once
+    const itemsWithResolutions = agendaItems.filter((item) => item.requiresResolution);
+    const itemsWithResolutionIds = itemsWithResolutions.map((item) => item.id);
 
-    // Determine which step to resume to
+    // Optimization: Fetch agenda item attachments and resolutions in parallel
+    const shouldFetchResolutions = (meeting.status === "completed" || meeting.status === "in-progress")
+        && itemsWithResolutionIds.length > 0;
+
+    const [agendaItemAttachments, resolutions] = await Promise.all([
+        getAgendaItemAttachmentsByItems(agendaItems.map((item) => item.id)),
+        shouldFetchResolutions
+            ? getResolutionsByAgendaItems(itemsWithResolutionIds)
+            : Promise.resolve(new Map()),
+    ]);
+
+    // Determine which step to resume to based on confirmed steps
     let resumeRoute = conductRoutes.leaders(meetingId);
     if (meeting.status === "in-progress") {
-        const leaders = await getMeetingLeaders(meetingId);
-        const participants = await getMeetingParticipants(meetingId);
+        // Optimization: Reuse resolutions from above instead of querying again
+        const hasStartedAgenda = resolutions.size > 0 &&
+            Array.from(resolutions.values()).some(r => r.result !== null);
 
-        if (leaders.length > 0 && participants.length > 0) {
-            // Both leaders and participants are done, go to agenda items
+        // Determine the furthest completed step based on confirmation timestamps
+        if (hasStartedAgenda) {
+            // User has already started working on agenda items
             resumeRoute = conductRoutes.agendaItems(meetingId);
-        } else if (leaders.length > 0) {
-            // Leaders are done, go to participants
+        } else if (meeting.participantsConfirmedAt) {
+            // Participants step was confirmed, go to agenda items
+            resumeRoute = conductRoutes.agendaItems(meetingId);
+        } else if (meeting.leadersConfirmedAt) {
+            // Leaders step was confirmed, go to participants
             resumeRoute = conductRoutes.participants(meetingId);
         }
+        // else: stay at leaders (default)
     }
 
     async function handleDelete() {
@@ -111,14 +119,6 @@ export default async function MeetingDetailPage({
         const result = await deleteMeeting(meetingId);
         if (result.success) {
             redirect(meetingsRoutes.list);
-        }
-    }
-
-    async function handleStart() {
-        "use server";
-        const result = await startMeeting(meetingId);
-        if (result.success) {
-            redirect(conductRoutes.leaders(meetingId));
         }
     }
 
@@ -136,8 +136,8 @@ export default async function MeetingDetailPage({
         return timeStr;
     };
 
-    const formatDateTime = (dateTimeStr: string) => {
-        const date = new Date(dateTimeStr);
+    const formatDateTime = (dateTime: string | Date) => {
+        const date = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
         return date.toLocaleDateString("de-DE", {
             day: "2-digit",
             month: "2-digit",
@@ -150,12 +150,7 @@ export default async function MeetingDetailPage({
     return (
         <div className="container mx-auto py-8 px-4 max-w-4xl">
             <div className="mb-8">
-                <Link href={meetingsRoutes.list}>
-                    <Button variant="ghost" className="mb-4">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Zurück zur Übersicht
-                    </Button>
-                </Link>
+                <BackToMeetingsButton />
 
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -179,8 +174,7 @@ export default async function MeetingDetailPage({
                                     <p className="flex items-center gap-2">
                                         <Building2 className="h-4 w-4" />
                                         <span>
-                                            {property.name}, {property.street}{" "}
-                                            {property.houseNumber},{" "}
+                                            {property.name}, {property.address},{" "}
                                             {property.postalCode}{" "}
                                             {property.city}
                                         </span>
@@ -193,16 +187,7 @@ export default async function MeetingDetailPage({
                     <div className="flex gap-2">
                         {meeting.status === "planned" && (
                             <>
-                                <form action={handleStart}>
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        type="submit"
-                                    >
-                                        <Play className="mr-2 h-4 w-4" />
-                                        Starten
-                                    </Button>
-                                </form>
+                                <StartMeetingButton meetingId={meetingId} />
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
                                     <Button variant="outline" size="sm">
                                         <Edit className="mr-2 h-4 w-4" />
@@ -370,13 +355,16 @@ export default async function MeetingDetailPage({
                                                         className="ml-2"
                                                     >
                                                         <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                        Beschluss
+                                                        Beschluss ({item.majorityType === "qualified" ? "75%" : "50%"})
                                                     </Badge>
                                                 )}
                                             </div>
                                             {item.description && (
                                                 <p className="text-gray-600 text-sm whitespace-pre-wrap ml-[3.75rem] mb-3">
-                                                    {item.description}
+                                                    {replacePlaceholders(
+                                                        item.description,
+                                                        meeting,
+                                                    )}
                                                 </p>
                                             )}
 

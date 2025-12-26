@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
-import meetingsRoutes from "@/modules/meetings/meetings.route";
+import meetingsRoutes from "@/modules/meetings/shared/meetings.route";
 import type { Property } from "@/modules/properties/shared/schemas/property.schema";
 import {
     type AgendaItemFormData,
@@ -12,6 +12,7 @@ import {
 } from "../../shared/components/agenda-items-form-section";
 import { MeetingForm } from "../../shared/components/meeting-form";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { AgendaItemTemplate } from "../../shared/schemas/agenda-item-template.schema";
 import type {
     insertMeetingSchema,
     Meeting,
@@ -23,17 +24,20 @@ import {
     updateAgendaItem,
 } from "../agenda-item.action";
 import { createMeeting, updateMeeting } from "../meeting.action";
+import toast from "react-hot-toast";
 
 interface MeetingFormWithAgendaProps {
     properties: Property[];
     initialData?: Meeting;
     initialAgendaItems?: AgendaItem[];
+    templates?: AgendaItemTemplate[];
 }
 
 export function MeetingFormWithAgenda({
     properties,
     initialData,
     initialAgendaItems = [],
+    templates = [],
 }: MeetingFormWithAgendaProps) {
     const router = useRouter();
     const [agendaItems, setAgendaItems] = useState<AgendaItemFormData[]>(
@@ -42,8 +46,9 @@ export function MeetingFormWithAgenda({
                   title: item.title,
                   description: item.description || "",
                   requiresResolution: item.requiresResolution,
+                  majorityType: item.majorityType,
               }))
-            : [{ title: "", description: "", requiresResolution: false }],
+            : [{ title: "", description: "", requiresResolution: false, majorityType: null }],
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [initialAgendaItemsIds] = useState<number[]>(
@@ -60,7 +65,7 @@ export function MeetingFormWithAgenda({
                 // Update meeting
                 const result = await updateMeeting(initialData.id, data);
                 if (!result.success) {
-                    alert(result.error || "Fehler beim Aktualisieren");
+                    toast.error(result.error || "Fehler beim Aktualisieren");
                     return;
                 }
 
@@ -126,12 +131,12 @@ export function MeetingFormWithAgenda({
                     router.push(meetingsRoutes.detail(result.meetingId));
                     router.refresh();
                 } else {
-                    alert(result.error || "Fehler beim Erstellen");
+                    toast.error(result.error || "Fehler beim Erstellen");
                 }
             }
         } catch (error) {
             console.error("Form submission error:", error);
-            alert("Ein Fehler ist aufgetreten");
+            toast.error("Ein Fehler ist aufgetreten");
         } finally {
             setIsSubmitting(false);
         }
@@ -154,6 +159,7 @@ export function MeetingFormWithAgenda({
             <AgendaItemsFormSection
                 value={agendaItems}
                 onChange={setAgendaItems}
+                templates={templates}
             />
 
             {/* Action Buttons - Below all cards */}

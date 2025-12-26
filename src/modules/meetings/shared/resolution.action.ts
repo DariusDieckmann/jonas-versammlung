@@ -1,9 +1,9 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
-import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
+import { getUserOrganizationIds, requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
@@ -59,8 +59,6 @@ export async function createResolution(
             return { success: true, data: existing[0] };
         }
 
-        const now = new Date().toISOString();
-
         const validatedData = insertResolutionSchema.parse({
             agendaItemId,
             majorityType: data.majorityType || "simple",
@@ -68,11 +66,7 @@ export async function createResolution(
 
         const result = await db
             .insert(resolutions)
-            .values({
-                ...validatedData,
-                createdAt: now,
-                updatedAt: now,
-            })
+            .values(validatedData)
             .returning();
 
         return { success: true, data: result[0] };
@@ -105,6 +99,8 @@ export async function getResolution(
 
 /**
  * Get resolutions for multiple agenda items
+ * NOTE: This function assumes agendaItemIds have already been validated
+ * to belong to the user's organization. Only use after checking access!
  */
 export async function getResolutionsByAgendaItems(
     agendaItemIds: number[],
@@ -116,15 +112,28 @@ export async function getResolutionsByAgendaItems(
     await requireAuth();
     const db = await getDb();
 
-    const results = await db
-        .select()
+    // Security check: Verify all agenda items belong to user's organizations
+    const userOrgIds = await getUserOrganizationIds();
+    
+    const validatedResolutions = await db
+        .select({
+            resolution: resolutions,
+        })
         .from(resolutions)
-        .where(inArray(resolutions.agendaItemId, agendaItemIds));
+        .innerJoin(agendaItems, eq(resolutions.agendaItemId, agendaItems.id))
+        .innerJoin(meetings, eq(agendaItems.meetingId, meetings.id))
+        .innerJoin(properties, eq(meetings.propertyId, properties.id))
+        .where(
+            and(
+                inArray(resolutions.agendaItemId, agendaItemIds),
+                inArray(properties.organizationId, userOrgIds)
+            )
+        );
 
     const resolutionMap = new Map<number, Resolution>();
 
-    for (const res of results) {
-        resolutionMap.set(res.agendaItemId, res);
+    for (const { resolution } of validatedResolutions) {
+        resolutionMap.set(resolution.agendaItemId, resolution);
     }
 
     return resolutionMap;
@@ -174,13 +183,9 @@ export async function markAgendaItemCompleted(
         }
 
         // Create a resolution without votes to mark as completed
-        const now = new Date().toISOString();
-
         await db.insert(resolutions).values({
             agendaItemId,
             majorityType: "simple", // Default value, not relevant for non-voting items
-            createdAt: now,
-            updatedAt: now,
         });
 
         return { success: true };
