@@ -74,21 +74,13 @@ export async function GET(
         const meetingData = {
             ...meeting,
             propertyName: property.name,
-            propertyAddress: `${property.street} ${property.houseNumber}, ${property.postalCode} ${property.city}`,
+            propertyAddress: `${property.address} , ${property.postalCode} ${property.city}`,
         };
 
         // Generate HTML
         const html = generatePDFHtml({
             meeting: meetingData,
             agendaItems: agendaItemsWithResolutions,
-            leaders: leaders.map((l) => ({
-                name: l.name,
-                role: l.role || "Versammlungsleiter",
-            })),
-            participants: participants.map((p) => ({
-                name: p.ownerName,
-                shares: p.shares || undefined,
-            })),
         });
 
         // Get the BROWSER binding from the Cloudflare environment
