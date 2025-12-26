@@ -61,7 +61,7 @@ export function MeetingForm({
             title: initialData?.title || "",
             date: initialData?.date || "",
             startTime: initialData?.startTime || "",
-            endTime: initialData?.endTime || "",
+            endTime: initialData?.endTime || null,
             locationName: initialData?.locationName || "",
             locationAddress: initialData?.locationAddress || "",
             invitationDeadline: initialData?.invitationDeadline || "",
@@ -234,26 +234,7 @@ export function MeetingForm({
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="endTime"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-sm">
-                                            Ende
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="time"
-                                                {...field}
-                                                value={field.value || ""}
-                                                className="h-9"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                           
                         </div>
 
                         {/* Location */}

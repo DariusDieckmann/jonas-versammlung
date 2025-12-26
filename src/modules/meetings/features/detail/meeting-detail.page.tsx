@@ -280,7 +280,7 @@ export default async function MeetingDetailPage({
                                 </div>
                                 <div className="font-medium">
                                     {formatTime(meeting.startTime)}
-                                    {meeting.endTime &&
+                                    {meeting.endTime && meeting.endTime !== "" &&
                                         ` - ${formatTime(meeting.endTime)}`}
                                 </div>
                             </div>

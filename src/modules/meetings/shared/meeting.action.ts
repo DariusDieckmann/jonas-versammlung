@@ -388,10 +388,15 @@ export async function completeMeeting(
             };
         }
 
+        // Set end time to current time
+        const now = new Date();
+        const endTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+
         await db
             .update(meetings)
             .set({
                 status: "completed",
+                endTime,
             })
             .where(eq(meetings.id, meetingId));
 
