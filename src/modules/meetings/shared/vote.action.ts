@@ -14,7 +14,7 @@ import { ResolutionResult, resolutions } from "./schemas/resolution.schema";
 import {
     insertVoteSchema,
     type Vote,
-    type VoteChoice,
+    VoteChoice,
     votes,
 } from "./schemas/vote.schema";
 
@@ -190,13 +190,13 @@ export async function calculateResolutionResult(
         let abstainShares = 0;
 
         for (const v of votesWithShares) {
-            if (v.vote === "yes") {
+            if (v.vote === VoteChoice.YES) {
                 votesYes++;
                 yesShares += v.shares;
-            } else if (v.vote === "no") {
+            } else if (v.vote === VoteChoice.NO) {
                 votesNo++;
                 noShares += v.shares;
-            } else if (v.vote === "abstain") {
+            } else if (v.vote === VoteChoice.ABSTAIN) {
                 votesAbstain++;
                 abstainShares += v.shares;
             }

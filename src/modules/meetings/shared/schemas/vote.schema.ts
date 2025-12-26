@@ -35,9 +35,16 @@ export const selectVoteSchema = createSelectSchema(votes);
 
 export const updateVoteSchema = insertVoteSchema.partial();
 
+// Enums
+export const VoteChoice = {
+    YES: "yes",
+    NO: "no",
+    ABSTAIN: "abstain",
+} as const;
+
 // Types
 export type Vote = typeof votes.$inferSelect;
 export type NewVote = typeof votes.$inferInsert;
 export type InsertVote = z.infer<typeof insertVoteSchema>;
 export type UpdateVote = z.infer<typeof updateVoteSchema>;
-export type VoteChoice = "yes" | "no" | "abstain";
+export type VoteChoice = typeof VoteChoice[keyof typeof VoteChoice];

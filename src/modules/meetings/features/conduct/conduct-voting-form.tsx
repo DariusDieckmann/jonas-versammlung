@@ -21,7 +21,7 @@ import {
 import { createResolution } from "../../shared/resolution.action";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
-import type { VoteChoice } from "../../shared/schemas/vote.schema";
+import { VoteChoice } from "../../shared/schemas/vote.schema";
 import {
     calculateResolutionResult,
     castVotesBatch,
@@ -121,15 +121,15 @@ export function ConductVotingForm({
     // Calculate current totals (memoized to avoid recalculation on every render)
     const voteTotals = useMemo(() => {
         const yesShares = participants
-            .filter((p) => votes.get(p.id) === "yes")
+            .filter((p) => votes.get(p.id) === VoteChoice.YES)
             .reduce((sum, p) => sum + p.shares, 0);
 
         const noShares = participants
-            .filter((p) => votes.get(p.id) === "no")
+            .filter((p) => votes.get(p.id) === VoteChoice.NO)
             .reduce((sum, p) => sum + p.shares, 0);
 
         const abstainShares = participants
-            .filter((p) => votes.get(p.id) === "abstain")
+            .filter((p) => votes.get(p.id) === VoteChoice.ABSTAIN)
             .reduce((sum, p) => sum + p.shares, 0);
 
         return { yesShares, noShares, abstainShares };
@@ -168,7 +168,7 @@ export function ConductVotingForm({
                         <div className="text-xs text-gray-500">
                             {
                                 participants.filter(
-                                    (p) => votes.get(p.id) === "yes",
+                                    (p) => votes.get(p.id) === VoteChoice.YES,
                                 ).length
                             }{" "}
                             Stimmen
@@ -182,7 +182,7 @@ export function ConductVotingForm({
                         <div className="text-xs text-gray-500">
                             {
                                 participants.filter(
-                                    (p) => votes.get(p.id) === "no",
+                                    (p) => votes.get(p.id) === VoteChoice.NO,
                                 ).length
                             }{" "}
                             Stimmen
@@ -198,7 +198,7 @@ export function ConductVotingForm({
                         <div className="text-xs text-gray-500">
                             {
                                 participants.filter(
-                                    (p) => votes.get(p.id) === "abstain",
+                                    (p) => votes.get(p.id) === VoteChoice.ABSTAIN,
                                 ).length
                             }{" "}
                             Stimmen
@@ -234,17 +234,17 @@ export function ConductVotingForm({
                                     <Button
                                         size="sm"
                                         variant={
-                                            votes.get(participant.id) === "yes"
+                                            votes.get(participant.id) === VoteChoice.YES
                                                 ? "default"
                                                 : "outline"
                                         }
                                         onClick={() =>
-                                            handleVote(participant.id, "yes")
+                                            handleVote(participant.id, VoteChoice.YES)
                                         }
                                         className="w-16"
                                     >
                                         {votes.get(participant.id) ===
-                                            "yes" && (
+                                            VoteChoice.YES && (
                                             <Check className="h-4 w-4 mr-1" />
                                         )}
                                         Ja
@@ -254,16 +254,16 @@ export function ConductVotingForm({
                                     <Button
                                         size="sm"
                                         variant={
-                                            votes.get(participant.id) === "no"
+                                            votes.get(participant.id) === VoteChoice.NO
                                                 ? "default"
                                                 : "outline"
                                         }
                                         onClick={() =>
-                                            handleVote(participant.id, "no")
+                                            handleVote(participant.id, VoteChoice.NO)
                                         }
                                         className="w-16"
                                     >
-                                        {votes.get(participant.id) === "no" && (
+                                        {votes.get(participant.id) === VoteChoice.NO && (
                                             <Check className="h-4 w-4 mr-1" />
                                         )}
                                         Nein
@@ -274,20 +274,20 @@ export function ConductVotingForm({
                                         size="sm"
                                         variant={
                                             votes.get(participant.id) ===
-                                            "abstain"
+                                            VoteChoice.ABSTAIN
                                                 ? "default"
                                                 : "outline"
                                         }
                                         onClick={() =>
                                             handleVote(
                                                 participant.id,
-                                                "abstain",
+                                                VoteChoice.ABSTAIN,
                                             )
                                         }
                                         className="w-24"
                                     >
                                         {votes.get(participant.id) ===
-                                            "abstain" && (
+                                            VoteChoice.ABSTAIN && (
                                             <Check className="h-4 w-4 mr-1" />
                                         )}
                                         Enthaltung

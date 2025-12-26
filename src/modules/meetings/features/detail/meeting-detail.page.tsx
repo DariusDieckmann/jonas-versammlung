@@ -37,12 +37,12 @@ import {
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import meetingsRoutes from "../../shared/meetings.route";
 import { MeetingStatus } from "../../shared/schemas/meeting.schema";
-import { ResolutionResult } from "../../shared/schemas/resolution.schema";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { BackToMeetingsButton } from "./back-to-meetings-button";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 import { StartMeetingButton } from "./start-meeting-button";
+import { ResolutionResult } from "../../shared/schemas/resolution.schema";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -456,29 +456,29 @@ export default async function MeetingDetailPage({
                                                             <div
                                                                 className={`flex items-center gap-2 p-2 rounded text-sm ${
                                                                     resolution.result ===
-                                                                    "accepted"
+                                                                    ResolutionResult.ACCEPTED
                                                                         ? "bg-green-100 text-green-800"
                                                                         : resolution.result ===
-                                                                            "rejected"
+                                                                            ResolutionResult.REJECTED
                                                                           ? "bg-red-100 text-red-800"
                                                                           : "bg-gray-100 text-gray-800"
                                                                 }`}
                                                             >
                                                                 {resolution.result ===
-                                                                "accepted" ? (
+                                                                ResolutionResult.ACCEPTED ? (
                                                                     <CheckCircle2 className="h-4 w-4" />
                                                                 ) : resolution.result ===
-                                                                  "rejected" ? (
+                                                                  ResolutionResult.REJECTED ? (
                                                                     <XCircle className="h-4 w-4" />
                                                                 ) : (
                                                                     <MinusCircle className="h-4 w-4" />
                                                                 )}
                                                                 <span className="font-semibold">
                                                                     {resolution.result ===
-                                                                    "accepted"
+                                                                    ResolutionResult.ACCEPTED
                                                                         ? "Angenommen"
                                                                         : resolution.result ===
-                                                                            "rejected"
+                                                                            ResolutionResult.REJECTED
                                                                           ? "Abgelehnt"
                                                                           : "Verschoben"}
                                                                 </span>
