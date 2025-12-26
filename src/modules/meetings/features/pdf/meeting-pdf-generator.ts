@@ -174,6 +174,37 @@ export function generatePDFHtml(data: PDFData): string {
             margin-top: 10px;
         }
 
+        /* Versammlungsende */
+        .meeting-end {
+            margin-top: 50px;
+            margin-bottom: 40px;
+        }
+
+        /* Unterschriften */
+        .signatures {
+            margin-top: 60px;
+        }
+
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .signature-box {
+            width: 48%;
+        }
+
+        .signature-location {
+            margin-bottom: 30px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 50px;
+        }
+
         @media print {
             body {
                 print-color-adjust: exact;
@@ -250,6 +281,37 @@ export function generatePDFHtml(data: PDFData): string {
         </div>`,
             )
             .join("")}
+
+        <!-- Versammlungsende -->
+        <div class="meeting-end">
+            Nachdem keine Wortmeldungen mehr vorliegen, endet die Versammlung um ${escapeHtml(meeting.endTime || "__:__")} Uhr.
+        </div>
+
+        <!-- Unterschriften -->
+        <div class="signatures">
+            <div class="signature-row">
+                <div class="signature-box">
+                    <div class="signature-location">${escapeHtml(meeting.locationName)}, den ....................</div>
+                    <div class="signature-line">
+                        Verwalter / Versammlungsleiter
+                    </div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-location">${escapeHtml(meeting.locationName)}, den ....................</div>
+                    <div class="signature-line">
+                        Verwaltungsbeirat
+                    </div>
+                </div>
+            </div>
+            <div class="signature-row">
+                <div class="signature-box">
+                    <div class="signature-location">${escapeHtml(meeting.locationName)}, den ....................</div>
+                    <div class="signature-line">
+                        Wohnungseigentümer
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>`;
