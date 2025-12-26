@@ -36,6 +36,7 @@ import {
 } from "../../shared/meeting.action";
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import meetingsRoutes from "../../shared/meetings.route";
+import { MajorityType } from "../../shared/schemas/agenda-item.schema";
 import { MeetingStatus } from "../../shared/schemas/meeting.schema";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";

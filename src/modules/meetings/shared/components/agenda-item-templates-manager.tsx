@@ -29,6 +29,7 @@ import {
     deleteAgendaItemTemplate,
     updateAgendaItemTemplate,
 } from "../agenda-item-template.action";
+import { MajorityType } from "../schemas/agenda-item.schema";
 import type { AgendaItemTemplate } from "../schemas/agenda-item-template.schema";
 
 interface AgendaItemTemplatesManagerProps {
@@ -51,7 +52,7 @@ export function AgendaItemTemplatesManager({
         title: string;
         description: string;
         requiresResolution: boolean;
-        majorityType: "simple" | "qualified" | null;
+        majorityType: typeof MajorityType[keyof typeof MajorityType] | null;
     }>({
         title: "",
         description: "",
@@ -291,12 +292,12 @@ export function AgendaItemTemplatesManager({
                             <div className="flex items-center space-x-2">
                                 <Checkbox
                                     id="create-resolution-simple"
-                                    checked={formData.majorityType === "simple"}
+                                    checked={formData.majorityType === MajorityType.SIMPLE}
                                     onCheckedChange={(checked) =>
                                         setFormData({
                                             ...formData,
                                             requiresResolution: checked === true,
-                                            majorityType: checked === true ? "simple" : null,
+                                            majorityType: checked === true ? MajorityType.SIMPLE : null,
                                         })
                                     }
                                 />
@@ -397,12 +398,12 @@ export function AgendaItemTemplatesManager({
                             <div className="flex items-center space-x-2">
                                 <Checkbox
                                     id="edit-resolution-simple"
-                                    checked={formData.majorityType === "simple"}
+                                    checked={formData.majorityType === MajorityType.SIMPLE}
                                     onCheckedChange={(checked) =>
                                         setFormData({
                                             ...formData,
                                             requiresResolution: checked === true,
-                                            majorityType: checked === true ? "simple" : null,
+                                            majorityType: checked === true ? MajorityType.SIMPLE : null,
                                         })
                                     }
                                 />
@@ -416,12 +417,12 @@ export function AgendaItemTemplatesManager({
                             <div className="flex items-center space-x-2">
                                 <Checkbox
                                     id="edit-resolution-qualified"
-                                    checked={formData.majorityType === "qualified"}
+                                    checked={formData.majorityType === MajorityType.QUALIFIED}
                                     onCheckedChange={(checked) =>
                                         setFormData({
                                             ...formData,
                                             requiresResolution: checked === true,
-                                            majorityType: checked === true ? "qualified" : null,
+                                            majorityType: checked === true ? MajorityType.QUALIFIED : null,
                                         })
                                     }
                                 />

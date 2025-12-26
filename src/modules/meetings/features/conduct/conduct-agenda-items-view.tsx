@@ -19,7 +19,7 @@ import { updateAgendaItemContent } from "../../shared/agenda-item.action";
 import conductRoutes from "../../shared/conduct.route";
 import meetingsRoutes from "../../shared/meetings.route";
 import { markAgendaItemCompleted } from "../../shared/resolution.action";
-import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import { MajorityType, type AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { AgendaItemAttachment } from "../../shared/schemas/agenda-item-attachment.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { ConductAgendaItemAttachmentsDisplay } from "./conduct-agenda-item-attachments-display";
@@ -264,7 +264,7 @@ export function ConductAgendaItemsView({
                                     {selectedItem.requiresResolution && (
                                         <Badge variant="default">
                                             <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            Beschluss ({selectedItem.majorityType === "qualified" ? "75%" : "50%"})
+                                            Beschluss ({selectedItem.majorityType === MajorityType.QUALIFIED ? "75%" : "50%"})
                                         </Badge>
                                     )}
                                 </div>

@@ -8,11 +8,6 @@ export const resolutions = sqliteTable("resolutions", {
     agendaItemId: integer("agenda_item_id")
         .notNull()
         .references(() => agendaItems.id, { onDelete: "cascade" }),
-    majorityType: text("majority_type", {
-        enum: ["simple", "qualified", "unanimous"],
-    })
-        .notNull()
-        .default("simple"),
     result: text("result", { enum: ["accepted", "rejected", "postponed"] }),
     votesYes: integer("votes_yes").notNull().default(0),
     votesNo: integer("votes_no").notNull().default(0),
@@ -32,7 +27,6 @@ export const resolutions = sqliteTable("resolutions", {
 
 // Validation schemas
 export const insertResolutionSchema = createInsertSchema(resolutions, {
-    majorityType: z.enum(["simple", "qualified", "unanimous"]),
     result: z.enum(["accepted", "rejected", "postponed"]).optional().nullable(),
     votesYes: z.number().int().min(0, "Stimmen müssen positiv sein").default(0),
     votesNo: z.number().int().min(0, "Stimmen müssen positiv sein").default(0),
@@ -66,16 +60,9 @@ export const ResolutionResult = {
     POSTPONED: "postponed",
 } as const;
 
-export const MajorityType = {
-    SIMPLE: "simple",
-    QUALIFIED: "qualified",
-    UNANIMOUS: "unanimous",
-} as const;
-
 // Types
 export type Resolution = typeof resolutions.$inferSelect;
 export type NewResolution = typeof resolutions.$inferInsert;
 export type InsertResolution = z.infer<typeof insertResolutionSchema>;
 export type UpdateResolution = z.infer<typeof updateResolutionSchema>;
-export type MajorityType = typeof MajorityType[keyof typeof MajorityType];
-export type ResolutionResult = typeof ResolutionResult[keyof typeof ResolutionResult];
+export type ResolutionResultType = typeof ResolutionResult[keyof typeof ResolutionResult];

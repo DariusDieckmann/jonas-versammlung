@@ -19,7 +19,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { createResolution } from "../../shared/resolution.action";
-import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import { MajorityType, type AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
 import { VoteChoice } from "../../shared/schemas/vote.schema";
 import {
@@ -54,9 +54,7 @@ export function ConductVotingForm({
             // Reset votes when switching to a new agenda item
             setVotes(new Map());
             
-            const result = await createResolution(agendaItem.id, {
-                majorityType: agendaItem.majorityType || "simple",
-            });
+            const result = await createResolution(agendaItem.id);
 
             if (result.success && result.data) {
                 setResolutionId(result.data.id);

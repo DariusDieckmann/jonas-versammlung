@@ -7,7 +7,7 @@ import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import conductRoutes from "./conduct.route";
-import { agendaItems } from "./schemas/agenda-item.schema";
+import { MajorityType, agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
 import { meetingParticipants } from "./schemas/meeting-participant.schema";
 import { ResolutionResult, resolutions } from "./schemas/resolution.schema";
@@ -158,16 +158,22 @@ export async function calculateResolutionResult(
         await requireAuth();
         const db = await getDb();
 
-        // Get resolution with votes
+        // Get resolution with agenda item to access majorityType
         const resolution = await db
-            .select()
+            .select({
+                resolution: resolutions,
+                agendaItem: agendaItems,
+            })
             .from(resolutions)
+            .innerJoin(agendaItems, eq(resolutions.agendaItemId, agendaItems.id))
             .where(eq(resolutions.id, resolutionId))
             .limit(1);
 
         if (!resolution.length) {
             return { success: false, error: "Beschluss nicht gefunden" };
         }
+
+        const majorityType = resolution[0].agendaItem.majorityType;
 
         // Get all votes with participant shares
         const votesWithShares = await db
@@ -206,15 +212,12 @@ export async function calculateResolutionResult(
         const totalShares = yesShares + noShares + abstainShares;
         let result: typeof ResolutionResult[keyof typeof ResolutionResult] = ResolutionResult.REJECTED;
 
-        if (resolution[0].majorityType === "simple") {
+        if (majorityType === MajorityType.SIMPLE) {
             // Simple majority: more yes than no (> 50%)
             result = yesShares > (totalShares * 0.5) ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
-        } else if (resolution[0].majorityType === "qualified") {
+        } else if (majorityType === MajorityType.QUALIFIED) {
             // Qualified majority: 75% of votes
             result = yesShares > (totalShares * 0.75) ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
-        } else if (resolution[0].majorityType === "unanimous") {
-            // Unanimous: all votes yes
-            result = votesNo === 0 && votesYes > 0 ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
         }
 
         // Update resolution

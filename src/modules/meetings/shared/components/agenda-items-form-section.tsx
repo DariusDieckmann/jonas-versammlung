@@ -23,13 +23,14 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { MajorityType } from "../schemas/agenda-item.schema";
 import type { AgendaItemTemplate } from "../schemas/agenda-item-template.schema";
 
 export interface AgendaItemFormData {
     title: string;
     description: string;
     requiresResolution: boolean;
-    majorityType?: "simple" | "qualified" | null;
+    majorityType?: typeof MajorityType[keyof typeof MajorityType] | null;
 }
 
 interface AgendaItemsFormSectionProps {
@@ -76,7 +77,7 @@ export function AgendaItemsFormSection({
                 description: template.description || "",
                 requiresResolution: template.requiresResolution,
                 majorityType: template.requiresResolution
-                    ? (template.majorityType || "simple")
+                    ? (template.majorityType || MajorityType.SIMPLE)
                     : null,
             },
         ];
@@ -100,7 +101,7 @@ export function AgendaItemsFormSection({
     const updateItem = (
         index: number,
         field: keyof AgendaItemFormData,
-        value: string | boolean | "simple" | "qualified" | null,
+        value: string | boolean | typeof MajorityType[keyof typeof MajorityType] | null,
     ) => {
         const newItems = [...items];
         newItems[index] = { ...newItems[index], [field]: value };
@@ -380,7 +381,7 @@ export function AgendaItemsFormSection({
                                         <Checkbox
                                             id="agenda-resolution-simple"
                                             checked={
-                                                selectedItem.majorityType === "simple"
+                                                selectedItem.majorityType === MajorityType.SIMPLE
                                             }
                                             onCheckedChange={(checked) => {
                                                 const newItems = [...items];
@@ -388,7 +389,7 @@ export function AgendaItemsFormSection({
                                                     newItems[selectedIndex] = {
                                                         ...newItems[selectedIndex],
                                                         requiresResolution: true,
-                                                        majorityType: "simple",
+                                                        majorityType: MajorityType.SIMPLE,
                                                     };
                                                 } else {
                                                     newItems[selectedIndex] = {
@@ -411,7 +412,7 @@ export function AgendaItemsFormSection({
                                         <Checkbox
                                             id="agenda-resolution-qualified"
                                             checked={
-                                                selectedItem.majorityType === "qualified"
+                                                selectedItem.majorityType === MajorityType.QUALIFIED
                                             }
                                             onCheckedChange={(checked) => {
                                                 const newItems = [...items];
@@ -419,7 +420,7 @@ export function AgendaItemsFormSection({
                                                     newItems[selectedIndex] = {
                                                         ...newItems[selectedIndex],
                                                         requiresResolution: true,
-                                                        majorityType: "qualified",
+                                                        majorityType: MajorityType.QUALIFIED,
                                                     };
                                                 } else {
                                                     newItems[selectedIndex] = {

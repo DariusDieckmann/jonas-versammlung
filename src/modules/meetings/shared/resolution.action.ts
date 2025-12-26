@@ -5,11 +5,10 @@ import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getUserOrganizationIds, requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import { agendaItems } from "./schemas/agenda-item.schema";
+import { agendaItems, MajorityType as AgendaItemMajorityType } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertResolutionSchema,
-    type MajorityType,
     type Resolution,
     resolutions,
 } from "./schemas/resolution.schema";
@@ -19,9 +18,6 @@ import {
  */
 export async function createResolution(
     agendaItemId: number,
-    data: {
-        majorityType?: MajorityType;
-    },
 ): Promise<{ success: boolean; error?: string; data?: Resolution }> {
     try {
         await requireAuth();
@@ -61,7 +57,6 @@ export async function createResolution(
 
         const validatedData = insertResolutionSchema.parse({
             agendaItemId,
-            majorityType: data.majorityType || "simple",
         });
 
         const result = await db
@@ -185,7 +180,6 @@ export async function markAgendaItemCompleted(
         // Create a resolution without votes to mark as completed
         await db.insert(resolutions).values({
             agendaItemId,
-            majorityType: "simple", // Default value, not relevant for non-voting items
         });
 
         return { success: true };
