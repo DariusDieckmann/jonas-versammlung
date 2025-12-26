@@ -36,6 +36,8 @@ import {
 } from "../../shared/meeting.action";
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import meetingsRoutes from "../../shared/meetings.route";
+import { MeetingStatus } from "../../shared/schemas/meeting.schema";
+import { ResolutionResult } from "../../shared/schemas/resolution.schema";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { BackToMeetingsButton } from "./back-to-meetings-button";
@@ -83,7 +85,7 @@ export default async function MeetingDetailPage({
     const itemsWithResolutionIds = itemsWithResolutions.map((item) => item.id);
 
     // Optimization: Fetch agenda item attachments and resolutions in parallel
-    const shouldFetchResolutions = (meeting.status === "completed" || meeting.status === "in-progress")
+    const shouldFetchResolutions = (meeting.status === MeetingStatus.COMPLETED || meeting.status === MeetingStatus.IN_PROGRESS)
         && itemsWithResolutionIds.length > 0;
 
     const [agendaItemAttachments, resolutions] = await Promise.all([
@@ -95,7 +97,7 @@ export default async function MeetingDetailPage({
 
     // Determine which step to resume to based on confirmed steps
     let resumeRoute = conductRoutes.leaders(meetingId);
-    if (meeting.status === "in-progress") {
+    if (meeting.status === MeetingStatus.IN_PROGRESS) {
         // Optimization: Reuse resolutions from above instead of querying again
         const hasStartedAgenda = resolutions.size > 0 &&
             Array.from(resolutions.values()).some(r => r.result !== null);
@@ -185,7 +187,7 @@ export default async function MeetingDetailPage({
                     </div>
 
                     <div className="flex gap-2">
-                        {meeting.status === "planned" && (
+                        {meeting.status === MeetingStatus.PLANNED && (
                             <>
                                 <StartMeetingButton meetingId={meetingId} />
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
@@ -206,7 +208,7 @@ export default async function MeetingDetailPage({
                                 </form>
                             </>
                         )}
-                        {meeting.status === "in-progress" && (
+                        {meeting.status === MeetingStatus.IN_PROGRESS && (
                             <>
                                 <Link href={resumeRoute}>
                                     <Button variant="default" size="sm">
@@ -231,7 +233,7 @@ export default async function MeetingDetailPage({
                                 </Link>
                             </>
                         )}
-                        {meeting.status === "completed" && (
+                        {meeting.status === MeetingStatus.COMPLETED && (
                             <>
                                 <a
                                     href={meetingsRoutes.exportPdf(meeting.id)}
@@ -371,7 +373,7 @@ export default async function MeetingDetailPage({
                                             {/* Agenda Item Attachments */}
                                             {(itemAttachments.length > 0 ||
                                                 meeting.status !==
-                                                    "completed") && (
+                                                    MeetingStatus.COMPLETED) && (
                                                 <div className="ml-[3.75rem] mb-3">
                                                     <AgendaItemAttachments
                                                         agendaItemId={item.id}
@@ -379,15 +381,14 @@ export default async function MeetingDetailPage({
                                                             itemAttachments
                                                         }
                                                         canEdit={
-                                                            meeting.status !==
-                                                            "completed"
+                                                            meeting.status !==MeetingStatus.COMPLETED
                                                         }
                                                     />
                                                 </div>
                                             )}
 
                                             {/* Show resolution results if completed */}
-                                            {meeting.status === "completed" &&
+                                            {meeting.status === MeetingStatus.COMPLETED &&
                                                 item.requiresResolution &&
                                                 resolution && (
                                                     <div className="ml-[3.75rem] mt-3 pt-3 border-t">
@@ -497,7 +498,7 @@ export default async function MeetingDetailPage({
                 <MeetingAttachmentsSection
                     meetingId={meetingId}
                     attachments={attachments}
-                    canEdit={meeting.status !== "completed"}
+                    canEdit={meeting.status !== MeetingStatus.COMPLETED}
                 />
 
                 {/* Metadaten */}

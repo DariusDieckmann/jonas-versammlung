@@ -8,6 +8,7 @@ import { getMeeting } from "@/modules/meetings/shared/meeting.action";
 import { getMeetingLeaders } from "@/modules/meetings/shared/meeting-leader.action";
 import { getMeetingParticipants } from "@/modules/meetings/shared/meeting-participant.action";
 import { getResolutionsByAgendaItems } from "@/modules/meetings/shared/resolution.action";
+import { MeetingStatus } from "@/modules/meetings/shared/schemas/meeting.schema";
 import { getProperty } from "@/modules/properties/shared/property.action";
 import { generatePDFHtml } from "@/modules/meetings/features/pdf/meeting-pdf-generator";
 
@@ -51,7 +52,7 @@ export async function GET(
 
         // Get resolutions for completed meetings
         let resolutions = new Map();
-        if (meeting.status === "completed") {
+        if (meeting.status === MeetingStatus.COMPLETED) {
             const itemsWithResolutions = agendaItems.filter(
                 (item) => item.requiresResolution,
             );

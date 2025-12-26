@@ -59,10 +59,23 @@ export const selectResolutionSchema = createSelectSchema(resolutions);
 
 export const updateResolutionSchema = insertResolutionSchema.partial();
 
+// Enums
+export const ResolutionResult = {
+    ACCEPTED: "accepted",
+    REJECTED: "rejected",
+    POSTPONED: "postponed",
+} as const;
+
+export const MajorityType = {
+    SIMPLE: "simple",
+    QUALIFIED: "qualified",
+    UNANIMOUS: "unanimous",
+} as const;
+
 // Types
 export type Resolution = typeof resolutions.$inferSelect;
 export type NewResolution = typeof resolutions.$inferInsert;
 export type InsertResolution = z.infer<typeof insertResolutionSchema>;
 export type UpdateResolution = z.infer<typeof updateResolutionSchema>;
-export type MajorityType = "simple" | "qualified" | "unanimous";
-export type ResolutionResult = "accepted" | "rejected" | "postponed";
+export type MajorityType = typeof MajorityType[keyof typeof MajorityType];
+export type ResolutionResult = typeof ResolutionResult[keyof typeof ResolutionResult];

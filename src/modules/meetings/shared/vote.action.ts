@@ -10,7 +10,7 @@ import conductRoutes from "./conduct.route";
 import { agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
 import { meetingParticipants } from "./schemas/meeting-participant.schema";
-import { resolutions } from "./schemas/resolution.schema";
+import { ResolutionResult, resolutions } from "./schemas/resolution.schema";
 import {
     insertVoteSchema,
     type Vote,
@@ -204,17 +204,17 @@ export async function calculateResolutionResult(
 
         // Determine result based on majority type
         const totalShares = yesShares + noShares + abstainShares;
-        let result: "accepted" | "rejected" | "postponed" = "rejected";
+        let result: typeof ResolutionResult[keyof typeof ResolutionResult] = ResolutionResult.REJECTED;
 
         if (resolution[0].majorityType === "simple") {
             // Simple majority: more yes than no (> 50%)
-            result = yesShares > (totalShares * 0.5) ? "accepted" : "rejected";
+            result = yesShares > (totalShares * 0.5) ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
         } else if (resolution[0].majorityType === "qualified") {
             // Qualified majority: 75% of votes
-            result = yesShares > (totalShares * 0.75) ? "accepted" : "rejected";
+            result = yesShares > (totalShares * 0.75) ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
         } else if (resolution[0].majorityType === "unanimous") {
             // Unanimous: all votes yes
-            result = votesNo === 0 && votesYes > 0 ? "accepted" : "rejected";
+            result = votesNo === 0 && votesYes > 0 ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
         }
 
         // Update resolution

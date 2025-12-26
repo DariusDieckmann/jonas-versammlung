@@ -1,6 +1,6 @@
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
-import type { Resolution } from "../../shared/schemas/resolution.schema";
+import { ResolutionResult, type Resolution } from "../../shared/schemas/resolution.schema";
 
 interface PDFData {
     meeting: Meeting & {
@@ -54,11 +54,11 @@ const formatResolutionText = (resolution: Resolution): string => {
     const isUnanimousAccepted = resolution.votesNo === 0 && resolution.votesAbstain === 0;
     const isUnanimousRejected = resolution.votesYes === 0 && resolution.votesAbstain === 0;
 
-    if (resolution.result === "accepted") {
+    if (resolution.result === ResolutionResult.ACCEPTED) {
         return `Dieser Antrag wird mit ${yesText}, ${noText} und ${abstainText} ${isUnanimousAccepted ? "einstimmig " : ""}angenommen.`;
     }
     
-    if (resolution.result === "rejected") {
+    if (resolution.result === ResolutionResult.REJECTED) {
         return `Dieser Antrag wird mit ${yesText}, ${noText} und ${abstainText} ${isUnanimousRejected ? "einstimmig " : ""}abgelehnt.`;
     }
     
