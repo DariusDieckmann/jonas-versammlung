@@ -5,7 +5,7 @@ import { getDb } from "@/db";
 import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { getUserOrganizationIds, requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
-import { agendaItems, MajorityType as AgendaItemMajorityType } from "./schemas/agenda-item.schema";
+import { agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
 import {
     insertResolutionSchema,

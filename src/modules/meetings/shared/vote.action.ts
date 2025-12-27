@@ -12,9 +12,9 @@ import { meetings } from "./schemas/meeting.schema";
 import { meetingParticipants } from "./schemas/meeting-participant.schema";
 import { ResolutionResult, resolutions } from "./schemas/resolution.schema";
 import {
-    insertVoteSchema,
-    type Vote,
-    VoteChoice,
+    type Vote, VoteChoice,
+    VoteChoiceType,
+    voteChoiceSchema,
     votes,
 } from "./schemas/vote.schema";
 
@@ -52,12 +52,20 @@ export async function getVotes(
  */
 export async function castVotesBatch(
     resolutionId: number,
-    votesData: Array<{ participantId: number; voteChoice: VoteChoice }>,
+    votesData: Array<{ participantId: number; voteChoice: VoteChoiceType }>,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         // Early return if no votes to cast
         if (votesData.length === 0) {
             return { success: true };
+        }
+
+        // Validate input data at runtime
+        for (const vote of votesData) {
+            const result = voteChoiceSchema.safeParse(vote.voteChoice);
+            if (!result.success) {
+                return { success: false, error: "Ungültige Abstimmungsoption" };
+            }
         }
 
         await requireAuth();
@@ -103,11 +111,11 @@ export async function castVotesBatch(
         );
 
         // Prepare updates and inserts
-        const updates: Array<{ id: number; vote: VoteChoice }> = [];
+        const updates: Array<{ id: number; vote: VoteChoiceType }> = [];
         const inserts: Array<{
             resolutionId: number;
             participantId: number;
-            vote: VoteChoice;
+            vote: VoteChoiceType;
         }> = [];
 
         for (const { participantId, voteChoice } of votesData) {

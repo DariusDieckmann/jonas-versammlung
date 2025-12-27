@@ -19,9 +19,9 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { createResolution } from "../../shared/resolution.action";
-import { MajorityType, type AgendaItem } from "../../shared/schemas/agenda-item.schema";
+import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { MeetingParticipant } from "../../shared/schemas/meeting-participant.schema";
-import { VoteChoice } from "../../shared/schemas/vote.schema";
+import { VoteChoice, VoteChoiceType } from "../../shared/schemas/vote.schema";
 import {
     calculateResolutionResult,
     castVotesBatch,
@@ -42,7 +42,7 @@ export function ConductVotingForm({
     onComplete,
     isCompletingItem = false,
 }: ConductVotingFormProps) {
-    const [votes, setVotes] = useState<Map<number, VoteChoice>>(new Map());
+    const [votes, setVotes] = useState<Map<number, VoteChoiceType>>(new Map());
     const [resolutionId, setResolutionId] = useState<number | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isInitializing, setIsInitializing] = useState(true);
@@ -63,7 +63,7 @@ export function ConductVotingForm({
                 try {
                     const existingVotes = await getVotes(result.data.id);
                     if (existingVotes.length > 0) {
-                        const votesMap = new Map<number, VoteChoice>();
+                        const votesMap = new Map<number, VoteChoiceType>();
                         for (const vote of existingVotes) {
                             votesMap.set(vote.participantId, vote.vote);
                         }
@@ -79,7 +79,7 @@ export function ConductVotingForm({
         initResolution();
     }, [agendaItem.id]);
 
-    const handleVote = (participantId: number, vote: VoteChoice) => {
+    const handleVote = (participantId: number, vote: VoteChoiceType) => {
         setVotes((prev) => new Map(prev).set(participantId, vote));
     };
 

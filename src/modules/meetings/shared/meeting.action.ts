@@ -15,10 +15,11 @@ import {
     type InsertMeeting,
     insertMeetingSchema,
     type Meeting,
-    MeetingStatus,
+    MeetingStatusType,
     meetings,
     type UpdateMeeting,
     updateMeetingSchema,
+    MeetingStatus,
 } from "./schemas/meeting.schema";
 import { createParticipantsFromOwners } from "./meeting-participant.action";
 

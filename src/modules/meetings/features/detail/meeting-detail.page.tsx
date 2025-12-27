@@ -36,14 +36,14 @@ import {
 } from "../../shared/meeting.action";
 import { getMeetingAttachments } from "../../shared/meeting-attachment.action";
 import meetingsRoutes from "../../shared/meetings.route";
-import { MajorityType } from "../../shared/schemas/agenda-item.schema";
-import { MeetingStatus } from "../../shared/schemas/meeting.schema";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { BackToMeetingsButton } from "./back-to-meetings-button";
+import { ExportPdfButton } from "./export-pdf-button";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 import { StartMeetingButton } from "./start-meeting-button";
 import { ResolutionResult } from "../../shared/schemas/resolution.schema";
+import { MeetingStatus } from "../../shared/schemas/meeting.schema";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -217,15 +217,11 @@ export default async function MeetingDetailPage({
                                         Fortsetzen
                                     </Button>
                                 </Link>
-                                <a
-                                    href={meetingsRoutes.exportPdf(meeting.id)}
-                                    download
-                                >
-                                    <Button variant="outline" size="sm">
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Entwurf exportieren
-                                    </Button>
-                                </a>
+                                <ExportPdfButton
+                                    meetingId={meeting.id}
+                                    variant="outline"
+                                    label="Entwurf exportieren"
+                                />
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
                                     <Button variant="outline" size="sm">
                                         <Edit className="mr-2 h-4 w-4" />
@@ -236,15 +232,7 @@ export default async function MeetingDetailPage({
                         )}
                         {meeting.status === MeetingStatus.COMPLETED && (
                             <>
-                                <a
-                                    href={meetingsRoutes.exportPdf(meeting.id)}
-                                    download
-                                >
-                                    <Button variant="default" size="sm">
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Als PDF exportieren
-                                    </Button>
-                                </a>
+                                <ExportPdfButton meetingId={meeting.id} />
                                 <Badge
                                     variant="secondary"
                                     className="bg-green-100 text-green-800 px-4 py-2"
@@ -382,7 +370,7 @@ export default async function MeetingDetailPage({
                                                             itemAttachments
                                                         }
                                                         canEdit={
-                                                            meeting.status !==MeetingStatus.COMPLETED
+                                                            meeting.status !== MeetingStatus.COMPLETED
                                                         }
                                                     />
                                                 </div>

@@ -89,4 +89,4 @@ export type Meeting = typeof meetings.$inferSelect;
 export type NewMeeting = typeof meetings.$inferInsert;
 export type InsertMeeting = z.infer<typeof insertMeetingSchema>;
 export type UpdateMeeting = z.infer<typeof updateMeetingSchema>;
-export type MeetingStatus = typeof MeetingStatus[keyof typeof MeetingStatus];
+export type MeetingStatusType = typeof MeetingStatus[keyof typeof MeetingStatus];
