@@ -7,14 +7,14 @@ import { requireAuth } from "@/modules/auth/shared/utils/auth-utils";
 import { requireMember } from "@/modules/organizations/shared/organization-permissions.action";
 import { properties } from "@/modules/properties/shared/schemas/property.schema";
 import conductRoutes from "./conduct.route";
-import { agendaItems } from "./schemas/agenda-item.schema";
+import { MajorityType, agendaItems } from "./schemas/agenda-item.schema";
 import { meetings } from "./schemas/meeting.schema";
 import { meetingParticipants } from "./schemas/meeting-participant.schema";
-import { resolutions } from "./schemas/resolution.schema";
+import { ResolutionResult, resolutions } from "./schemas/resolution.schema";
 import {
-    insertVoteSchema,
-    type Vote,
-    type VoteChoice,
+    type Vote, VoteChoice,
+    VoteChoiceType,
+    voteChoiceSchema,
     votes,
 } from "./schemas/vote.schema";
 
@@ -52,12 +52,20 @@ export async function getVotes(
  */
 export async function castVotesBatch(
     resolutionId: number,
-    votesData: Array<{ participantId: number; voteChoice: VoteChoice }>,
+    votesData: Array<{ participantId: number; voteChoice: VoteChoiceType }>,
 ): Promise<{ success: boolean; error?: string }> {
     try {
         // Early return if no votes to cast
         if (votesData.length === 0) {
             return { success: true };
+        }
+
+        // Validate input data at runtime
+        for (const vote of votesData) {
+            const result = voteChoiceSchema.safeParse(vote.voteChoice);
+            if (!result.success) {
+                return { success: false, error: "Ungültige Abstimmungsoption" };
+            }
         }
 
         await requireAuth();
@@ -103,11 +111,11 @@ export async function castVotesBatch(
         );
 
         // Prepare updates and inserts
-        const updates: Array<{ id: number; vote: VoteChoice }> = [];
+        const updates: Array<{ id: number; vote: VoteChoiceType }> = [];
         const inserts: Array<{
             resolutionId: number;
             participantId: number;
-            vote: VoteChoice;
+            vote: VoteChoiceType;
         }> = [];
 
         for (const { participantId, voteChoice } of votesData) {
@@ -158,16 +166,22 @@ export async function calculateResolutionResult(
         await requireAuth();
         const db = await getDb();
 
-        // Get resolution with votes
+        // Get resolution with agenda item to access majorityType
         const resolution = await db
-            .select()
+            .select({
+                resolution: resolutions,
+                agendaItem: agendaItems,
+            })
             .from(resolutions)
+            .innerJoin(agendaItems, eq(resolutions.agendaItemId, agendaItems.id))
             .where(eq(resolutions.id, resolutionId))
             .limit(1);
 
         if (!resolution.length) {
             return { success: false, error: "Beschluss nicht gefunden" };
         }
+
+        const majorityType = resolution[0].agendaItem.majorityType;
 
         // Get all votes with participant shares
         const votesWithShares = await db
@@ -190,13 +204,13 @@ export async function calculateResolutionResult(
         let abstainShares = 0;
 
         for (const v of votesWithShares) {
-            if (v.vote === "yes") {
+            if (v.vote === VoteChoice.YES) {
                 votesYes++;
                 yesShares += v.shares;
-            } else if (v.vote === "no") {
+            } else if (v.vote === VoteChoice.NO) {
                 votesNo++;
                 noShares += v.shares;
-            } else if (v.vote === "abstain") {
+            } else if (v.vote === VoteChoice.ABSTAIN) {
                 votesAbstain++;
                 abstainShares += v.shares;
             }
@@ -204,17 +218,14 @@ export async function calculateResolutionResult(
 
         // Determine result based on majority type
         const totalShares = yesShares + noShares + abstainShares;
-        let result: "accepted" | "rejected" | "postponed" = "rejected";
+        let result: typeof ResolutionResult[keyof typeof ResolutionResult] = ResolutionResult.REJECTED;
 
-        if (resolution[0].majorityType === "simple") {
+        if (majorityType === MajorityType.SIMPLE) {
             // Simple majority: more yes than no (> 50%)
-            result = yesShares > (totalShares * 0.5) ? "accepted" : "rejected";
-        } else if (resolution[0].majorityType === "qualified") {
+            result = yesShares > (totalShares * 0.5) ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
+        } else if (majorityType === MajorityType.QUALIFIED) {
             // Qualified majority: 75% of votes
-            result = yesShares > (totalShares * 0.75) ? "accepted" : "rejected";
-        } else if (resolution[0].majorityType === "unanimous") {
-            // Unanimous: all votes yes
-            result = votesNo === 0 && votesYes > 0 ? "accepted" : "rejected";
+            result = yesShares > (totalShares * 0.75) ? ResolutionResult.ACCEPTED : ResolutionResult.REJECTED;
         }
 
         // Update resolution

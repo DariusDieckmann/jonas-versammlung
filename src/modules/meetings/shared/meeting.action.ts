@@ -15,9 +15,11 @@ import {
     type InsertMeeting,
     insertMeetingSchema,
     type Meeting,
+    MeetingStatusType,
     meetings,
     type UpdateMeeting,
     updateMeetingSchema,
+    MeetingStatus,
 } from "./schemas/meeting.schema";
 import { createParticipantsFromOwners } from "./meeting-participant.action";
 
@@ -381,17 +383,22 @@ export async function completeMeeting(
         await requireMember(existing[0].property.organizationId);
 
         // Check if meeting is in-progress
-        if (existing[0].meeting.status !== "in-progress") {
+        if (existing[0].meeting.status !== MeetingStatus.IN_PROGRESS) {
             return {
                 success: false,
                 error: "Versammlung muss im Status 'In Bearbeitung' sein",
             };
         }
 
+        // Set end time to current time
+        const now = new Date();
+        const endTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+
         await db
             .update(meetings)
             .set({
-                status: "completed",
+                status: MeetingStatus.COMPLETED,
+                endTime,
             })
             .where(eq(meetings.id, meetingId));
 

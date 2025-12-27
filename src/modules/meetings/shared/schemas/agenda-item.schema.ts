@@ -57,8 +57,15 @@ export const selectAgendaItemSchema = createSelectSchema(agendaItems);
 
 export const updateAgendaItemSchema = insertAgendaItemSchema.partial();
 
+// Enums
+export const MajorityType = {
+    SIMPLE: "simple",
+    QUALIFIED: "qualified",
+} as const;
+
 // Types
 export type AgendaItem = typeof agendaItems.$inferSelect;
 export type NewAgendaItem = typeof agendaItems.$inferInsert;
 export type InsertAgendaItem = z.infer<typeof insertAgendaItemSchema>;
 export type UpdateAgendaItem = z.infer<typeof updateAgendaItemSchema>;
+export type MajorityTypeValue = typeof MajorityType[keyof typeof MajorityType];

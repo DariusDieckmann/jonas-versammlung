@@ -15,7 +15,7 @@ import { completeMeeting } from "../../shared/meeting.action";
 import meetingsRoutes from "../../shared/meetings.route";
 import type { AgendaItem } from "../../shared/schemas/agenda-item.schema";
 import type { Meeting } from "../../shared/schemas/meeting.schema";
-import type { Resolution } from "../../shared/schemas/resolution.schema";
+import { ResolutionResult, type Resolution } from "../../shared/schemas/resolution.schema";
 import { ConductLayout } from "./conduct-layout";
 import toast from "react-hot-toast";
 
@@ -187,29 +187,29 @@ export function ConductSummaryClient({
                                                                 <div
                                                                     className={`flex items-center gap-2 p-3 rounded-lg ${
                                                                         resolution.result ===
-                                                                        "accepted"
+                                                                          ResolutionResult.ACCEPTED
                                                                             ? "bg-green-100 text-green-800"
                                                                             : resolution.result ===
-                                                                                "rejected"
+                                                                                ResolutionResult.REJECTED
                                                                               ? "bg-red-100 text-red-800"
                                                                               : "bg-gray-100 text-gray-800"
                                                                     }`}
                                                                 >
                                                                     {resolution.result ===
-                                                                    "accepted" ? (
+                                                                    ResolutionResult.ACCEPTED ? (
                                                                         <CheckCircle2 className="h-5 w-5" />
                                                                     ) : resolution.result ===
-                                                                      "rejected" ? (
+                                                                      ResolutionResult.REJECTED ? (
                                                                         <XCircle className="h-5 w-5" />
                                                                     ) : (
                                                                         <MinusCircle className="h-5 w-5" />
                                                                     )}
                                                                     <span className="font-semibold">
                                                                         {resolution.result ===
-                                                                        "accepted"
+                                                                        ResolutionResult.ACCEPTED
                                                                             ? "Angenommen"
                                                                             : resolution.result ===
-                                                                                "rejected"
+                                                                                ResolutionResult.REJECTED
                                                                               ? "Abgelehnt"
                                                                               : "Verschoben"}
                                                                     </span>

@@ -77,9 +77,16 @@ export const selectMeetingSchema = createSelectSchema(meetings);
 
 export const updateMeetingSchema = insertMeetingSchema.partial();
 
+// Enums
+export const MeetingStatus = {
+    PLANNED: "planned",
+    IN_PROGRESS: "in-progress",
+    COMPLETED: "completed",
+} as const;
+
 // Types
 export type Meeting = typeof meetings.$inferSelect;
 export type NewMeeting = typeof meetings.$inferInsert;
 export type InsertMeeting = z.infer<typeof insertMeetingSchema>;
 export type UpdateMeeting = z.infer<typeof updateMeetingSchema>;
-export type MeetingStatus = "planned" | "in-progress" | "completed";
+export type MeetingStatusType = typeof MeetingStatus[keyof typeof MeetingStatus];

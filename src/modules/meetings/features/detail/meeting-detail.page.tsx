@@ -4,6 +4,7 @@ import {
     CalendarDays,
     CheckCircle2,
     Clock,
+    Download,
     Edit,
     FileText,
     MapPin,
@@ -38,8 +39,11 @@ import meetingsRoutes from "../../shared/meetings.route";
 import { getResolutionsByAgendaItems } from "../../shared/resolution.action";
 import { AgendaItemAttachments } from "./agenda-item-attachments";
 import { BackToMeetingsButton } from "./back-to-meetings-button";
+import { ExportPdfButton } from "./export-pdf-button";
 import { MeetingAttachmentsSection } from "./meeting-attachments-section";
 import { StartMeetingButton } from "./start-meeting-button";
+import { ResolutionResult } from "../../shared/schemas/resolution.schema";
+import { MeetingStatus } from "../../shared/schemas/meeting.schema";
 
 interface MeetingDetailPageProps {
     meetingId: number;
@@ -82,7 +86,7 @@ export default async function MeetingDetailPage({
     const itemsWithResolutionIds = itemsWithResolutions.map((item) => item.id);
 
     // Optimization: Fetch agenda item attachments and resolutions in parallel
-    const shouldFetchResolutions = (meeting.status === "completed" || meeting.status === "in-progress")
+    const shouldFetchResolutions = (meeting.status === MeetingStatus.COMPLETED || meeting.status === MeetingStatus.IN_PROGRESS)
         && itemsWithResolutionIds.length > 0;
 
     const [agendaItemAttachments, resolutions] = await Promise.all([
@@ -94,7 +98,7 @@ export default async function MeetingDetailPage({
 
     // Determine which step to resume to based on confirmed steps
     let resumeRoute = conductRoutes.leaders(meetingId);
-    if (meeting.status === "in-progress") {
+    if (meeting.status === MeetingStatus.IN_PROGRESS) {
         // Optimization: Reuse resolutions from above instead of querying again
         const hasStartedAgenda = resolutions.size > 0 &&
             Array.from(resolutions.values()).some(r => r.result !== null);
@@ -184,7 +188,7 @@ export default async function MeetingDetailPage({
                     </div>
 
                     <div className="flex gap-2">
-                        {meeting.status === "planned" && (
+                        {meeting.status === MeetingStatus.PLANNED && (
                             <>
                                 <StartMeetingButton meetingId={meetingId} />
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
@@ -205,7 +209,7 @@ export default async function MeetingDetailPage({
                                 </form>
                             </>
                         )}
-                        {meeting.status === "in-progress" && (
+                        {meeting.status === MeetingStatus.IN_PROGRESS && (
                             <>
                                 <Link href={resumeRoute}>
                                     <Button variant="default" size="sm">
@@ -213,6 +217,11 @@ export default async function MeetingDetailPage({
                                         Fortsetzen
                                     </Button>
                                 </Link>
+                                <ExportPdfButton
+                                    meetingId={meeting.id}
+                                    variant="outline"
+                                    label="Entwurf exportieren"
+                                />
                                 <Link href={meetingsRoutes.edit(meeting.id)}>
                                     <Button variant="outline" size="sm">
                                         <Edit className="mr-2 h-4 w-4" />
@@ -221,14 +230,17 @@ export default async function MeetingDetailPage({
                                 </Link>
                             </>
                         )}
-                        {meeting.status === "completed" && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-green-100 text-green-800 px-4 py-2"
-                            >
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                                Versammlung abgeschlossen
-                            </Badge>
+                        {meeting.status === MeetingStatus.COMPLETED && (
+                            <>
+                                <ExportPdfButton meetingId={meeting.id} />
+                                <Badge
+                                    variant="secondary"
+                                    className="bg-green-100 text-green-800 px-4 py-2"
+                                >
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    Versammlung abgeschlossen
+                                </Badge>
+                            </>
                         )}
                     </div>
                 </div>
@@ -259,7 +271,7 @@ export default async function MeetingDetailPage({
                                 </div>
                                 <div className="font-medium">
                                     {formatTime(meeting.startTime)}
-                                    {meeting.endTime &&
+                                    {meeting.endTime && meeting.endTime !== "" &&
                                         ` - ${formatTime(meeting.endTime)}`}
                                 </div>
                             </div>
@@ -350,7 +362,7 @@ export default async function MeetingDetailPage({
                                             {/* Agenda Item Attachments */}
                                             {(itemAttachments.length > 0 ||
                                                 meeting.status !==
-                                                    "completed") && (
+                                                    MeetingStatus.COMPLETED) && (
                                                 <div className="ml-[3.75rem] mb-3">
                                                     <AgendaItemAttachments
                                                         agendaItemId={item.id}
@@ -358,15 +370,14 @@ export default async function MeetingDetailPage({
                                                             itemAttachments
                                                         }
                                                         canEdit={
-                                                            meeting.status !==
-                                                            "completed"
+                                                            meeting.status !== MeetingStatus.COMPLETED
                                                         }
                                                     />
                                                 </div>
                                             )}
 
                                             {/* Show resolution results if completed */}
-                                            {meeting.status === "completed" &&
+                                            {meeting.status === MeetingStatus.COMPLETED &&
                                                 item.requiresResolution &&
                                                 resolution && (
                                                     <div className="ml-[3.75rem] mt-3 pt-3 border-t">
@@ -434,29 +445,29 @@ export default async function MeetingDetailPage({
                                                             <div
                                                                 className={`flex items-center gap-2 p-2 rounded text-sm ${
                                                                     resolution.result ===
-                                                                    "accepted"
+                                                                    ResolutionResult.ACCEPTED
                                                                         ? "bg-green-100 text-green-800"
                                                                         : resolution.result ===
-                                                                            "rejected"
+                                                                            ResolutionResult.REJECTED
                                                                           ? "bg-red-100 text-red-800"
                                                                           : "bg-gray-100 text-gray-800"
                                                                 }`}
                                                             >
                                                                 {resolution.result ===
-                                                                "accepted" ? (
+                                                                ResolutionResult.ACCEPTED ? (
                                                                     <CheckCircle2 className="h-4 w-4" />
                                                                 ) : resolution.result ===
-                                                                  "rejected" ? (
+                                                                  ResolutionResult.REJECTED ? (
                                                                     <XCircle className="h-4 w-4" />
                                                                 ) : (
                                                                     <MinusCircle className="h-4 w-4" />
                                                                 )}
                                                                 <span className="font-semibold">
                                                                     {resolution.result ===
-                                                                    "accepted"
+                                                                    ResolutionResult.ACCEPTED
                                                                         ? "Angenommen"
                                                                         : resolution.result ===
-                                                                            "rejected"
+                                                                            ResolutionResult.REJECTED
                                                                           ? "Abgelehnt"
                                                                           : "Verschoben"}
                                                                 </span>
@@ -476,7 +487,7 @@ export default async function MeetingDetailPage({
                 <MeetingAttachmentsSection
                     meetingId={meetingId}
                     attachments={attachments}
-                    canEdit={meeting.status !== "completed"}
+                    canEdit={meeting.status !== MeetingStatus.COMPLETED}
                 />
 
                 {/* Metadaten */}
